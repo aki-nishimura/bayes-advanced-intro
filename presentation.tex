@@ -1,0 +1,163 @@
+\documentclass[18pt]{beamer}
+
+\usetheme{metropolis}
+\usefonttheme{professionalfonts}
+
+
+%% "Patch" to keep the text widths' of Metropolis similar to that of Madrid.
+%\setbeamersize{text margin left=15pt, text margin right=15pt}
+%\makeatletter
+%\setbeamertemplate{title page}{
+%\centering
+%  \begin{minipage}[b][\paperheight]{.9\textwidth}
+%    \ifx\inserttitlegraphic\@empty\else\usebeamertemplate*{title graphic}\fi
+%    \vfill%
+%    \ifx\inserttitle\@empty\else\usebeamertemplate*{title}\fi
+%    \ifx\insertsubtitle\@empty\else\usebeamertemplate*{subtitle}\fi
+%    \usebeamertemplate*{title separator}
+%    \ifx\beamer@shortauthor\@empty\else\usebeamertemplate*{author}\fi
+%    \ifx\insertdate\@empty\else\usebeamertemplate*{date}\fi
+%    \ifx\insertinstitute\@empty\else\usebeamertemplate*{institute}\fi
+%    \vfill
+%    \vspace*{1mm}
+%  \end{minipage}
+%}
+%\makeatother
+
+%% Modify the text widths' of section title pages. See `beamerinnerthememetropolis.dtx`.
+%\makeatletter
+%\setbeamertemplate{section page}{
+%  \centering
+%  \begin{minipage}{.8\textwidth}
+%    \raggedright
+%    \usebeamercolor[fg]{section title}
+%    \usebeamerfont{section title}
+%    \insertsectionhead\\[-1ex]
+%    \usebeamertemplate*{progress bar in section page}
+%    \par
+%    \ifx\insertsubsectionhead\@empty\else%
+%      \usebeamercolor[fg]{subsection title}%
+%      \usebeamerfont{subsection title}%
+%      \insertsubsectionhead
+%    \fi
+%  \end{minipage}
+%  \par
+%  \vspace{\baselineskip}
+%}
+%\makeatother
+
+%% Packages
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{subcaption}
+%\usepackage[normalem]{ulem}
+%	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
+%	\newcommand{\coloredUline}{\bgroup\markoverwith{\textcolor{lava}{\rule[-0.5ex]{2pt}{0.6pt}}}\ULon}
+\usepackage{natbib}
+	\bibliographystyle{abbrvnat}
+	\setcitestyle{authoryear, open={(}, close={)}}
+
+%% Beamer options.
+\setbeamercovered{dynamic}
+\setbeamercovered{invisible}
+\beamertemplatenavigationsymbolsempty
+%\setbeamertemplate{caption}{unnumbered}
+\setbeamertemplate{footline}{}
+%\setbeameroption{show notes on second screen}
+
+%% Customize styles inside itemize environments
+%\settowidth{\leftmargini}{\usebeamertemplate{itemize item}}
+%\addtolength{\leftmargini}{-1.2\labelsep}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize} %to set the body size
+\setbeamertemplate{itemize subitem}{\normalsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}  % to set the symbol size
+
+%% Custom environments
+\newcommand{\defineWithinItemizeSpacing}{
+	\setlength{\abovedisplayskip}{.3\baselineskip}
+	\setlength{\belowdisplayskip}{.3\baselineskip}
+}
+\newenvironment{itemizedEquation}{
+	\defineWithinItemizeSpacing
+	\begin{equation}
+}{
+	\end{equation} \ignorespacesafterend
+}
+\makeatletter
+\newenvironment{itemizedEquation*}{
+	\defineWithinItemizeSpacing
+	\begin{equation*}
+}{
+	\end{equation*} \ignorespacesafterend
+}
+\newenvironment{indented}[1][3]{
+	\hfill \begin{minipage}{\dimexpr\textwidth-#1ex} 
+	}{
+	\end{minipage}
+}
+\newenvironment{wideitemize}{
+  \begin{itemize}
+  \addtolength\itemsep{.4\baselineskip}
+}{
+  \end{itemize}
+}
+
+%% Color definitions
+\definecolor{turquoise}{rgb}{0.19, 0.84, 0.78}
+\definecolor{mediumturquoise}{rgb}{0.28, 0.82, 0.8}
+\definecolor{lava}{rgb}{0.81, 0.06, 0.13}
+\colorlet{linkColor}{mediumturquoise}
+\colorlet{highlightedTextColor}{lava}
+
+%% Set the color theme of the presentation
+\definecolor{jhuBlue}{RGB}{0, 45, 114} % "Heritage" blue; https://brand.jhu.edu/color/
+\definecolor{jhuSpiritBlue}{RGB}{114, 172, 229} % lighter blue
+\colorlet{themecolor}{jhuBlue}
+\colorlet{bgcolor}{themecolor}
+\colorlet{textcolor}{white}
+\usecolortheme[named=themecolor]{structure}
+%\setbeamercolor{titlelike}{fg=black}
+\setbeamercolor{frametitle}{fg=textcolor, bg=bgcolor}
+\setbeamercolor{section in head/foot}{fg=textcolor}
+\setbeamercolor{background canvas}{bg=white}
+%\colorlet{toccolor}{black}
+%\setbeamercolor{section in toc}{fg=toccolor}
+\setbeamercolor{block title}{bg=themecolor!75!gray!25}
+\setbeamercolor{block body}{bg=themecolor!75!gray!5}
+
+
+\title{Presentation title: \\ \hspace*{1em}2nd line of title}
+\author{%
+	Presenter's Name\\
+	Department of Biostatistics%
+}
+%\institute[]{}
+\date{}
+
+\titlegraphic{%
+	\begin{picture}(0,0)
+		% Try coordinate (155, -150) for a one-line title, (165, -160) if two-lines, and (155, -172) if three-lines
+		\put(165, -160){\makebox(0,0)[lb]{\includegraphics[width=.45\textwidth]{jhsph_biostat_logo}}}
+	\end{picture}%
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}
+\frametitle{Title of first slide}
+This is the first slide.
+	\begin{itemize}
+	\item Use bullet points sparingly.
+	\end{itemize}
+	\begin{figure}
+	\includegraphics[width=.5\linewidth]{jhsph_biostat_logo}
+	\caption*{\textcolor{themecolor}{\textbf{Figure:}} 
+		Caption without numbering.
+	}
+	\end{figure}
+\end{frame}
+
+%\nobibliography{presentation} % To cite inline without creating a bibliography
+
+\end{document}
