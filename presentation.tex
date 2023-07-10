@@ -24,27 +24,28 @@
 %}
 %\makeatother
 
-%% Modify the text widths' of section title pages. See `beamerinnerthememetropolis.dtx`.
-%\makeatletter
-%\setbeamertemplate{section page}{
-%  \centering
-%  \begin{minipage}{.8\textwidth}
-%    \raggedright
-%    \usebeamercolor[fg]{section title}
-%    \usebeamerfont{section title}
-%    \insertsectionhead\\[-1ex]
-%    \usebeamertemplate*{progress bar in section page}
-%    \par
-%    \ifx\insertsubsectionhead\@empty\else%
-%      \usebeamercolor[fg]{subsection title}%
-%      \usebeamerfont{subsection title}%
-%      \insertsubsectionhead
-%    \fi
-%  \end{minipage}
-%  \par
-%  \vspace{\baselineskip}
-%}
-%\makeatother
+% Modify the text widths' of section title pages. See `beamerinnerthememetropolis.dtx`.
+% `\paperheight` requires adjustment after modifying the frame content placement. Not sure why.
+\makeatletter
+\setbeamertemplate{section page}{
+  \centering
+  \begin{minipage}[c][.95\paperheight]{.9\textwidth}
+    \raggedright
+    \usebeamercolor[fg]{section title}
+    \usebeamerfont{section title}
+    \insertsectionhead\\[-1ex]
+    \usebeamertemplate*{progress bar in section page}
+    \par
+    \ifx\insertsubsectionhead\@empty\else%
+      \usebeamercolor[fg]{subsection title}%
+      \usebeamerfont{subsection title}%
+      \insertsubsectionhead
+    \fi
+  \end{minipage}
+  \par
+  \vspace{\baselineskip}
+}
+\makeatother
 
 % Make frametitles larger and place closer to center. See `beamerinnerthememetropolis.dtx`.
 \setbeamerfont{frametitle}{size=\Large}
