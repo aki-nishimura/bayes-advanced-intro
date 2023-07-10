@@ -70,12 +70,12 @@
 }
 \makeatother
 
-% Restore the standard beamer content placement. See:
+% Move up the frame content a bit. See:
 % https://github.com/matze/mtheme/blob/master/source/beamerinnerthememetropolis.dtx#L509-L523
 % https://tex.stackexchange.com/questions/247826/beamer-full-vertical-centering
 \makeatletter
 \define@key{beamerframe}{c}[true]{% centered
-  \beamer@frametopskip=0pt plus 1fill\relax%
+  \beamer@frametopskip=0pt plus 0.5fill\relax% Default is `1fill`
   \beamer@framebottomskip=0pt plus 1.5fill\relax%
   \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
   \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
