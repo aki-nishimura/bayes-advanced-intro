@@ -111,6 +111,23 @@
 \setbeamertemplate{itemize subitem}{\normalsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}  % to set the symbol size
 
 %% Custom environments
+\newcommand{\defineTightItemizeSpacing}{%
+	\setlength{\abovedisplayskip}{.5\baselineskip}%
+	\setlength{\belowdisplayskip}{.5\baselineskip}%
+}
+\newenvironment{tightEquation}{%
+	\defineTightItemizeSpacing%
+	\begin{equation}
+}{
+	\end{equation} \ignorespacesafterend
+}
+\makeatletter
+\newenvironment{tightEquation*}{%
+	\defineTightItemizeSpacing%
+	\begin{equation*}
+}{
+	\end{equation*} \ignorespacesafterend
+}
 \newcommand{\defineWithinItemizeSpacing}{
 	\setlength{\abovedisplayskip}{.3\baselineskip}
 	\setlength{\belowdisplayskip}{.3\baselineskip}
@@ -136,6 +153,13 @@
 \newenvironment{wideitemize}{
   \begin{itemize}
   \addtolength\itemsep{.4\baselineskip}
+}{
+  \end{itemize}
+}
+\newenvironment{narrowItemize}{%
+	\vspace{-.05\baselineskip}
+  \begin{itemize}
+  \addtolength\itemsep{-.15\baselineskip}
 }{
   \end{itemize}
 }
