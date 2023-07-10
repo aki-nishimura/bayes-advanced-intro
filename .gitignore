@@ -9,4 +9,4 @@
 *.toc
 *.snm
 
-presentation.pdf
+lecture/*.pdf
