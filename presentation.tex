@@ -46,6 +46,30 @@
 %}
 %\makeatother
 
+% Make frametitles larger and place closer to center. See `beamerinnerthememetropolis.dtx`.
+\setbeamerfont{frametitle}{size=\Large}
+\makeatletter
+% Theme default adds paddings of 2.2ex to all the four sides of frame titles
+\newlength{\metropolis@frametitle@toppadding}
+\newlength{\metropolis@frametitle@bottompadding}
+\setlength{\metropolis@frametitle@toppadding}{3.5ex} 
+\setlength{\metropolis@frametitle@bottompadding}{0ex} 
+\setlength{\metropolis@frametitle@padding}{4ex} % Horizontal padding to left
+\renewcommand{\metropolis@frametitlestrut@start}{
+  \rule{0pt}{\metropolis@frametitle@toppadding +%
+    \totalheightof{%
+      \ifcsdef{metropolis@frametitleformat}{\metropolis@frametitleformat X}{X}%
+    }%
+  }%
+}
+\newcommand*\getlength[1]{\number#1}
+\renewcommand{\metropolis@frametitlestrut@end}{%
+  \ifnum\getlength{\metropolis@frametitle@bottompadding}>0%
+    \rule[-\metropolis@frametitle@bottompadding]{0pt}{\metropolis@frametitle@bottompadding}%
+  \fi%
+}
+\makeatother
+
 %% Packages
 \usepackage[english]{babel}
 \usepackage{graphicx}
