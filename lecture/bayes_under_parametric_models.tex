@@ -188,6 +188,35 @@
 \setbeamercolor{block body}{bg=themecolor!75!gray!5}
 
 
+% Macros
+
+%% General math macros
+\newcommand{\given}{\, | \,}
+\newcommand{\diff}{\operatorname{\mathrm{d}}\!{}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\medcap}{\mathbin{\mathsmaller{\bigcap}}}
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand{\elemwiseProd}{\odot}
+\renewcommand{\complement}{{\raisebox{1.5pt}{\scriptsize $\mathsf{c}$}}}
+\newcommand{\transpose}{\intercal} %{\text{\raisebox{.5ex}{$\intercal$}}}
+\newcommand{\lowerscript}[1]{\raisebox{-2pt}{\scriptsize $#1$}}
+\newcommand{\yesnumber}{\addtocounter{equation}{1}\tag{\theequation}}
+\newcommand{\thinnerspace}{\mskip.5\thinmuskip}
+\newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
+
+%% Probability / statistics macros
+\newcommand{\probability}{\mathbb{P}}
+\newcommand{\expectation}{\mathbb{E}}
+\newcommand{\variance}{\mathrm{Var}}
+\DeclareMathOperator*{\covariance}{Cov}
+\newcommand{\indicator}{\mathds{1}}
+\newcommand{\eqDistribution}{\mathrel{\raisebox{-.2ex}{$\overset{\scalebox{.6}{$\, d$}}{=}$}}}
+\newcommand{\iidSim}{\mathrel{\raisebox{-.3ex}{$\overset{\text{i.i.d.}}{\sim}$}}}
+\newcommand{\unifDist}{\mathrm{Unif}}
+\newcommand{\normalDist}{\mathcal{N}}
+
+
 \title{Presentation title: \\ \hspace*{1em}2nd line of title}
 \author{%
 	Presenter's Name\\
