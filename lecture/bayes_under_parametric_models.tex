@@ -741,8 +741,10 @@ We can now see the following prior as conjugate:
 \begin{tightEquation*}
 \phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right), \
 \mu \given \phi \sim \normalDist\!\left( \mu_0, \thinnerspace \frac{1}{\kappa_0 \phi} \right)
-\end{tightEquation*} 
+\vspace*{-.15\baselineskip}% 
+\end{tightEquation*}
 with density 
+\vspace*{-.15\baselineskip}
 \begin{tightEquation*}
 \pi(\mu, \phi)
 	\propto \phi^{\frac{\nu_0}{2} - 1} \exp\!\left( - \frac{\nu_0 \varphi_0^{-1}}{2} \phi \right)
@@ -750,18 +752,23 @@ with density
 \end{tightEquation*}
 
 \medskip
-The corresponding posterior is given by
+The corresponding posterior is given by (homework)
 \begin{tightEquation*}
 \begin{aligned}
 &\phi \given \bm{y} 
 	\sim \gammaDist\!\left(
-		\frac{\nu_0 + n}{2},
-		\frac{\nu_0 \varphi_0^{-1} + \textstyle \sum_i (y_i - \bar{y})^2}{2} 
+		\frac{\nu_0 + n}{2}, \thinnerspace b_{\textrm{post}}%
 	\right), \\
 &\mu \given \bm{y}, \phi 
-	\sim \normalDist\!\left( \frac{\kappa_0 \mu_0 + n \bar{y}}{\kappa_0 + n}, \thinnerspace \frac{1}{(\kappa_0 + n) \phi} \right).
+	\sim \normalDist\!\left( \frac{\kappa_0 \mu_0 + n \bar{y}}{\kappa_0 + n}, \thinnerspace \frac{1}{(\kappa_0 + n) \phi} \right),
 \end{aligned}
 \end{tightEquation*}
+where 
+$\, b_{\textrm{post}} = {\displaystyle \frac12} \left(
+	\nu_0 \varphi_0^{-1} 
+	+ \textstyle \sum_i (y_i - \bar{y})^2
+	+ \frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2
+\right)$.
 \end{frame}
 
 
