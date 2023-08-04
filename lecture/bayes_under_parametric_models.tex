@@ -1,4 +1,4 @@
-\documentclass[18pt]{beamer}
+\documentclass[18pt, handout]{beamer}
 
 \usetheme{metropolis}
 \usefonttheme{professionalfonts}
@@ -89,6 +89,8 @@
 \usepackage[english]{babel}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{bm}
+\usepackage{pgfplots}
 %\usepackage[normalem]{ulem}
 %	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
 %	\newcommand{\coloredUline}{\bgroup\markoverwith{\textcolor{lava}{\rule[-0.5ex]{2pt}{0.6pt}}}\ULon}
@@ -112,8 +114,8 @@
 
 %% Custom environments
 \newcommand{\defineTightItemizeSpacing}{%
-	\setlength{\abovedisplayskip}{.5\baselineskip}%
-	\setlength{\belowdisplayskip}{.5\baselineskip}%
+	\setlength{\abovedisplayskip}{.25\baselineskip}%
+	\setlength{\belowdisplayskip}{.25\baselineskip}%
 }
 \newenvironment{tightEquation}{%
 	\defineTightItemizeSpacing%
@@ -156,10 +158,10 @@
 }{
   \end{itemize}
 }
-\newenvironment{narrowItemize}{%
-	\vspace{-.05\baselineskip}
-  \begin{itemize}
-  \addtolength\itemsep{-.15\baselineskip}
+\newenvironment{narrowItemize}[1][]{%
+  \vspace{-.3\baselineskip}%
+  \begin{itemize}[#1]
+  \addtolength\itemsep{-.1\baselineskip}
 }{
   \end{itemize}
 }
@@ -192,18 +194,21 @@
 
 %% General math macros
 \newcommand{\given}{\, | \,}
+\newcommand{\divby}{\thinnerspace /}
 \newcommand{\diff}{\operatorname{\mathrm{d}}\!{}}
 \newcommand{\sign}{\mathrm{sign}}
 \newcommand{\diag}{\mathrm{diag}}
 \newcommand{\medcap}{\mathbin{\mathsmaller{\bigcap}}}
 \DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
 \newcommand{\elemwiseProd}{\odot}
 \renewcommand{\complement}{{\raisebox{1.5pt}{\scriptsize $\mathsf{c}$}}}
-\newcommand{\transpose}{\intercal} %{\text{\raisebox{.5ex}{$\intercal$}}}
+\newcommand{\transpose}{\text{\raisebox{.5ex}{$\intercal$}}}
 \newcommand{\lowerscript}[1]{\raisebox{-2pt}{\scriptsize $#1$}}
 \newcommand{\yesnumber}{\addtocounter{equation}{1}\tag{\theequation}}
 \newcommand{\thinnerspace}{\mskip.5\thinmuskip}
 \newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
+\newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
 
 %% Probability / statistics macros
 \newcommand{\probability}{\mathbb{P}}
@@ -215,11 +220,19 @@
 \newcommand{\iidSim}{\mathrel{\raisebox{-.3ex}{$\overset{\text{i.i.d.}}{\sim}$}}}
 \newcommand{\unifDist}{\mathrm{Unif}}
 \newcommand{\normalDist}{\mathcal{N}}
+\newcommand{\betaDist}{\mathrm{Beta}}
+\newcommand{\gammaDist}{\mathrm{Gamma}}
+\newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
+
+%% Aliases
+\newcommand{\by}{\bm{y}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bmu}{\bm{\mu}}
 
 
-\title{Presentation title: \\ \hspace*{1em}2nd line of title}
+\title{\centerline{Bayesian analysis under parametric models}}
 \author{%
-	Presenter's Name\\
+	Aki Nishimura\\
 	Department of Biostatistics%
 }
 %\institute[]{}
@@ -236,21 +249,688 @@
 
 \maketitle
 
+%\section{Bayesian estimation of incidence proportion}
+
 \begin{frame}
-\frametitle{Title of first slide}
-This is the first slide.
-	\begin{itemize}
-	\item Use bullet points sparingly.
-	\end{itemize}
-	\begin{figure}
-	\includegraphics[width=.5\linewidth]{jhsph_biostat_logo}
-	\caption*{\textcolor{themecolor}{\textbf{Figure:}} 
-		Caption without numbering.
-	}
-	\end{figure}
+\frametitle{Example: estimating incidence proportion}
+\textbf{Question:} 
+\only<+>{``Does the new vaccine cause \ldots?''}%
+\only<+->{``Does the new vaccine cause Guillain-Barré syndrome?''}
+% Note: Guillain-Barré --- rare but potentially a life-threatening disorder with body's immune system attacking nerves and causing muscle weakness
+
+\begin{minipage}[t][2\baselineskip]{\linewidth}
+\only<+>{%
+(Unfortunately, this turned out to be the case for the 1976 swine flu vaccine, albeit the syndrome remaining extremely rare.)
+}%
+\only<+->{%
+To answer, we want to estimate the incidence proportion within, say, 4 weeks of vaccination and compare it to the background rate.
+}%
+\end{minipage}
+
+\pause[\thebeamerpauses]
+\textbf{Model:} We assume a binomial model
+\begin{tightEquation*}
+y_1, \ldots, y_n \given p 
+	\iidSim \mathrm{Bernoulli}(p)
+\end{tightEquation*}
+with the likelihood function
+\begin{tightEquation*}
+L(\by \given p) 
+	= \textstyle \prod_i p^{y_i} (1 - p)^{1 - y_i}
+	= p^{{\scriptscriptstyle \sum_i} y_i} (1 - p)^{n - {\scriptscriptstyle \sum_i} y_i}.
+\end{tightEquation*}
+
+\pause
+\textbf{Inference:}
+Maximizing the likelihood gives us $\mle{p} = {\scriptstyle \sum_i} y_i \divby n$.
+
+\pause 
+Problem? 
+There's a good chance $\mle{p} = 0$; the null incidence of Guillain-Barré is $\leq 1.5$ in million during 4-week period.
+
+\pause
+Potential fix is continuity correction, which yields $\widehat{p} = 0.5 \divby (n + 1)$.
 \end{frame}
 
-\section{Section title}
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+Let's try Bayesian analysis of the binomial model with likelihood
+\begin{tightEquation*}
+L(\by \given p) 
+	= p^{{\scriptscriptstyle \sum_i} y_i} (1 - p)^{n - {\scriptscriptstyle \sum_i} y_i}.
+\end{tightEquation*}
+
+\pause
+\textbf{Prior:} 
+Convenient, reasonably flexible prior here is the beta dist:
+\begin{tightEquation*}
+\pi(p) \propto p^a (1 - p)^b \sim \mathrm{Beta}(a, b)
+\end{tightEquation*}
+with $\expectation[p] = a \divby (a + b)$ and $\variance[p] = \expectation[p] (1 - \expectation[p]) \divby (a + b + 1)$.
+
+\pause
+\vspace*{.25\baselineskip}
+\textbf{Posterior:} 
+Bayes' rule tells us that
+\begin{tightEquation*}
+\begin{aligned}
+\pi(p \given \by)
+%	\propto L(\by \given p) \pi(p)
+%	&\propto p^{a + \scriptscriptsum_i y_i} (1 - p)^{b + n - \scriptscriptsum_i y_i} \\
+	&\sim \mathrm{Beta}(a + {\scriptstyle \sum_i} y_i, b + n - {\scriptstyle \sum_i} y_i).
+\end{aligned}
+\end{tightEquation*}
+
+\pause
+In particular, the posterior mean of $p$ is
+\begin{tightEquation*}
+\widehat{p}_{\textrm{bayes}} 
+	= \expectation[p \given y] 
+	= \frac{a + {\scriptstyle \sum_i} y_i,}{a + b + n}
+	= \frac{(a + b) \thinnerspace \expectation[p] + n \thinnerspace \mle{p},}{a + b + n},
+\end{tightEquation*}
+\pause
+where $a + b$ can be interpreted as \textit{prior sample size}.
+% Note: the similarity to MLE. In particular, the posterior mean coincides with MLE in the limit $a, b \to 0$. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+Posterior provides much more information than a point estimate. 
+
+\pause
+For example, we can calculate a posterior 95\% credible interval by solving for $l$ and $u$ such that
+\begin{tightEquation*}
+\int_l^u \pi(p \given \by) \diff p = 0.95,
+\end{tightEquation*}
+\pause%
+as well as a post predictive dist on future data $\by_{\textrm{new}}$ via relation
+\begin{tightEquation*}
+\pi(\by_{\textrm{new}} \given \by)
+	= \int L(\by_{\textrm{new}} \given p) \thinnerspace \pi(p \given \by) \diff p.
+\end{tightEquation*}
+
+\pause
+\textbf{Note:} Bayesian credible intervals, philosophically speaking, have completely different interpretations from frequentist conf intervals.
+\end{frame}
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+The remaining question is: how do we choose the prior?
+
+\pause
+Bayesians can, for better or worse, incorporate existing scientific knowledge into a prior.
+
+\pause
+To properly construct such an informed prior, we have to:
+\pause%
+\begin{narrowItemize}[<+->]
+\item Find every post-vaccine incidence proportion of Guillain-Barré ever reported (and unreported?) in the literature, 
+\item Conduct some sort of meta-analysis to obtain a distribution $\pi(p)$ for a ``generic'' vaccine, 
+\item Somehow account for the difference between mRNA and conventional vaccines, 
+%\item Wonder how to incorporate other (e.g.\ pharmacologic) evidence, 
+\item Wonder how many other bloody things you have to consider,
+\item And maybe start to despair at some point?
+\end{narrowItemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+As a more pragmatic alternative to constructing a scientifically informed prior, we can consider specifying it in terms of: 
+\vspace*{-.1\baselineskip}
+\begin{narrowItemize}
+\item Prior mean $a \divby (a + b)$,
+\item Prior sample size $a + b$, and/or
+\item Prior credible intervals.
+\end{narrowItemize}
+\vspace*{-.1\baselineskip}
+
+\pause
+For example, we can 
+\vspace*{-.1\baselineskip}
+\begin{narrowItemize}
+\item Fix the prior sample size to be $1$, and
+\item Use a reported background rate of Guillain-Barré ($\approx 1$ per million over 4-weeks) as the prior mean.
+\end{narrowItemize}
+\vspace*{-.4\baselineskip}
+\pause
+In other words, solve $(a + b) = 1$ and $a \divby (a + b) = 10^{-6}$ for $a$ and $b$. % which gives $a = 10^{-6}$ and $b = 1 - a$.
+
+\pause
+Or, we can choose $a$ and $b$ so that the prior 95\% CI spans the background rate and highest vaccine-induced rate ever reported.%
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+It's also possible to avoid relying on existing evidence by using an \textit{objective prior};
+e.g.\ $\betaDist(1/2, 1/2)$ for the binomial model:%
+
+\pause%
+\begin{narrowItemize}
+\item Removes subjective decisions in Bayesian inference; 
+\pause
+\item Justified in particular by its frequentist property: Bayesian CI $[q_{\alpha}, 1]$ and $[0, q_{1 - \alpha}]$ achieve coverage at level $1 - \alpha + O(1/n)$;
+\pause
+\item Excellent frequentist property in non-asymptotic regimes.
+\end{narrowItemize}
+
+\pause
+The corresponding post mean coincides with the freq estimator based on continuity correction:
+\begin{tightEquation*}
+\widehat{p}_{\textrm{bayes}} 
+	= \expectation[p \given y] 
+	= \frac{{\scriptstyle \sum_i} y_i + 1/2}{n + 1}.
+\end{tightEquation*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+The prior $\propto p^{-1/2} (1 - p)^{-1/2}$ may not be the most obvious choice.
+\onslide<2->{But the more obvious ``flat'' prior has its own problems.}
+
+\vspace{.15\baselineskip}
+\begin{minipage}{.48\linewidth}
+	\begin{figure}
+		\begin{tikzpicture}
+		\begin{axis}[
+			width=0.575\paperheight,
+			height=0.575\paperheight,
+		    axis lines = left,
+		    xmin=0,
+		    xmax=1,
+		    ymin=0,
+		    ymax=3.5,
+		    xlabel = \(p\),
+		    ylabel = {\(\)},
+		    legend style={
+		    	font=\small, 
+		    	draw=none, % Remove legend box
+		    	empty legend % Remove line marker
+		    }
+		]
+		%Below the red parabola is defined
+		\addplot [
+			domain=0.01:0.99,
+		    samples=100, 
+		    color=jhuBlue,
+		    thin
+		]
+		{x^(-1/2) * (1 - x)^(-1/2) / pi};
+		\addlegendentry{\({\tiny \betaDist\!\left(\thinnerspace p \thinnerspace \middle| \thinnerspace \frac12, \frac12\right)}\)}
+		\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+\end{minipage}
+~
+\onslide<2->{%
+\begin{minipage}{.48\linewidth}
+	\begin{figure}
+		\begin{tikzpicture}
+		\begin{axis}[
+			width=0.575\paperheight,
+			height=0.575\paperheight,
+		    axis lines = left,
+		    xmin=0,
+		    xmax=1,
+		    ymin=0,
+		    ymax=3.5,
+		    xlabel = \(p\),
+		    ylabel = {\(\)},
+		    legend style={
+		    	font=\small, 
+		    	draw=none, % Remove legend box
+		    	empty legend % Remove line marker
+		    }
+		]
+		%Below the red parabola is defined
+		\addplot [
+			domain=0.01:0.99,
+		    samples=100, 
+		    color=jhuSpiritBlue,
+		    thin
+		]{1};
+		\addlegendentry{\({\tiny \betaDist\!\left(\thinnerspace p \thinnerspace \middle| \thinnerspace 1, 1\right)}\)}
+		\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+\end{minipage}
+}%
+\vspace{.15\baselineskip}
+\onslide<3>{%
+At the least, Bayesian inference has an explicit, clear interpretation in terms of the prior.
+}
+\end{frame}
+
+\section{\centerline{Gaussian likelihood models}}
+
+
+\begin{frame}
+\frametitle{Univariate case}
+
+Consider the problem of estimating a population mean $\mu$ under
+\begin{tightEquation*}
+y_1, \ldots, y_n \given \mu, \sigma \iidSim \normalDist(\mu, \sigma^2).
+\end{tightEquation*}
+
+For simplicity, let's first consider $\sigma$ to be fixed.
+Also, for convenience, we parametrize in terms of \textit{precision} $\phi = \sigma^{-2}$.
+\end{frame}
+
+\newcommand{\priorPrec}{\phi_0}
+\newcommand{\postPrec}{\phi_{\textrm{post}}}
+\begin{frame}
+\frametitle{Univariate case}
+Convenient prior on $\mu$ is Gaussian:\ under the prior $\mu \sim \normalDist(\mu_0, \priorPrec^{-1})$,%
+\begin{tightEquation*}
+\begin{aligned}
+\pi(\mu \given \bm{y}, \phi)
+	&\propto L(\bm{y} \given \mu, \phi ) \pi(\mu) \\
+%	&\propto \exp\!\left( - \frac{\phi}{2} \sum_i (y_i - \mu)^2\right)
+%		\exp\!\left( - \frac{\priorPrec}{2} (\mu - \mu_0)^2 \right) \\
+	&\propto \phi^{n / 2} \exp\!\left( - \frac12 \left[
+			\phi \sum_i (y_i - \mu)^2
+			+ \priorPrec (\mu - \mu_0)^2
+		\right] \right) \\
+	&\propto \exp\!\left( - \frac12 \left[
+			\phi \left( n \mu^2 - 2 \mu {\textstyle \sum_i} y_i \right)
+			+ \priorPrec (\mu^2 - 2 \mu \mu_0)
+		\right] \right) \\
+	&= \exp\!\left( - \frac12 \left[
+			(n \phi + \priorPrec) \mu^2 
+			- 2 \mu \big( \phi {\textstyle \sum_i} y_i + \priorPrec \mu_0 \big)
+		\right] \right) \\
+	&= \exp\!\left( - \frac12 \left[
+			\postPrec \left(
+				\mu^2 - 2 \mu \mu_{\textrm{post}} 
+			\right) 
+		\right] \right) 
+\end{aligned}
+\end{tightEquation*}
+for $\postPrec = n \phi + \priorPrec$ and $\mu_{\textrm{post}} = \postPrec^{-1} \left( \phi {\textstyle \sum_i} y_i + \priorPrec \mu_0 \right)$.
+
+\vspace*{.3\baselineskip}
+In other words, the posterior is:
+$
+\mu \given \bm{y}, \phi
+	\sim \normalDist\!\left( \mu_{\textrm{post}}, \postPrec \right).
+$
+\end{frame}
+
+\begin{frame}
+\frametitle{Univariate case}
+Note that, as in the beta-binomial case, the posterior mean is a weighted average of prior mean and {\small MLE}:
+\begin{tightEquation*}
+\mu_{\textrm{post}} = \frac{1}{n \phi + \priorPrec} \left( n \phi \mle{\mu} + \priorPrec \mu_0 \right)
+\ \text{ where } \, \mle{\mu} = {\textstyle \sum_i} y_i / n.
+\end{tightEquation*}
+
+Objective ``prior'' for this model is a flat dist $\pi(\mu) \propto 1$, which can be though of as the limit $\priorPrec \to 0$ of diminishing prior info. 
+%\hspace*{.5em}\textcolor{themecolor}{$\blacktriangleright$} 
+
+The flat prior is an example of \textit{improper priors}, whose use is justified by the posterior being a proper distribution.
+
+Under the flat prior, the posterior becomes 
+$\mu \given \bm{y}, \phi \sim \normalDist\!\left( n \phi, \mle{\mu} \right)$,
+inferences under which coincides with frequentist ones.
+
+\textbf{Note:} The flat prior (and $\betaDist(1/2, 1/2)$) also has a formal justification as being a Jeffreys/reference prior.
+\end{frame}
+
+\begin{frame}
+\frametitle{Univariate case: side note on conjugate priors}
+We've seen that a Gaussian (beta) prior leads to a Gaussian (beta) posterior under the Gaussian (binomial) likelihood model.
+
+\smallskip
+More generally, a prior is said to be \textit{conjugate} for the likelihood if the corresponding posterior belongs to the same distribution family.
+
+\smallskip
+Conjugate priors lead to (semi) analytically tractable posteriors and%
+\begin{narrowItemize}
+\item play an important, if not as critical as in the pre-Stan era, role in computationally tractable Bayesian modeling;
+\item provide insights into the mechanics of Bayesian inference.
+\end{narrowItemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+Easy enough to infer by examining the likehood
+\begin{tightEquation*}
+L(\bm{y} \given \mu, \phi )
+	\propto \phi^{n/2} \exp\!\left( - \frac12 
+			\phi \sum_i (y_i - \mu)^2
+		\right)
+\end{tightEquation*}
+that a (conditionally) conjugate prior for $\phi$ is a gamma distribution:
+\begin{tightEquation*}
+\pi(\phi) 
+	\propto \phi^{a - 1} \exp(-b x)
+	\sim \gammaDist(\textrm{shape} = a, \thinnerspace \textrm{rate} = b)
+\end{tightEquation*}
+with $\expectation[\phi] = a / b$ and $\variance[\phi] = a / b^2$.
+
+\smallskip
+The corresponding posterior is
+\begin{tightEquation*}
+\phi \given \bm{y}, \mu 
+	\sim \gammaDist\!\left(a + \frac{n}{2}, \, b + \frac{1}{2} \textstyle \sum_i (y_i - \mu)^2 \right).
+\end{tightEquation*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+For interpretability, more helpful to parametrize the prior as 
+\begin{tightEquation*}
+\phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right),
+%\gammaDist\!\left( \textrm{shape} = \frac{\nu_0 \varphi_0}{2}, \thinnerspace \textrm{rate} = \frac{\nu_0}{2} \right)
+\end{tightEquation*} 
+under which $\expectation[\phi] = \varphi_0$ and $\variance[\phi] = 2 \varphi_0 / \nu_0$.
+
+\medskip
+The posterior now takes the form
+\begin{tightEquation*}
+\phi \given \bm{y}, \mu 
+	\sim \gammaDist\!\left(
+		\frac{\nu_0 + n}{2}, \, % \frac{1}{2} (\nu_0 + n), \, 
+		\frac{\nu_0 \varphi_0^{-1} + \textstyle \sum_i (y_i - \mu)^2}{2} % \frac{1}{2} \left(\nu_0 \varphi_0^{-1} + \textstyle \sum_i (y_i - \mu)^2 \right) 
+	\right)
+\end{tightEquation*}
+with
+\begin{tightEquation*}
+\expectation\left[ \phi \given \bm{y}, \mu \right]^{-1}
+	= \frac{1}{\nu_0 + n} \left( \nu_0 \varphi_0^{-1} + n \thinnerspace \frac{\textstyle \sum_i (y_i - \mu)^2}{n} \right).
+\end{tightEquation*}
+
+\smallskip
+In particular, $\nu_0$ can be interpreted as a prior degrees of freedom.
+\end{frame}
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+Objective prior $\pi(\phi) \propto 1 / \phi$ coincides with the limit $\nu_0 \to 0$ and yields the posterior
+\begin{tightEquation*}
+\phi \given \bm{y}, \mu 
+	\sim \gammaDist\!\left(
+		\frac{n}{2}, \,
+		\frac{\textstyle \sum_i (y_i - \mu)^2}{2} % \frac{1}{2} \left(\nu_0 \varphi_0^{-1} + \textstyle \sum_i (y_i - \mu)^2 \right) 
+	\right)
+\end{tightEquation*}
+with
+\begin{tightEquation*}
+\expectation\left[ \phi \given \bm{y}, \mu \right]^{-1}
+	= \frac{\textstyle \sum_i (y_i - \mu)^2}{n}
+	= 1 \divby \mle{\phi}.
+\end{tightEquation*}
+
+Posterior becomes dominated by likelihood as prior becomes more diffuse, so the agreement with {\small MLE} isn't entirely surprising but \ldots
+
+it's also worth noting the posterior mean differs from the mode
+\begin{tightEquation*}
+{\textstyle \argmax_{\phi}} \pi\!\left( \phi \given \bm{y}, \mu \right)
+	= \max\!\left\{
+		0, \, \frac{n - 2}{\textstyle \sum_i (y_i - \mu)^2}
+	\right\}.
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+We now turn to the problem of estimating $\mu$ and $\phi$ simultaneously.
+
+Most obvious choice is to assume $\mu$ and $\phi$ are a priori independent:
+\begin{tightEquation*}
+\pi(\mu, \phi) = 
+	\normalDist\!\left( \mu \given \mu_0, \priorPrec \right)
+	\times
+	\gammaDist\!\left( \phi \given \nu_0 / 2, \thinnerspace \nu_0 \varphi_0^{-1} / 2 \right).
+\end{tightEquation*}
+
+This prior, however, is only conditionally conjugate; i.e.\ 
+while $\mu \given \bm{y}, \phi$ and $\phi \given \bm{y}, \mu$ belong to the original families, $\mu, \phi \given \bm{y}$ does not.
+
+\textbf{Note:} The independent prior is otherwise a perfectly good choice!
+
+Conjugate priors are worthy additions to your toolbox when they exist, but there is no reason to be religious about them.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+To identify a conjugate prior, we let $\bar{y} = n^{-1} \sum_i y_i$ and observe 
+\begin{tightEquation*}
+\begin{aligned}
+L(\bm{y} \given \mu, \phi )
+	&\propto \phi^{n/2} \exp\!\left( - \frac12 
+			\phi \sum_i (y_i - \mu)^2
+		\right) \\
+	&\propto \phi^{n/2} \exp\!\left( - \frac12 
+			\phi \sum_i (y_i - \bar{y})^2
+		\right)
+		\exp\!\left( - \frac12 
+			n \phi (\mu - \bar{y})^2
+		\right)
+\end{aligned}
+\end{tightEquation*}
+b/c $\sum_i (y_i - \mu)^2 = \sum_i (y_i - \bar{y})^2 + \sum_i (\bar{y} - \mu)^2$ for $\bar{y} =  \sum_i y_i \divby n$.
+
+\medskip
+After staring at the last expression long enough, you'd realize that
+\begin{tightEquation*}
+L(\bm{y} \given \mu, \phi )
+	\propto 
+		\gammaDist\!\left( \phi \, \middle| \,  \frac{n - 1}{2}, \, \frac{\sum_i (y_i - \bar{y})^2}{2} \right)  
+		\normalDist\!\left( \mu \, \middle| \, \bar{y}, \, \frac{1}{n \phi} \right).
+\end{tightEquation*}
+% Note: the "-1" in $n - 1$ comes from the need for $\phi^{n/2}$ for the Gaussian density.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+We can now see the following prior as conjugate:
+\begin{tightEquation*}
+\phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right), \
+\mu \given \phi \sim \normalDist\!\left( \mu_0, \thinnerspace \frac{1}{\kappa_0 \phi} \right)
+\end{tightEquation*} 
+with density 
+\begin{tightEquation*}
+\pi(\mu, \phi)
+	\propto \phi^{\frac{\nu_0}{2} - 1} \exp\!\left( - \frac{\nu_0 \varphi_0^{-1}}{2} \phi \right)
+		\exp\!\left( - \frac{1}{2} \kappa_0 \phi (\mu - \mu_0)^2 \right).
+\end{tightEquation*}
+
+\medskip
+The corresponding posterior is given by
+\begin{tightEquation*}
+\begin{aligned}
+&\phi \given \bm{y} 
+	\sim \gammaDist\!\left(
+		\frac{\nu_0 + n}{2},
+		\frac{\nu_0 \varphi_0^{-1} + \textstyle \sum_i (y_i - \bar{y})^2}{2} 
+	\right), \\
+&\mu \given \bm{y}, \phi 
+	\sim \normalDist\!\left( \frac{\kappa_0 \mu_0 + n \bar{y}}{\kappa_0 + n}, \thinnerspace \frac{1}{(\kappa_0 + n) \phi} \right).
+\end{aligned}
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+The prior has a feature that the apriori (conditional) variance $\variance(\mu \given \phi) = 1 / \kappa_0 \phi$ depends on the noise variance $1 / \phi$.
+
+\smallskip
+The prior thus has the behavior ``smaller the $\phi$ and less informative the observations $y_i$, less informative the prior on $\mu \given \phi$.''
+
+\smallskip
+This may not be an accurate reflection of the prior knowledge, but is a reasonable data-adaptive behavior.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
+Identifying an appropriate objective prior isn't always straight- forward in multi-parameter settings, but the established one here is:
+\begin{tightEquation*}
+\pi(\mu, \phi) \propto 1 / \phi.
+\end{tightEquation*}
+
+The objective prior yields a posterior
+\begin{tightEquation*}
+%\begin{aligned}
+\phi \given \bm{y} 
+	\sim \gammaDist\!\left(
+		\frac{n}{2},
+		\frac{\textstyle \sum_i (y_i - \bar{y})^2}{2} 
+	\right), \
+\mu \given \bm{y}, \phi 
+	\sim \normalDist\!\left( \bar{y}, \thinnerspace \frac{1}{n \phi} \right)
+%\end{aligned}
+\end{tightEquation*}
+with
+\begin{tightEquation*}
+\expectation\!\left[ 
+	(\mu, \phi) \given \bm{y}
+\right]
+	= \left( 
+		\bar{y}, \, \frac{n}{\textstyle \sum_i (y_i - \bar{y})^2}
+	\right).
+\end{tightEquation*}
+\end{frame}
+
+
+\section{Linear regression}
+
+\newcommand{\bbeta}{\bm{\beta}}
+\newcommand{\bPhi}{\bm{\Phi}}
+\newcommand{\bSigma}{\bm{\Sigma}}
+\newcommand{\minus}{\scalebox{1.0}[1.0]{{\scriptsize -}}}
+\begin{frame}
+\frametitle{Linear regression}
+Consider a regression model
+\begin{tightEquation*}
+\bm{y} = \bX \bbeta + \bm{\epsilon} 
+	\ \text{ for } \,
+	\bm{\epsilon} \sim \normalDist\!\left(\bm{0}, \phi^{-1} \bm{I} \right);
+\end{tightEquation*}
+or, to be more precise, 
+\begin{tightEquation*}
+\bm{y} \given \bX, \bbeta, \phi
+	\sim \normalDist\!\left( \bX \bbeta, \phi^{- 1} \bm{I} \right).
+\end{tightEquation*}
+
+As we will see, posterior inference under this linear model is structurally very similar to the univariate Gaussian model.
+\end{frame}
+
+\begin{frame}
+\frametitle{TBD}
+The linear model has the likelihood
+\begin{tightEquation*}
+\begin{aligned}
+L(\bm{y} \given \bX, \bbeta, \phi)
+	&\propto \phi^{n / 2} \exp\!\left(
+		- \frac{\phi}{2} \left\| \bm{y} - \bX \bbeta \right\|^2 
+	\right) \\
+	&\propto \phi^{n / 2} \exp\!\left(
+		- \frac{1}{2} \left( 
+			\phi \thinnerspace \bbeta^\transpose \bX^\transpose \bX \bbeta
+			- 2 \thinnerspace \phi \thinnerspace \bbeta^\transpose \bX^\transpose \bm{y}
+		\right) 
+	\right).
+\end{aligned}
+\end{tightEquation*}
+
+As a function of $\bbeta$, the likelihood looks like a Gaussian density
+\begin{tightEquation*}
+\normalDist\!\left( 
+	\thinnerspace \bbeta \, \thinnerspace \middle| \thinnerspace
+	\left( \bX^\transpose \bX \right)^{-1} \bX^\transpose \bm{y},
+	\left( \phi \thinnerspace \bX^\transpose \bX \right)^{-1} 
+\right).
+\end{tightEquation*}
+
+As a function of $\phi$,  the likelihood looks like a Gamma density.
+%\begin{tightEquation*}
+%\gammaDist\!\left(
+%	\thinnerspace \phi \, \thinnerspace \middle| \thinnerspace
+%	\frac{n}{2} + 1, 
+%	\frac{\left\| \bm{y} - \bX \bbeta \right\|^2}{2}
+%\right).
+%\end{tightEquation*}
+
+\smallskip
+So you can guess the following prior to be conditionally conjugate:
+\begin{tightEquation*}
+\bbeta \sim \normalDist(\bmu_0, \bPhi_0^{-1})
+\ \text{ and } \
+\phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right).
+\end{tightEquation*}
+\end{frame}
+
+\begin{frame}
+\frametitle{TBD}
+In particular, note that $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$ means
+\begin{tightEquation*}
+\begin{aligned}
+\pi(\bbeta)
+%	&\propto \exp\!\left(
+%		- \frac{1}{2} (\bbeta - \bmu_0)^\transpose \bPhi_0 (\bbeta - \bmu_0)
+%	\right) \\
+	&\propto \exp\!\left(
+		- \frac{1}{2} \left( 
+			\bbeta^\transpose \bPhi_0 \bbeta 
+			- 2 \bbeta^\transpose \bPhi_0 \bmu_0
+		\right) 
+	\right).
+\end{aligned}
+\end{tightEquation*}
+So we have
+\begin{tightEquation*}
+\begin{aligned}
+\pi(\bbeta \given \bm{y}, \bX, \phi)
+	&\propto L(\bm{y} \given \bbeta, \bX, \phi) \thinnerspace \pi(\bbeta) \\
+	&\propto \exp\!\left(
+		- \frac{1}{2} \left( 
+			\phi \thinnerspace \bbeta^\transpose \bX^\transpose \bX \bbeta
+			- 2 \thinnerspace \phi \thinnerspace \bbeta^\transpose \bX^\transpose \bm{y}
+		\right)
+	\right) \\
+	&\hphantom{\propto}\ \exp\!\left(
+		- \frac{1}{2} \left( 
+			\bbeta^\transpose \bPhi_0 \bbeta 
+			- 2 \bbeta^\transpose \bPhi_0 \bmu_0
+		\right) 
+	\right) \\
+	&\propto \exp\!\left(
+		- \frac{\phi}{2} \left( 
+			\bbeta^\transpose \bPhi_{\textrm{post}} \bbeta
+			- 2 \bbeta^\transpose \bPhi_{\textrm{post}} \bmu_{\textrm{post}}
+		\right) 
+	\right),
+\end{aligned}
+\end{tightEquation*}
+where $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$ and $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$.
+\end{frame}
+
+\begin{frame}
+\frametitle{TBD}
+We similarly obtain the posterior conditional for $\phi$:
+\begin{tightEquation*}
+\phi \given \bm{y}, \bX, \bbeta 
+	\sim \gammaDist\!\left( 
+		\frac{\nu_0 + n}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1} + \| \bm{y} - \bX \bbeta \|^2}{2} 
+	\right).
+\end{tightEquation*}
+\end{frame}
 
 %\nobibliography{presentation} % To cite inline without creating a bibliography
 
