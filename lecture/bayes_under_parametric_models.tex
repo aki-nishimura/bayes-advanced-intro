@@ -728,7 +728,7 @@ After staring at the last expression long enough, you'd realize that
 \begin{tightEquation*}
 L(\bm{y} \given \mu, \phi )
 	\propto 
-		\gammaDist\!\left( \phi \, \middle| \,  \frac{n - 1}{2}, \, \frac{\sum_i (y_i - \bar{y})^2}{2} \right)  
+		\gammaDist\!\left( \phi \, \middle| \,  \frac{n + 1}{2}, \, \frac{\sum_i (y_i - \bar{y})^2}{2} \right)  
 		\normalDist\!\left( \mu \, \middle| \, \bar{y}, \, \frac{1}{n \phi} \right).
 \end{tightEquation*}
 % Note: the "-1" in $n - 1$ comes from the need for $\phi^{n/2}$ for the Gaussian density.
@@ -796,7 +796,7 @@ The objective prior yields a posterior
 %\begin{aligned}
 \phi \given \bm{y} 
 	\sim \gammaDist\!\left(
-		\frac{n}{2},
+		\frac{n - 1}{2},
 		\frac{\textstyle \sum_i (y_i - \bar{y})^2}{2} 
 	\right), \
 \mu \given \bm{y}, \phi 
@@ -809,7 +809,7 @@ with
 	(\mu, \phi) \given \bm{y}
 \right]
 	= \left( 
-		\bar{y}, \, \frac{n}{\textstyle \sum_i (y_i - \bar{y})^2}
+		\bar{y}, \, \frac{n - 1}{\textstyle \sum_i (y_i - \bar{y})^2}
 	\right).
 \end{tightEquation*}
 \end{frame}
