@@ -97,6 +97,7 @@
 \usepackage{natbib}
 	\bibliographystyle{abbrvnat}
 	\setcitestyle{authoryear, open={(}, close={)}}
+\usepackage{bibentry} % For \nobibliography
 
 %% Beamer options.
 \setbeamercovered{dynamic}
@@ -165,6 +166,13 @@
 }{
   \end{itemize}
 }
+\newenvironment{narrowEnumerate}[1][1.]{%
+  \vspace{-.3\baselineskip}%
+  \begin{enumerate}[#1]
+  \addtolength\itemsep{-.1\baselineskip}
+}{
+  \end{enumerate}
+}
 
 %% Color definitions
 \definecolor{turquoise}{rgb}{0.19, 0.84, 0.78}
@@ -223,6 +231,7 @@
 \newcommand{\betaDist}{\mathrm{Beta}}
 \newcommand{\gammaDist}{\mathrm{Gamma}}
 \newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
+\newcommand{\empiricalVar}{\widehat{\variance}}
 
 %% Aliases
 \newcommand{\by}{\bm{y}}
@@ -721,7 +730,7 @@ L(\bm{y} \given \mu, \phi )
 		\right)
 \end{aligned}
 \end{tightEquation*}
-b/c $\sum_i (y_i - \mu)^2 = \sum_i (y_i - \bar{y})^2 + \sum_i (\bar{y} - \mu)^2$ for $\bar{y} =  \sum_i y_i \divby n$.
+b/c $\sum_i (y_i - \mu)^2 = \sum_i (y_i - \bar{y})^2 + \sum_i (\bar{y} - \mu)^2$.
 
 \medskip
 After staring at the last expression long enough, you'd realize that
@@ -737,7 +746,7 @@ L(\bm{y} \given \mu, \phi )
 
 \begin{frame}
 \frametitle{Univariate case with unknown variance}
-We can now see the following prior as conjugate:
+It's now easy enough to guess the following prior as conjugate:
 \begin{tightEquation*}
 \phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right), \
 \mu \given \phi \sim \normalDist\!\left( \mu_0, \thinnerspace \frac{1}{\kappa_0 \phi} \right)
@@ -774,10 +783,35 @@ $\, b_{\textrm{post}} = {\displaystyle \frac12} \left(
 
 \begin{frame}
 \frametitle{Univariate case with unknown variance}
+The posterior estimates mostly have the same structure as before, but let's take a look at
+\begin{equation*}
+\expectation[ \phi \given \bm{y} ]
+	= \frac{1}{\nu_0 + n} \left(
+		\nu_0 \varphi_0^{-1} 
+		+ \textstyle \sum_i (y_i - \bar{y})^2
+		+ \frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2
+	\right).
+\end{equation*}
+
+The $\frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2$ part shows one way in which $\mu$ and $\phi$ interact:
+\begin{tightEquation*}
+\text{%
+	discrepancy between $\mu_0$ and $\bar{y}$ % Note: $\mu_0$ = prior guess and $\bar{y}$ = empirical mean 
+	$\, \Rightarrow \,$ inflated estimate of $\phi$.
+}%
+\end{tightEquation*}
+
+\smallskip
+But note also this ``bias'' diminishes as $n \to \infty$ since $\frac{\kappa_0 n}{\kappa_0 + n} \leq \kappa_0$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Univariate case with unknown variance}
 The prior has a feature that the apriori (conditional) variance $\variance(\mu \given \phi) = 1 / \kappa_0 \phi$ depends on the noise variance $1 / \phi$.
 
 \smallskip
-The prior thus has the behavior ``smaller the $\phi$ and less informative the observations $y_i$, less informative the prior on $\mu \given \phi$.''
+The prior thus has the behavior ``smaller the $\phi$ and noisier the $y_i$'s, less informative the prior on $\mu \given \phi$.''
 
 \smallskip
 This may not be an accurate reflection of the prior knowledge, but is a reasonable data-adaptive behavior.
@@ -817,13 +851,15 @@ with
 
 \section{Linear regression}
 
+\newcommand{\bx}{\bm{x}}
 \newcommand{\bbeta}{\bm{\beta}}
 \newcommand{\bPhi}{\bm{\Phi}}
 \newcommand{\bSigma}{\bm{\Sigma}}
 \newcommand{\minus}{\scalebox{1.0}[1.0]{{\scriptsize -}}}
+\newcommand{\nPred}{p}
 \begin{frame}
 \frametitle{Linear regression}
-Consider a regression model
+Consider a regression model with design matrix $\bX \in \mathbb{R}^{n \times \nPred}$
 \begin{tightEquation*}
 \bm{y} = \bX \bbeta + \bm{\epsilon} 
 	\ \text{ for } \,
@@ -930,6 +966,18 @@ where $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$ 
 
 \begin{frame}
 \frametitle{TBD}
+
+In other words, the posterior conditional for $\bbeta$ is:
+\begin{tightEquation*}
+\bbeta \given \bm{y}, \bX, \phi
+	\sim \normalDist\!\left(
+		 \bmu_{\textrm{post}},
+		 \bPhi_{\textrm{post}}
+	\right)
+\end{tightEquation*}
+for $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$ and $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$.
+
+\medskip
 We similarly obtain the posterior conditional for $\phi$:
 \begin{tightEquation*}
 \phi \given \bm{y}, \bX, \bbeta 
@@ -937,8 +985,147 @@ We similarly obtain the posterior conditional for $\phi$:
 		\frac{\nu_0 + n}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1} + \| \bm{y} - \bX \bbeta \|^2}{2} 
 	\right).
 \end{tightEquation*}
+
+As in the univariate case, we could also consider a conjugate prior
+\begin{tightEquation*}
+\bbeta \given \phi \sim \normalDist(\bmu_0, (\kappa_0 \phi)^{-1} \bm{I})
+\ \text{ and } \
+\phi \sim \gammaDist\!\left( 
+		\frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} 
+	\right).
+\end{tightEquation*}
+% Homework idea: derive the corresponding posterior.
+% Homework idea: derive the posterior under non iid noise.
 \end{frame}
 
-%\nobibliography{presentation} % To cite inline without creating a bibliography
+
+\begin{frame}
+\frametitle{TBD}
+Standard objective prior here is, unsurprisingly, $\thinnerspace \pi(\bbeta, \phi) \propto 1 / \phi$.
+
+The corresponding posterior is
+\begin{tightEquation*}
+\begin{gathered}
+\bbeta \given \bm{y}, \bX, \phi
+	\sim \normalDist\!\left(
+		 \left(  \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \bm{y}, \,
+		\left( \phi \bX^\transpose \bX \right)^{-1}
+	\right), \\
+\phi \given \bm{y}, \bX
+	\sim \gammaDist\!\left( 
+		\frac{n - \nPred}{2}, \thinnerspace \frac{\| \bm{y} - \bX \bbeta \|^2}{2} 
+	\right).
+\end{gathered}
+\end{tightEquation*}
+
+\textbf{Note:} The posterior is proper only if $n > \nPred$:
+\begin{narrowItemize}
+\item Flat prior in $\mathbb{R}^\nPred$ is even ``more improper/diffuse'' than in $\mathbb{R}$ because prior uncertainties in the parameters add up.
+\item More generally, using improper or proper-but-diffuse priors is a risky business in high-dimensional (i.e.\ large $\nPred$) applications.
+\item Requirement $n > \nPred$ is intuitive enough here but it's less obvious in more complex models (where Bayes really shines).
+\end{narrowItemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{TBD}
+As an illustration, let's consider constructing a proper yet arguably conservative prior for the linear model.
+
+(``Conservative'' means biasing, if any, the inference towards the null and encoding less prior information than we actually have.)
+
+To help us achieve this goal, let's first pre-process the data:
+\begin{narrowEnumerate}
+  \item Scale $\bm{y}$ and cont.\ $\bx_j\mkern-1mu$'s so that $\widehat{\variance}(\by) = 1$ and $\widehat{\variance}(\bx_j \mkern-2mu) = 1/2$.%
+%  \item For each binary $\bx_j$, set the more freq category as its baseline; % (i.e. assigning it the value of $0$)
+%  this ensures $x_{ij} = 0$ to better represent an average data point.
+  \item Center $\bm{y}$ and all (both cont.\ and binary) $\bx_j$'s.
+\end{narrowEnumerate}
+
+\textbf{Note:} $\widehat{\variance}(\bx) = 1/2$ follows \citet{gelman2008default_prior} and is an attempt to put cont.\ and binary predictors on the same scale. 
+\end{frame}
+
+
+\begin{frame}
+\frametitle{TBD}
+With the pre-processed data $(\by, \bX)$, we can argue $| \beta_j | = 2$ to represent a reasonable upper bound on the effect sizes because:
+\begin{tightEquation*}
+| \beta_j | = 2
+	\ \Rightarrow \ \widehat{\variance}(\beta_j \bx_j) = \widehat{\variance}(\by).
+	% Note: In other words, the variation in the $
+\end{tightEquation*}
+In other words, the variation in $\bx_j$ explains most of that in $\by$. 
+
+The prior choice $\beta_j \sim \normalDist(0, 1)$ hence seems reasonable. % with most of its probability in the range $[-2, 2]$.
+
+\smallskip
+As for the intercept, it seems reasonable to set $\beta_0 \sim \normalDist(0, 1)$ so that its prior variance matches that of $\by$.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{TBD}
+For the residual variance $\phi^{-1}$, we can expect $\phi^{-1} \lesssim 1 = \widehat{\variance}(\by)$.
+
+If we were to do without conjugacy, we might choose a prior like 
+\begin{tightEquation*}
+\sigma = \phi^{-1/2} \sim \normalDist^+(0, 1) 
+	\ \text{ or } \, \unifDist(0, 2).
+	% Note: the prior variance of 1 / 4 would favor \sigma < 1, which isn't ideal since \sigma may well be very close to 1. 
+\end{tightEquation*}
+(Unless there is a reason to assume a lower bound $\phi^{-1} \geq c > 0$.)
+
+\smallskip
+Expressing the same kind of prior assumption is difficult with the gamma prior on $\phi$.
+	% Note: In particular, there is no way to make the density look flat near $\phi^{-1/2} \approx 0$.
+	
+But, based the interpretation of $\nu_0$ as the prior degrees of freedom,
+\begin{tightEquation*}
+\phi \sim \gammaDist(\nu_0 / 2, \nu_0 / 2)
+	\ \text{ for } \, \nu_0 \in [0.1, \thinnerspace 1]
+\end{tightEquation*}
+with $\expectation[\phi] = 1 = \widehat{\variance}(\by)$ is defensible.
+% Note: BUGS uses $\nu_0 = 0.002$.
+
+\smallskip
+\textbf{Note:} 
+Typically, as long as the prior is in a reasonable range, the inference isn't too sensitive.
+So don't fret about gory details.
+% Note: Plus, 1) you can always do a sensitivity analysis; and 2) if the inference is sensitive, most likely it means you don't have enough data to avoid informative priors.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{TBD}
+Incidentally, scaling $\by$ and $\bx_j$'s is equivalent to scaling the priors.
+
+\smallskip
+In fact, had we only centered them w/o scaling, the same inference would be obtained under the following prior:
+\begin{tightEquation*}
+\begin{gathered}
+\beta_0 \sim \normalDist\!\left( 0, \empiricalVar(\by)^{1/2} \right), \ \,
+\beta_j \sim\normalDist\!\left( 0, \, \frac{ \empiricalVar(\by)^{1/2} }{ \empiricalVar(\bx_j)^{1/2} } \right) \\
+\phi \sim \gammaDist\!\left(
+	\frac{\nu_0}{2}, 
+	\frac{\nu_0}{2} \thinnerspace \empiricalVar(\by)^{-1}
+\right).
+%\beta_j \sim\normalDist\!\left( 0, \, \empiricalVar(\by)^{1/2} \big/ \, \empiricalVar(\bx_j)^{1/2} \right) \\
+\end{gathered}
+\end{tightEquation*}
+
+\smallskip
+Centering variables interacts with the inference as well; e.g.\ had we decided to center $\bx_j$'s but not $\by$, the equivalent inference requires
+\begin{tightEquation*}
+\beta_0 \sim \normalDist\!\left( \bar{y}, \thinnerspace \empiricalVar(\by)^{1/2} \right).
+\end{tightEquation*}
+\end{frame}
+
+
+\section{Asymptotic properties of Bayesian inference}
+
+\begin{frame}
+
+\end{frame}
+
+\nobibliography{references} % To cite inline without creating a bibliography
 
 \end{document}
