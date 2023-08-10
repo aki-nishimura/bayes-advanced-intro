@@ -233,7 +233,9 @@
 \newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
 \newcommand{\empiricalVar}{\widehat{\variance}}
 
-%% Aliases
+%% Variable macros / Aliases
+\newcommand{\density}{\pi}
+\newcommand{\likelihood}{L}
 \newcommand{\by}{\bm{y}}
 \newcommand{\bX}{\bm{X}}
 \newcommand{\bmu}{\bm{\mu}}
@@ -284,7 +286,7 @@ y_1, \ldots, y_n \given p
 \end{tightEquation*}
 with the likelihood function
 \begin{tightEquation*}
-L(\by \given p) 
+\likelihood(\by \given p) 
 	= \textstyle \prod_i p^{y_i} (1 - p)^{1 - y_i}
 	= p^{{\scriptscriptstyle \sum_i} y_i} (1 - p)^{n - {\scriptscriptstyle \sum_i} y_i}.
 \end{tightEquation*}
@@ -307,7 +309,7 @@ Potential fix is continuity correction, which yields $\widehat{p} = 0.5 \divby (
 
 Let's try Bayesian analysis of the binomial model with likelihood
 \begin{tightEquation*}
-L(\by \given p) 
+\likelihood(\by \given p) 
 	= p^{{\scriptscriptstyle \sum_i} y_i} (1 - p)^{n - {\scriptscriptstyle \sum_i} y_i}.
 \end{tightEquation*}
 
@@ -315,7 +317,7 @@ L(\by \given p)
 \textbf{Prior:} 
 Convenient, reasonably flexible prior here is the beta dist:
 \begin{tightEquation*}
-\pi(p) \propto p^a (1 - p)^b \sim \mathrm{Beta}(a, b)
+\density(p) \propto p^a (1 - p)^b \sim \mathrm{Beta}(a, b)
 \end{tightEquation*}
 with $\expectation[p] = a \divby (a + b)$ and $\variance[p] = \expectation[p] (1 - \expectation[p]) \divby (a + b + 1)$.
 
@@ -325,8 +327,8 @@ with $\expectation[p] = a \divby (a + b)$ and $\variance[p] = \expectation[p] (1
 Bayes' rule tells us that
 \begin{tightEquation*}
 \begin{aligned}
-\pi(p \given \by)
-%	\propto L(\by \given p) \pi(p)
+\density(p \given \by)
+%	\propto \likelihood(\by \given p) \density(p)
 %	&\propto p^{a + \scriptscriptsum_i y_i} (1 - p)^{b + n - \scriptscriptsum_i y_i} \\
 	&\sim \mathrm{Beta}(a + {\scriptstyle \sum_i} y_i, b + n - {\scriptstyle \sum_i} y_i).
 \end{aligned}
@@ -353,13 +355,13 @@ Posterior provides much more information than a point estimate.
 \pause
 For example, we can calculate a posterior 95\% credible interval by solving for $l$ and $u$ such that
 \begin{tightEquation*}
-\int_l^u \pi(p \given \by) \diff p = 0.95,
+\int_l^u \density(p \given \by) \diff p = 0.95,
 \end{tightEquation*}
 \pause%
 as well as a post predictive dist on future data $\by_{\textrm{new}}$ via relation
 \begin{tightEquation*}
-\pi(\by_{\textrm{new}} \given \by)
-	= \int L(\by_{\textrm{new}} \given p) \thinnerspace \pi(p \given \by) \diff p.
+\density(\by_{\textrm{new}} \given \by)
+	= \int \likelihood(\by_{\textrm{new}} \given p) \thinnerspace \density(p \given \by) \diff p.
 \end{tightEquation*}
 
 \pause
@@ -379,7 +381,7 @@ To properly construct such an informed prior, we have to:
 \pause%
 \begin{narrowItemize}[<+->]
 \item Find every post-vaccine incidence proportion of Guillain-Barré ever reported (and unreported?) in the literature, 
-\item Conduct some sort of meta-analysis to obtain a distribution $\pi(p)$ for a ``generic'' vaccine, 
+\item Conduct some sort of meta-analysis to obtain a distribution $\density(p)$ for a ``generic'' vaccine, 
 \item Somehow account for the difference between mRNA and conventional vaccines, 
 %\item Wonder how to incorporate other (e.g.\ pharmacologic) evidence, 
 \item Wonder how many other bloody things you have to consider,
@@ -541,8 +543,8 @@ Also, for convenience, we parametrize in terms of \textit{precision} $\phi = \si
 Convenient prior on $\mu$ is Gaussian:\ under the prior $\mu \sim \normalDist(\mu_0, \priorPrec^{-1})$,%
 \begin{tightEquation*}
 \begin{aligned}
-\pi(\mu \given \bm{y}, \phi)
-	&\propto L(\bm{y} \given \mu, \phi ) \pi(\mu) \\
+\density(\mu \given \bm{y}, \phi)
+	&\propto \likelihood(\bm{y} \given \mu, \phi ) \density(\mu) \\
 %	&\propto \exp\!\left( - \frac{\phi}{2} \sum_i (y_i - \mu)^2\right)
 %		\exp\!\left( - \frac{\priorPrec}{2} (\mu - \mu_0)^2 \right) \\
 	&\propto \phi^{n / 2} \exp\!\left( - \frac12 \left[
@@ -582,7 +584,7 @@ Note that, as in the beta-binomial case, the posterior mean is a weighted averag
 \ \text{ where } \, \mle{\mu} = {\textstyle \sum_i} y_i / n.
 \end{tightEquation*}
 
-Objective ``prior'' for this model is a flat dist $\pi(\mu) \propto 1$, which can be though of as the limit $\priorPrec \to 0$ of diminishing prior info. 
+Objective ``prior'' for this model is a flat dist $\density(\mu) \propto 1$, which can be though of as the limit $\priorPrec \to 0$ of diminishing prior info. 
 %\hspace*{.5em}\textcolor{themecolor}{$\blacktriangleright$} 
 
 The flat prior is an example of \textit{improper priors}, whose use is justified by the posterior being a proper distribution.
@@ -614,14 +616,14 @@ Conjugate priors lead to (semi) analytically tractable posteriors and%
 \frametitle{Univariate case with unknown variance}
 Easy enough to infer by examining the likehood
 \begin{tightEquation*}
-L(\bm{y} \given \mu, \phi )
+\likelihood(\bm{y} \given \mu, \phi )
 	\propto \phi^{n/2} \exp\!\left( - \frac12 
 			\phi \sum_i (y_i - \mu)^2
 		\right)
 \end{tightEquation*}
 that a (conditionally) conjugate prior for $\phi$ is a gamma distribution:
 \begin{tightEquation*}
-\pi(\phi) 
+\density(\phi) 
 	\propto \phi^{a - 1} \exp(-b x)
 	\sim \gammaDist(\textrm{shape} = a, \thinnerspace \textrm{rate} = b)
 \end{tightEquation*}
@@ -665,7 +667,7 @@ In particular, $\nu_0$ can be interpreted as a prior degrees of freedom.
 
 \begin{frame}
 \frametitle{Univariate case with unknown variance}
-Objective prior $\pi(\phi) \propto 1 / \phi$ coincides with the limit $\nu_0 \to 0$ and yields the posterior
+Objective prior $\density(\phi) \propto 1 / \phi$ coincides with the limit $\nu_0 \to 0$ and yields the posterior
 \begin{tightEquation*}
 \phi \given \bm{y}, \mu 
 	\sim \gammaDist\!\left(
@@ -684,7 +686,7 @@ Posterior becomes dominated by likelihood as prior becomes more diffuse, so the 
 
 it's also worth noting the posterior mean differs from the mode
 \begin{tightEquation*}
-{\textstyle \argmax_{\phi}} \pi\!\left( \phi \given \bm{y}, \mu \right)
+{\textstyle \argmax_{\phi}} \density\!\left( \phi \given \bm{y}, \mu \right)
 	= \max\!\left\{
 		0, \, \frac{n - 2}{\textstyle \sum_i (y_i - \mu)^2}
 	\right\}.
@@ -698,7 +700,7 @@ We now turn to the problem of estimating $\mu$ and $\phi$ simultaneously.
 
 Most obvious choice is to assume $\mu$ and $\phi$ are a priori independent:
 \begin{tightEquation*}
-\pi(\mu, \phi) = 
+\density(\mu, \phi) = 
 	\normalDist\!\left( \mu \given \mu_0, \priorPrec \right)
 	\times
 	\gammaDist\!\left( \phi \given \nu_0 / 2, \thinnerspace \nu_0 \varphi_0^{-1} / 2 \right).
@@ -718,7 +720,7 @@ Conjugate priors are worthy additions to your toolbox when they exist, but there
 To identify a conjugate prior, we let $\bar{y} = n^{-1} \sum_i y_i$ and observe 
 \begin{tightEquation*}
 \begin{aligned}
-L(\bm{y} \given \mu, \phi )
+\likelihood(\bm{y} \given \mu, \phi )
 	&\propto \phi^{n/2} \exp\!\left( - \frac12 
 			\phi \sum_i (y_i - \mu)^2
 		\right) \\
@@ -735,7 +737,7 @@ b/c $\sum_i (y_i - \mu)^2 = \sum_i (y_i - \bar{y})^2 + \sum_i (\bar{y} - \mu)^2$
 \medskip
 After staring at the last expression long enough, you'd realize that
 \begin{tightEquation*}
-L(\bm{y} \given \mu, \phi )
+\likelihood(\bm{y} \given \mu, \phi )
 	\propto 
 		\gammaDist\!\left( \phi \, \middle| \,  \frac{n + 1}{2}, \, \frac{\sum_i (y_i - \bar{y})^2}{2} \right)  
 		\normalDist\!\left( \mu \, \middle| \, \bar{y}, \, \frac{1}{n \phi} \right).
@@ -755,7 +757,7 @@ It's now easy enough to guess the following prior as conjugate:
 with density 
 \vspace*{-.15\baselineskip}
 \begin{tightEquation*}
-\pi(\mu, \phi)
+\density(\mu, \phi)
 	\propto \phi^{\frac{\nu_0}{2} - 1} \exp\!\left( - \frac{\nu_0 \varphi_0^{-1}}{2} \phi \right)
 		\exp\!\left( - \frac{1}{2} \kappa_0 \phi (\mu - \mu_0)^2 \right).
 \end{tightEquation*}
@@ -822,7 +824,7 @@ This may not be an accurate reflection of the prior knowledge, but is a reasonab
 \frametitle{Univariate case with unknown variance}
 Identifying an appropriate objective prior isn't always straight- forward in multi-parameter settings, but the established one here is:
 \begin{tightEquation*}
-\pi(\mu, \phi) \propto 1 / \phi.
+\density(\mu, \phi) \propto 1 / \phi.
 \end{tightEquation*}
 
 The objective prior yields a posterior
@@ -879,7 +881,7 @@ As we will see, posterior inference under this linear model is structurally very
 The linear model has the likelihood
 \begin{tightEquation*}
 \begin{aligned}
-L(\bm{y} \given \bX, \bbeta, \phi)
+\likelihood(\bm{y} \given \bX, \bbeta, \phi)
 	&\propto \phi^{n / 2} \exp\!\left(
 		- \frac{\phi}{2} \left\| \bm{y} - \bX \bbeta \right\|^2 
 	\right) \\
@@ -924,7 +926,7 @@ So you can guess the following prior to be conditionally conjugate:
 In particular, note that $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$ means
 \begin{tightEquation*}
 \begin{aligned}
-\pi(\bbeta)
+\density(\bbeta)
 %	&\propto \exp\!\left(
 %		- \frac{1}{2} (\bbeta - \bmu_0)^\transpose \bPhi_0 (\bbeta - \bmu_0)
 %	\right) \\
@@ -939,8 +941,8 @@ In particular, note that $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$ means
 So we have
 \begin{tightEquation*}
 \begin{aligned}
-\pi(\bbeta \given \bm{y}, \bX, \phi)
-	&\propto L(\bm{y} \given \bbeta, \bX, \phi) \thinnerspace \pi(\bbeta) \\
+\density(\bbeta \given \bm{y}, \bX, \phi)
+	&\propto \likelihood(\bm{y} \given \bbeta, \bX, \phi) \thinnerspace \density(\bbeta) \\
 	&\propto \exp\!\left(
 		- \frac{1}{2} \left( 
 			\phi \thinnerspace \bbeta^\transpose \bX^\transpose \bX \bbeta
@@ -1001,7 +1003,7 @@ As in the univariate case, we could also consider a conjugate prior
 
 \begin{frame}
 \frametitle{TBD}
-Standard objective prior here is, unsurprisingly, $\thinnerspace \pi(\bbeta, \phi) \propto 1 / \phi$.
+Standard objective prior here is, unsurprisingly, $\thinnerspace \density(\bbeta, \phi) \propto 1 / \phi$.
 
 The corresponding posterior is
 \begin{tightEquation*}
