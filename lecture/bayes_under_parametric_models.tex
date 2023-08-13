@@ -1037,8 +1037,9 @@ The corresponding posterior is
 	\right), \\
 \phi \given \bm{y}, \bX
 	\sim \gammaDist\!\left( 
-		\frac{n - \nPred}{2}, \thinnerspace \frac{\| \bm{y} - \bX \bbeta \|^2}{2} 
-	\right).
+		\frac{n - \nPred}{2}, \thinnerspace \frac{\| \bm{y} - \bX \mle{\bbeta} \|^2}{2} 
+	\right). 
+	% Note: $\mle{\bbeta} = \left( \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \bm{y}$
 \end{gathered}
 \end{tightEquation*}
 
