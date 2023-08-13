@@ -88,8 +88,10 @@
 %% Packages
 \usepackage[english]{babel}
 \usepackage{graphicx}
+\usepackage{mathtools} % For \coloneqq (among others)
 \usepackage{subcaption}
 \usepackage{bm}
+\usepackage{accents}
 \usepackage{pgfplots}
 %\usepackage[normalem]{ulem}
 %	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
@@ -200,9 +202,13 @@
 
 % Macros
 
+%% Utility macros
+\newcommand{\noteBullet}{\hspace*{.75em}\textcolor{themecolor}{$\blacktriangleright$}\ }
+
 %% General math macros
-\newcommand{\given}{\, | \,}
+\newcommand{\given}{\thinnerspace | \thinnerspace}
 \newcommand{\divby}{\thinnerspace /}
+\newcommand{\defeq}{\vcentcolon =} % `\coloneqq` and `\vcentcolon` requires the `mathtools` package: https://tex.stackexchange.com/questions/194344/symbol-for-definition
 \newcommand{\diff}{\operatorname{\mathrm{d}}\!{}}
 \newcommand{\sign}{\mathrm{sign}}
 \newcommand{\diag}{\mathrm{diag}}
@@ -215,8 +221,20 @@
 \newcommand{\lowerscript}[1]{\raisebox{-2pt}{\scriptsize $#1$}}
 \newcommand{\yesnumber}{\addtocounter{equation}{1}\tag{\theequation}}
 \newcommand{\thinnerspace}{\mskip.5\thinmuskip}
+\newcommand{\thinnestspace}{\mskip.25\thinmuskip}
 \newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
 \newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
+
+%%% Define a larger "hat" of fixed width: https://tex.stackexchange.com/questions/20473/how-can-i-manually-choose-the-size-of-a-wide-accent-math-mode/20477#20477
+\DeclareMathSymbol{\widehatsym}{\mathord}{largesymbols}{"62}
+\newcommand{\lowerwidehatsym}{\text{\smash{\raisebox{-1.3ex}{$\widehatsym$}}}}
+\newcommand\fixedwidehat[1]{%
+  \mathchoice
+    {\accentset{\displaystyle\lowerwidehatsym}{#1}}
+    {\accentset{\textstyle\lowerwidehatsym}{#1}}
+    {\accentset{\scriptstyle\lowerwidehatsym}{#1}}
+    {\accentset{\scriptscriptstyle\lowerwidehatsym}{#1}}
+}
 
 %% Probability / statistics macros
 \newcommand{\probability}{\mathbb{P}}
@@ -231,7 +249,10 @@
 \newcommand{\betaDist}{\mathrm{Beta}}
 \newcommand{\gammaDist}{\mathrm{Gamma}}
 \newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
+\newcommand{\map}[1]{\widehat{#1}_{\textrm{map}}}
 \newcommand{\empiricalVar}{\widehat{\variance}}
+\newcommand{\kldivergence}{D_{\mathrm{KL}}}
+\newcommand{\infoMat}{\mathcal{I}}
 
 %% Variable macros / Aliases
 \newcommand{\density}{\pi}
@@ -239,6 +260,7 @@
 \newcommand{\by}{\bm{y}}
 \newcommand{\bX}{\bm{X}}
 \newcommand{\bmu}{\bm{\mu}}
+\newcommand{\btheta}{\bm{\theta}}
 
 
 \title{\centerline{Bayesian analysis under parametric models}}
@@ -1122,10 +1144,250 @@ Centering variables interacts with the inference as well; e.g.\ had we decided t
 \end{frame}
 
 
-\section{Asymptotic properties of Bayesian inference}
+\section{\centerline{Asymptotic properties of Bayesian inference}}
 
 \begin{frame}
+\frametitle{Posteriors' asymptotic behavior}
+We've seen examples in which posteriors yield comparable/ identical inferences as established frequentist procedures.
 
+In fact, under regular parametric models, Bayesian inference is \textit{guaranteed} to coincide with a frequentist one asymptotically.
+
+In a sense, this is to be expected from the fact 
+\begin{tightEquation*}
+\log \density(\btheta \given \by^n)
+	= \mathrm{const} + \log \density(\btheta) + \textstyle \sum_{i = 1}^n \log \likelihood(y_i \given \btheta);
+\end{tightEquation*}
+where the sum of the $n$ i.i.d.\ terms should eventually dominate.
+
+Here we will study some asymptotic behaviors of posteriors.
+\end{frame}
+
+\newcommand{\truthSub}{\mathrm{tru}}
+\begin{frame}
+\frametitle{Measuring ``distance'' between prob densities}
+\textit{Kullback–Leibler divergence} measure how far away a probability density $p(\cdot)$ is from the reference $q(\cdot)$ and is defined as
+\begin{tightEquation*}
+\kldivergence( p \| q)
+	\defeq - \int \log\!\left( \frac{q(x)}{p(x)} \right) p(x) \diff x
+	= \expectation_{X \thinnestspace \sim \, p(\cdot)}\!\left[ \thinnerspace \log\!\left( \frac{q(X)}{p(X)} \right) \right].
+\end{tightEquation*}
+\noteBullet To see relevance, think $p(\cdot) = \likelihood(\thinnerspace \cdot \given \btheta)$ and $q(\cdot) = \likelihood(\thinnerspace \cdot \given \btheta_\truthSub)$.
+
+\smallskip
+In particular, the KL divergence has the property 
+\begin{tightEquation*}
+\kldivergence(p \| q) \geq 0
+	\ \text{ and } \
+	\kldivergence(p \| q) = 0 \, \text{ only if } \, p(\cdot) \equiv q(\cdot).
+\end{tightEquation*}
+%$\kldivergence(p \| q) \geq 0$ and $\kldivergence(p \| q) = 0$ only if $p(\cdot) \equiv q(\cdot)$. 
+
+\textit{Proof:} 
+Jensen's inequality says $f(\expectation[X]) \leq \expectation[f(X)]$ for convex $f$, with the equality only if $f(x) = x$ on the support of $\density_X(\cdot)$. Hence,
+\begin{tightEquation*}
+0 = - \log\!\left( \int q(x) \diff x \right)
+	= - \log\!\left( \int \frac{q(x)}{p(x)} p(x) \diff x \right)
+	\leq \kldivergence(p \| q).
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Posterior concentration around true parameter}
+
+We now show that posteriors necessarily concentrate around the true parameter $\btheta_\truthSub$ as $n \to \infty$. 
+To see this, we observe that
+\smallskip
+\begin{tightEquation*}
+\begin{aligned}
+\log\!\left( 
+	\frac{\density(\btheta_\truthSub \given \by^n)}{\density(\btheta \given \by^n)}
+\right) % Note: while not explicitly denoted, $\by$ obviously depends on the sample size.
+	&= \log\!\left( 
+		\frac{%
+			\density(\btheta_\truthSub) \prod_i \likelihood(y_i \given \btheta_\truthSub)
+		}{%
+			\density(\btheta) \prod_i \likelihood(y_i \given \btheta)
+		}%
+	\right) \\
+	&= \log\!\left( 
+		\frac{%
+			\density(\btheta_\truthSub)
+		}{%
+			\density(\btheta)
+		}%
+	\right)
+	+ \sum_{i = 1}^n \log\!\left( 
+		\frac{%
+			\likelihood(y_i \given \btheta_\truthSub)
+		}{%
+			\likelihood(y_i \given \btheta)
+		}%
+	\right).
+\end{aligned}
+\end{tightEquation*}
+\smallskip
+Now we only need to recognize the latter term as a KL divergence:
+\smallskip
+\begin{tightEquation*}
+\frac{1}{n} \sum_i \log\!\left( 
+	\frac{%
+		\likelihood(y_i \given \btheta_\truthSub)
+	}{%
+		\likelihood(y_i \given \btheta)
+	}%
+\right) 
+	\to - \int \log\!\left( 
+		\frac{%
+			\likelihood(y \given \btheta_\truthSub)
+		}{%
+			\likelihood(y \given \btheta)
+		}%
+	\right) \likelihood(y \given \btheta_\truthSub) \diff y.
+\end{tightEquation*}
+
+Thus
+$\displaystyle 
+	\frac{\density(\btheta_\truthSub \given \by^n)}{\density(\btheta \given \by^n)}
+\to \infty$ whenever $\btheta \neq \btheta_\truthSub$;
+i.e.\ $\density(\thinnerspace \cdot \given \by^n) \to \delta_{\btheta_\truthSub}(\cdot)$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Posterior concentration under mis-specified model}
+Examining the proof, we see an analogous asymptotic result holds even when a model is \textit{mis-specified} --- 
+the family $\{ \likelihood(\thinnerspace \cdot \given \btheta) \}_{\btheta}$ doesn't include the true data distribution $y \sim \likelihood_\truthSub(\cdot)$; e.g.\
+\begin{narrowItemize}
+\item $\operatorname{Skewness}(y) \neq 0$, but $\likelihood(\thinnerspace \cdot \given \mu, \phi) \sim \normalDist(\mu, \phi^{-1})$.
+\item $\expectation[y] < 0$, but assumed $\mu \geq 0$ under $\likelihood(\thinnerspace \cdot \given \mu, \phi) \sim \normalDist(\mu, \phi^{-1})$.
+\item $y = f(\bx) + \sigma(\bx) \epsilon$ for non-linear $f$ and non-const $\sigma$, \\ but $\likelihood(\thinnerspace \cdot \given \bx, \bbeta, \phi) \sim \normalDist(\bx^\transpose \bbeta, \phi^{-1})$.
+\end{narrowItemize}
+
+Under mis-specification, we can still speak of an optimal approx
+\begin{tightEquation*}
+\btheta_{\mathrm{opt}}
+	= \textstyle \argmin_{\btheta} \kldivergence\!\left(
+		\likelihood(\thinnerspace \cdot \given \btheta) \, \| \, \likelihood_\truthSub
+	\right),
+\end{tightEquation*}
+\mbox{and similarly show $\displaystyle \frac{\density(\btheta_{\mathrm{opt}} \given \by^n)}{\density(\btheta \given \by^n)}
+\to \infty$ if $\btheta_{\mathrm{opt}}\!$ is the unique minimizer.}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Asymptotic Gaussianity of posteriors}
+Besides the posterior concentration, we in fact have a Bayesian asymptotic theory analogous to the frequentist one for {\small MLE}'s:
+
+\begin{theorem}[Bernstein-von-Mises/Bayesian Central Limit]
+Under an appropriate regularity assumption, \\
+\smallskip%
+\makebox[\linewidth]{
+$\density(\thinnerspace \cdot \given \by^n) 
+	\to \normalDist\!\left(\btheta_\truthSub, \left[
+		 n \infoMat(\btheta_\truthSub)
+\right]^{-1} \right)$ \ as $\, n \to \infty$
+}\\ % Note: This can be more precisely stated as the convergence of $n^{-1/2} (\Theta - \btheta_\truthSub)$.
+\smallskip%
+where 
+$\, \infoMat(\btheta) = \expectation_{\thinnerspace y \thinnerspace \sim \thinnerspace  \likelihood(\thinnerspace \cdot \given \btheta)\!}\!\left[ 
+	- \frac{\partial^2}{\partial \btheta^2} \log \likelihood(y \given \btheta)
+\right]$.
+\end{theorem}
+
+\textbf{Cf.} Asymptotic theory for {\small MLE}: 
+$\, \mle{\btheta} \to \normalDist(\btheta_\truthSub, \left[
+		 n \infoMat(\btheta_\truthSub)
+\right]^{-1})$.
+
+\mbox{In particular, Bayes and freq CI's necessarily coincide asymptotically}
+(even though their interpretations are completely distinct).
+\end{frame}
+
+
+\newcommand{\samplesizeDependentMap}{\widehat{\theta}^{\text{\raisebox{.1ex}{$\thinnerspace n$}}}}
+\begin{frame}
+\frametitle{Asymptotic Gaussianity: Proof sketch (univariate)}
+Consider the Taylor expansion of $\log \density(\theta \given \by^n)$ around its mode $\samplesizeDependentMap$:
+\begin{tightEquation*}
+\begin{aligned}
+\log \density(\theta \given \by^n)
+	= \log \density\big( \samplesizeDependentMap \given \by^n \big)
+	&+ \frac12 \big( \theta - \samplesizeDependentMap \big)^2 \frac{\diff^2}{\diff \theta^2} \log \density\big( \samplesizeDependentMap \given \by^n \big) \\
+	&\hspace*{-1.5em}+ \frac{1}{3!} \big( \theta - \samplesizeDependentMap \big)^3 \frac{\diff^3}{\diff \theta^3} \log \density\big( \samplesizeDependentMap \given \by^n \big) 
+		+ \ldots.
+\end{aligned}
+\end{tightEquation*}
+Observe that 
+\begin{tightEquation*}
+\begin{aligned}
+\frac1n \frac{\diff^k}{\diff \theta^k} \log \density\big( \theta \given \by^n \big) 
+	&= \frac1n \frac{\diff^k}{\diff \theta^k} \log \density(\theta) 
+		+ \frac1n \sum_{i = 1}^n \frac{\diff^k}{\diff \theta^k} \log \likelihood(y_i \given \theta) \\
+	&\to \expectation_{\thinnerspace y \thinnerspace \sim \thinnerspace  \likelihood(\thinnerspace \cdot \given \theta_\truthSub)\!} \!\left[
+		\frac{\diff^k}{\diff \theta^k} \log \likelihood(y \given \theta)
+	\right] \, \text{ as } \thinnerspace n \to \infty.
+\end{aligned}
+\end{tightEquation*}
+Since the posterior concentrates around $\samplesizeDependentMap \approx \theta_\truthSub$, the terms $\big( \theta - \samplesizeDependentMap \big)^3 \frac{\diff^3}{\diff \theta^3} ...$ becomes immaterial relative to $n \big( \theta - \samplesizeDependentMap \big)^2$. 
+\hfill \qedsymbol
+\end{frame}
+
+\begin{frame}
+\frametitle{``Counterexample'' to the asymptotic theory}
+In invoking the law of large numbers in the proof, the fixed dimen- sionality of $\btheta$ and i.i.d.\ nature of $y_i$'s were important assumptions.
+
+B{\small UT} these assumptions are violated by many modern statistical \mbox{methods; e.g.\ random effects, model selection, non-parametrics, etc.}
+
+\mbox{(In fact, you should go Bayes only when classical methods fall short.)}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{``Counterexample'' to the asymptotic theory}
+One counterexample comes from a simple random effects model
+\begin{tightEquation*}
+y_{i1}, y_{i2} \given \mu_i, \phi
+	\sim \normalDist(\mu_i, \phi^{-1}), \ \,
+\mu_i \sim \normalDist(\mu_{\textrm{grp}}, \phi_{\textrm{grp}}^{-1})
+\end{tightEquation*}
+for $i = 1, \ldots, n$ with ``across-group'' mean $\mu_{\textrm{grp}}$ and variance $\phi_{\textrm{grp}}^{-1}$.
+% Note: For simplicity, we take the across-group mean and variance to be fixed.
+
+(This is basically the model behind the Neyman-Scott paradox except for slight extension to incorporate shrinkage toward $\mu_{\textrm{grp}}$.)
+
+\smallskip
+For example, $y_{i1}$ and $y_{i2}$ could represent batting averages of the $i$-th player in his 1st and 2nd games (\'{a} la \citealt{efron1975stein_est}).
+
+\smallskip
+\textbf{Question:} Would the posterior  of $(\bmu, \phi)$ look Gaussian for $n$ large?
+\end{frame}
+
+
+\begin{frame}
+\frametitle{``Counterexample'' to the asymptotic theory}
+For simplicity, let's just assume the objective prior $\density(\bmu, \phi) \propto 1 / \phi$ \\
+(i.e.\ $\phi_{\textrm{grp}} = \infty$), ignoring the shrinkage estimation aspect.
+
+Asymptotic behavior, if real, shouldn't depend on a prior anyways.
+
+we take $\mu_{\textrm{grp}}$ and $\phi_{\textrm{grp}}$ to be fixed and $\thinnerspace \density(\phi) \propto 1 / \phi$.
+
+
+The corresponding posterior is
+\begin{tightEquation*}
+\begin{gathered}
+\bbeta \given \bm{y}, \bX, \phi
+	\sim \normalDist\!\left(
+		 \left(  \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \bm{y}, \,
+		\left( \phi \bX^\transpose \bX \right)^{-1}
+	\right), \\
+\phi \given \bm{y}, \bX
+	\sim \gammaDist\!\left( 
+		\frac{n - \nPred}{2}, \thinnerspace \frac{\| \bm{y} - \bX \bbeta \|^2}{2} 
+	\right).
+\end{gathered}
+\end{tightEquation*}
 \end{frame}
 
 \nobibliography{references} % To cite inline without creating a bibliography
