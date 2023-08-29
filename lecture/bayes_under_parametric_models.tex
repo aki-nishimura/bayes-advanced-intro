@@ -1,4 +1,4 @@
-\documentclass[18pt, handout]{beamer}
+\documentclass[18pt]{beamer}
 
 \usetheme{metropolis}
 \usefonttheme{professionalfonts}
@@ -99,7 +99,12 @@
 \usepackage{natbib}
 	\bibliographystyle{abbrvnat}
 	\setcitestyle{authoryear, open={(}, close={)}}
+\usepackage{usebib}
 \usepackage{bibentry} % For \nobibliography
+%\nobibliography{references} % To cite inline without creating a bibliography
+\newbibfield{journal}
+\bibinput{references}
+
 
 %% Beamer options.
 \setbeamercovered{dynamic}
@@ -252,15 +257,23 @@
 \newcommand{\map}[1]{\widehat{#1}_{\textrm{map}}}
 \newcommand{\empiricalVar}{\widehat{\variance}}
 \newcommand{\kldivergence}{D_{\mathrm{KL}}}
-\newcommand{\infoMat}{\mathcal{I}}
+\newcommand{\truthSub}{\mathrm{tru}}
 
 %% Variable macros / Aliases
+\newcommand{\nPred}{p}
 \newcommand{\density}{\pi}
 \newcommand{\likelihood}{L}
+\newcommand{\infoMat}{\mathcal{I}}
 \newcommand{\by}{\bm{y}}
+\newcommand{\bx}{\bm{x}}
 \newcommand{\bX}{\bm{X}}
 \newcommand{\bmu}{\bm{\mu}}
+\newcommand{\bbeta}{\bm{\beta}}
 \newcommand{\btheta}{\bm{\theta}}
+\newcommand{\bPhi}{\bm{\Phi}}
+\newcommand{\bSigma}{\bm{\Sigma}}
+\newcommand{\minus}{\scalebox{1.0}[1.0]{{\scriptsize -}}}
+\newcommand{\Id}{\bm{I}}
 
 
 \title{\centerline{Bayesian analysis under parametric models}}
@@ -361,8 +374,8 @@ In particular, the posterior mean of $p$ is
 \begin{tightEquation*}
 \widehat{p}_{\textrm{bayes}} 
 	= \expectation[p \given y] 
-	= \frac{a + {\scriptstyle \sum_i} y_i,}{a + b + n}
-	= \frac{(a + b) \thinnerspace \expectation[p] + n \thinnerspace \mle{p},}{a + b + n},
+	= \frac{a + {\scriptstyle \sum_i} y_i}{a + b + n}
+	= \frac{(a + b) \thinnerspace \expectation[p] + n \thinnerspace \mle{p}}{a + b + n},
 \end{tightEquation*}
 \pause
 where $a + b$ can be interpreted as \textit{prior sample size}.
@@ -414,6 +427,7 @@ To properly construct such an informed prior, we have to:
 \begin{frame}
 \frametitle{Example: estimating incidence proportion}
 
+\vspace*{-.3\baselineskip}
 As a more pragmatic alternative to constructing a scientifically informed prior, we can consider specifying it in terms of: 
 \vspace*{-.1\baselineskip}
 \begin{narrowItemize}
@@ -435,6 +449,7 @@ For example, we can
 In other words, solve $(a + b) = 1$ and $a \divby (a + b) = 10^{-6}$ for $a$ and $b$. % which gives $a = 10^{-6}$ and $b = 1 - a$.
 
 \pause
+\smallskip
 Or, we can choose $a$ and $b$ so that the prior 95\% CI spans the background rate and highest vaccine-induced rate ever reported.%
 
 \end{frame}
@@ -554,6 +569,7 @@ Consider the problem of estimating a population mean $\mu$ under
 y_1, \ldots, y_n \given \mu, \sigma \iidSim \normalDist(\mu, \sigma^2).
 \end{tightEquation*}
 
+\pause
 For simplicity, let's first consider $\sigma$ to be fixed.
 Also, for convenience, we parametrize in terms of \textit{precision} $\phi = \sigma^{-2}$.
 \end{frame}
@@ -567,20 +583,24 @@ Convenient prior on $\mu$ is Gaussian:\ under the prior $\mu \sim \normalDist(\m
 \begin{aligned}
 \density(\mu \given \bm{y}, \phi)
 	&\propto \likelihood(\bm{y} \given \mu, \phi ) \density(\mu) \\
+	\pause
 %	&\propto \exp\!\left( - \frac{\phi}{2} \sum_i (y_i - \mu)^2\right)
 %		\exp\!\left( - \frac{\priorPrec}{2} (\mu - \mu_0)^2 \right) \\
 	&\propto \phi^{n / 2} \exp\!\left( - \frac12 \left[
 			\phi \sum_i (y_i - \mu)^2
 			+ \priorPrec (\mu - \mu_0)^2
 		\right] \right) \\
+	\pause
 	&\propto \exp\!\left( - \frac12 \left[
 			\phi \left( n \mu^2 - 2 \mu {\textstyle \sum_i} y_i \right)
 			+ \priorPrec (\mu^2 - 2 \mu \mu_0)
 		\right] \right) \\
+	\pause
 	&= \exp\!\left( - \frac12 \left[
 			(n \phi + \priorPrec) \mu^2 
 			- 2 \mu \big( \phi {\textstyle \sum_i} y_i + \priorPrec \mu_0 \big)
 		\right] \right) \\
+	\pause
 	&= \exp\!\left( - \frac12 \left[
 			\postPrec \left(
 				\mu^2 - 2 \mu \mu_{\textrm{post}} 
@@ -590,6 +610,7 @@ Convenient prior on $\mu$ is Gaussian:\ under the prior $\mu \sim \normalDist(\m
 \end{tightEquation*}
 for $\postPrec = n \phi + \priorPrec$ and $\mu_{\textrm{post}} = \postPrec^{-1} \left( \phi {\textstyle \sum_i} y_i + \priorPrec \mu_0 \right)$.
 
+\pause
 \vspace*{.3\baselineskip}
 In other words, the posterior is:
 $
@@ -606,15 +627,19 @@ Note that, as in the beta-binomial case, the posterior mean is a weighted averag
 \ \text{ where } \, \mle{\mu} = {\textstyle \sum_i} y_i / n.
 \end{tightEquation*}
 
+\pause
 Objective ``prior'' for this model is a flat dist $\density(\mu) \propto 1$, which can be though of as the limit $\priorPrec \to 0$ of diminishing prior info. 
 %\hspace*{.5em}\textcolor{themecolor}{$\blacktriangleright$} 
 
+\pause
 The flat prior is an example of \textit{improper priors}, whose use is justified by the posterior being a proper distribution.
 
+\pause
 Under the flat prior, the posterior becomes 
 $\mu \given \bm{y}, \phi \sim \normalDist\!\left( n \phi, \mle{\mu} \right)$,
 inferences under which coincides with frequentist ones.
 
+\pause
 \textbf{Note:} The flat prior (and $\betaDist(1/2, 1/2)$) also has a formal justification as being a Jeffreys/reference prior.
 \end{frame}
 
@@ -622,12 +647,14 @@ inferences under which coincides with frequentist ones.
 \frametitle{Univariate case: side note on conjugate priors}
 We've seen that a Gaussian (beta) prior leads to a Gaussian (beta) posterior under the Gaussian (binomial) likelihood model.
 
+\pause
 \smallskip
 More generally, a prior is said to be \textit{conjugate} for the likelihood if the corresponding posterior belongs to the same distribution family.
 
+\pause
 \smallskip
 Conjugate priors lead to (semi) analytically tractable posteriors and%
-\begin{narrowItemize}
+\begin{narrowItemize}[<+->]
 \item play an important, if not as critical as in the pre-Stan era, role in computationally tractable Bayesian modeling;
 \item provide insights into the mechanics of Bayesian inference.
 \end{narrowItemize}
@@ -636,6 +663,7 @@ Conjugate priors lead to (semi) analytically tractable posteriors and%
 
 \begin{frame}
 \frametitle{Univariate case with unknown variance}
+\pause
 Easy enough to infer by examining the likehood
 \begin{tightEquation*}
 \likelihood(\bm{y} \given \mu, \phi )
@@ -643,6 +671,7 @@ Easy enough to infer by examining the likehood
 			\phi \sum_i (y_i - \mu)^2
 		\right)
 \end{tightEquation*}
+\pause%
 that a (conditionally) conjugate prior for $\phi$ is a gamma distribution:
 \begin{tightEquation*}
 \density(\phi) 
@@ -651,6 +680,7 @@ that a (conditionally) conjugate prior for $\phi$ is a gamma distribution:
 \end{tightEquation*}
 with $\expectation[\phi] = a / b$ and $\variance[\phi] = a / b^2$.
 
+\pause 
 \smallskip
 The corresponding posterior is
 \begin{tightEquation*}
@@ -683,6 +713,7 @@ with
 	= \frac{1}{\nu_0 + n} \left( \nu_0 \varphi_0^{-1} + n \thinnerspace \frac{\textstyle \sum_i (y_i - \mu)^2}{n} \right).
 \end{tightEquation*}
 
+\pause
 \smallskip
 In particular, $\nu_0$ can be interpreted as a prior degrees of freedom.
 \end{frame}
@@ -704,8 +735,10 @@ with
 	= 1 \divby \mle{\phi}.
 \end{tightEquation*}
 
+\pause
 Posterior becomes dominated by likelihood as prior becomes more diffuse, so the agreement with {\small MLE} isn't entirely surprising but \ldots
 
+\pause
 it's also worth noting the posterior mean differs from the mode
 \begin{tightEquation*}
 {\textstyle \argmax_{\phi}} \density\!\left( \phi \given \bm{y}, \mu \right)
@@ -720,6 +753,7 @@ it's also worth noting the posterior mean differs from the mode
 \frametitle{Univariate case with unknown variance}
 We now turn to the problem of estimating $\mu$ and $\phi$ simultaneously.
 
+\pause
 Most obvious choice is to assume $\mu$ and $\phi$ are a priori independent:
 \begin{tightEquation*}
 \density(\mu, \phi) = 
@@ -728,12 +762,14 @@ Most obvious choice is to assume $\mu$ and $\phi$ are a priori independent:
 	\gammaDist\!\left( \phi \given \nu_0 / 2, \thinnerspace \nu_0 \varphi_0^{-1} / 2 \right).
 \end{tightEquation*}
 
+\pause
 This prior, however, is only conditionally conjugate; i.e.\ 
 while $\mu \given \bm{y}, \phi$ and $\phi \given \bm{y}, \mu$ belong to the original families, $\mu, \phi \given \bm{y}$ does not.
 
+\pause
 \textbf{Note:} The independent prior is otherwise a perfectly good choice!
 
-Conjugate priors are worthy additions to your toolbox when they exist, but there is no reason to be religious about them.
+Fully conjugate priors are worthy additions to your toolbox when they exist, but there is no reason to be religious about them.
 \end{frame}
 
 
@@ -756,6 +792,7 @@ To identify a conjugate prior, we let $\bar{y} = n^{-1} \sum_i y_i$ and observe
 \end{tightEquation*}
 b/c $\sum_i (y_i - \mu)^2 = \sum_i (y_i - \bar{y})^2 + \sum_i (\bar{y} - \mu)^2$.
 
+\pause
 \medskip
 After staring at the last expression long enough, you'd realize that
 \begin{tightEquation*}
@@ -784,6 +821,7 @@ with density
 		\exp\!\left( - \frac{1}{2} \kappa_0 \phi (\mu - \mu_0)^2 \right).
 \end{tightEquation*}
 
+\pause
 \medskip
 The corresponding posterior is given by (homework)
 \begin{tightEquation*}
@@ -817,6 +855,7 @@ The posterior estimates mostly have the same structure as before, but let's take
 	\right).
 \end{equation*}
 
+\pause
 The $\frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2$ part shows one way in which $\mu$ and $\phi$ interact:
 \begin{tightEquation*}
 \text{%
@@ -825,6 +864,7 @@ The $\frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2$ part shows one way in
 }%
 \end{tightEquation*}
 
+\pause
 \smallskip
 But note also this ``bias'' diminishes as $n \to \infty$ since $\frac{\kappa_0 n}{\kappa_0 + n} \leq \kappa_0$.
 \end{frame}
@@ -834,9 +874,11 @@ But note also this ``bias'' diminishes as $n \to \infty$ since $\frac{\kappa_0 n
 \frametitle{Univariate case with unknown variance}
 The prior has a feature that the apriori (conditional) variance $\variance(\mu \given \phi) = 1 / \kappa_0 \phi$ depends on the noise variance $1 / \phi$.
 
+\pause
 \smallskip
 The prior thus has the behavior ``smaller the $\phi$ and noisier the $y_i$'s, less informative the prior on $\mu \given \phi$.''
 
+\pause
 \smallskip
 This may not be an accurate reflection of the prior knowledge, but is a reasonable data-adaptive behavior.
 \end{frame}
@@ -849,6 +891,7 @@ Identifying an appropriate objective prior isn't always straight- forward in mul
 \density(\mu, \phi) \propto 1 / \phi.
 \end{tightEquation*}
 
+\pause
 The objective prior yields a posterior
 \begin{tightEquation*}
 %\begin{aligned}
@@ -875,12 +918,7 @@ with
 
 \section{Linear regression}
 
-\newcommand{\bx}{\bm{x}}
-\newcommand{\bbeta}{\bm{\beta}}
-\newcommand{\bPhi}{\bm{\Phi}}
-\newcommand{\bSigma}{\bm{\Sigma}}
-\newcommand{\minus}{\scalebox{1.0}[1.0]{{\scriptsize -}}}
-\newcommand{\nPred}{p}
+
 \begin{frame}
 \frametitle{Linear regression}
 Consider a regression model with design matrix $\bX \in \mathbb{R}^{n \times \nPred}$
@@ -1163,7 +1201,7 @@ where the sum of the $n$ i.i.d.\ terms should eventually dominate.
 Here we will study some asymptotic behaviors of posteriors.
 \end{frame}
 
-\newcommand{\truthSub}{\mathrm{tru}}
+
 \begin{frame}
 \frametitle{Measuring ``distance'' between prob densities}
 \textit{Kullback–Leibler divergence} measure how far away a probability density $p(\cdot)$ is from the reference $q(\cdot)$ and is defined as
@@ -1361,7 +1399,8 @@ for $i = 1, \ldots, n$ with ``across-group'' mean $\mu_{\textrm{grp}}$ and varia
 For example, $y_{i1}$ and $y_{i2}$ could represent batting averages of the $i$-th player in his 1st and 2nd games (\'{a} la \citealt{efron1975stein_est}).
 
 \smallskip
-\textbf{Question:} Would the posterior  of $(\bmu, \phi)$ look Gaussian for $n$ large?
+\textbf{Question:} Would the posterior of $(\bmu, \phi)$ concentrate around the truth for $n$ large? 
+Would the posterior look Gaussian?
 \end{frame}
 
 
@@ -1372,25 +1411,135 @@ For simplicity, let's just assume the objective prior $\density(\bmu, \phi) \pro
 
 Asymptotic behavior, if real, shouldn't depend on a prior anyways.
 
-we take $\mu_{\textrm{grp}}$ and $\phi_{\textrm{grp}}$ to be fixed and $\thinnerspace \density(\phi) \propto 1 / \phi$.
-
-
 The corresponding posterior is
 \begin{tightEquation*}
 \begin{gathered}
-\bbeta \given \bm{y}, \bX, \phi
-	\sim \normalDist\!\left(
-		 \left(  \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \bm{y}, \,
-		\left( \phi \bX^\transpose \bX \right)^{-1}
+\mu_i \given \bm{y}, \phi 
+	\sim \normalDist\!\left( 
+		\frac{y_{i1} + y_{i2}}{2}, \thinnerspace
+		\frac12 \phi^{-1}
 	\right), \\
-\phi \given \bm{y}, \bX
+\phi \given \bm{y}
 	\sim \gammaDist\!\left( 
-		\frac{n - \nPred}{2}, \thinnerspace \frac{\| \bm{y} - \bX \bbeta \|^2}{2} 
+		\frac{n}{2}, \thinnerspace 
+		\frac{\sum_i (y_{i1} - y_{i2})^2}{4} 
 	\right).
 \end{gathered}
 \end{tightEquation*}
+
+The posterior means estimate the true parameters consistently:
+\begin{tightEquation*}
+\expectation[\mu_i \given \bm{y}]
+%	= \expectation[ \expectation[\mu_i \given \bm{y}, \phi] ]
+	= \frac{y_{i1} + y_{i2}}{2}, \ \,
+\expectation[\phi \given \bm{y}]^{-1}
+	= \frac{\sum_i (y_{i1} - y_{i2})^2}{2 n}.
+\end{tightEquation*}
+
+In fact, $\density(\phi \given \by) \to \delta_{\phi_\truthSub}(\phi)$, though $\variance(\mu_i \given \bm{y})$ never vanishes.
 \end{frame}
 
-\nobibliography{references} % To cite inline without creating a bibliography
+
+\begin{frame}
+\frametitle{``Counterexample'' to the asymptotic theory}
+We already see the asymtotic theory breaking down, but let's nonetheless ask the question: Does the posterior look Gaussian?
+
+\smallskip
+That in particular would imply its mean and mode to be similar.
+
+\smallskip
+But the posterior mode exhibits a fundamentally different behavior:
+%But the posterior mode (which is similar to the {\small MLE}) exhibits a fundamentally different behavior, being off by a factor of 2:
+\begin{tightEquation*}
+\map{\phi}^{-1} = \frac{\sum_i (y_{i1} - y_{i2})^2}{4 (n - 1)}.
+\end{tightEquation*}
+% Note: Worth working this out in the class for students to really believe it.
+
+The mode, and {\small MLE}, is off by a factor of 2! (Hence a ``paradox.'')
+\end{frame}
+
+
+\begin{frame}
+\frametitle{``Counterexample'' to the asymptotic theory}
+Why the difference? 
+
+The answer, turns out, is not so much ``mean vs.\ mode'' but the Bayes estimator properly accounting for uncertainty in $\mu_i$'s. 
+
+\smallskip
+To be more precise, the mean is based on the posterior marginal
+\begin{tightEquation*}
+\density(\phi \given \by)
+	= \int \density(\phi \given \bmu, \by) \density(\bmu \given \by) \diff \bmu
+\end{tightEquation*}
+which \textit{integrates out} $\bmu$, whose uncertainty remains as $n \to \infty$.
+
+\smallskip
+%Incidentally, the posterior marginal can be equivalently derived as $\propto \likelihood(\by \given \phi) \density(\phi)$ in terms of the marginal likelihood
+%\begin{tightEquation*}
+%\likelihood(\by \given \phi)
+%%	= \int \likelihood(\by, \bmu \given \phi) \diff \bmu
+%	= \int \likelihood(\by \given \bmu, \phi) \density(\bmu \given \phi) \diff \bmu.
+%\end{tightEquation*}
+Its effect is also seen in the fact $\thinnerspace \variance(\phi \given \by) \sim 4 n / \phi_\truthSub^2$ while 
+\begin{tightEquation*}
+- \frac{\diff^2}{\diff (\bmu, \phi)^2} \log \likelihood(y \given \bmu, \phi)
+	= \begin{bmatrix}
+	\phi \Id_{n \times n} & \bm{0} \\
+	0 & n / \phi^2
+	\end{bmatrix}.
+\end{tightEquation*}
+\end{frame}
+
+
+\section{\centerline{Summary}}
+
+\begin{frame}
+\frametitle{Summary of ``Bayes under parametric models''}
+We have studied behaviors of posteriors under relatively simple models to build intuitions. 
+
+Under parametric models, Bayesian inference has much similarity to the classical one based on {\small MLE}.
+\begin{narrowItemize}
+\item Conjugate analysis demonstrates sound, intuitive behaviors of posteriors and helps quantify relative weights on priors. 
+	% Note: Having been trained in the classical statistics, we cannot help notice the familiar quantities popping up in the Bayesian analysis of the models. But the only thing we did really was just to adhere to what the probability theory tells us and multiply the likelihood and prior. We woud have arrived at a right statistical inference even if we knew nothing about the classical statistical estimation methods.
+	% Note: Many Bayes newbies are, understandably, uncomfortable at picking a prior. But the prior really doesn't have much impact on the posterior when the likelihood is informative and, when the likelihood is not, then we cannot really proceed without imposing some additional structures.
+\item Bayesian cred intervals often have remarkably good freq performance (despite the Bayes-freq philosophical differences).
+\item The two``CI''s coincide asymptotically; 
+	Bayes's may well have better freq performance than alternatives in finite samples.
+%\item In fact, Bayesian thinking can be useful in devising a freq procedure, whose performance can then be evaluated formally.
+\end{narrowItemize}
+\end{frame}
+
+\nobibliography{references}
+\newcommand{\bda}{BDA3}
+\begin{frame}
+\frametitle{References}
+
+Simple parametric models:
+
+\begin{indented}[4]
+\bda{} Chapter~2 \& 3 for uni-/multi-variate models.
+\end{indented}
+%\begin{narrowItemize}
+%\item \bda{} Chapter~2/3 for uni-/multi-variate models
+%\end{narrowItemize}
+
+Linear regression:
+\begin{narrowItemize}
+\item \bda{} Chapter~14.1--14.5.
+\end{narrowItemize}
+
+Bayesian asymptotics:
+\begin{narrowItemize}
+\item \bda{} Chapter~4 and Appendix~B.
+\end{narrowItemize}
+
+Further readings:
+\begin{narrowItemize}
+\item \cite{bayarri2004bayes_freq_interplay}.% 
+	``\usebibentry{bayarri2004bayes_freq_interplay}{title}.''%
+	\textit{\usebibentry{bayarri2004bayes_freq_interplay}{journal}}.
+\end{narrowItemize}
+\end{frame}
+
 
 \end{document}
