@@ -124,19 +124,19 @@
 \setbeamertemplate{itemize subitem}{\normalsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}  % to set the symbol size
 
 %% Custom environments
-\newcommand{\defineTightItemizeSpacing}{%
+\newcommand{\defineTightSpacing}{%
 	\setlength{\abovedisplayskip}{.25\baselineskip}%
 	\setlength{\belowdisplayskip}{.25\baselineskip}%
 }
 \newenvironment{tightEquation}{%
-	\defineTightItemizeSpacing%
+	\defineTightSpacing%
 	\begin{equation}
 }{
 	\end{equation} \ignorespacesafterend
 }
 \makeatletter
 \newenvironment{tightEquation*}{%
-	\defineTightItemizeSpacing%
+	\defineTightSpacing%
 	\begin{equation*}
 }{
 	\end{equation*} \ignorespacesafterend
@@ -163,20 +163,20 @@
 	}{
 	\end{minipage}
 }
-\newenvironment{wideitemize}{%
+\newenvironment{spreadItemize}{%
   \begin{itemize}
   \addtolength\itemsep{.4\baselineskip}
 }{
   \end{itemize}
 }
-\newenvironment{narrowItemize}[1][]{%
+\newenvironment{tightItemize}[1][]{%
   \vspace{-.3\baselineskip}%
   \begin{itemize}[#1]
   \addtolength\itemsep{-.1\baselineskip}
 }{
   \end{itemize}
 }
-\newenvironment{narrowEnumerate}[1][1.]{%
+\newenvironment{tightEnumerate}[1][1.]{%
   \vspace{-.3\baselineskip}%
   \begin{enumerate}[#1]
   \addtolength\itemsep{-.1\baselineskip}
@@ -433,12 +433,12 @@ to address the drawbacks of the traditional intro to Bayes.
 
 \pause
 \textbf{Features:} 
-\begin{narrowItemize}[<+->]
+\begin{tightItemize}[<+->]
 \item Proceeds more quickly through standard models, assuming substantial familiarity with (non-Bayesian) statistical inference;
 \item Explores, whenever practically relevant, similarities and differences between Bayes and freq approaches;
 \item Prioritizes foundational principles over applied modeling.
 	% Note: Though this is not to say that the course isn't important for applied Bayesian modellers. 
-\end{narrowItemize}
+\end{tightItemize}
 
 \end{frame}
 
@@ -496,7 +496,7 @@ It then places a \textit{prior} dist $\density(\btheta)$ on the parameter to be 
 \smallskip
 Conceptually, this is all that's required; 
 basic math then tells us, having observed $\by$, the \textit{posterior} dist on unknown $\btheta$ is given by
-\begin{equation*} \defineTightItemizeSpacing%
+\begin{equation*} \defineTightSpacing%
 \density(\btheta \given \by) 
 	\propto \likelihood(\by \given \btheta) \thinnerspace \density(\btheta).
 \end{equation*}
