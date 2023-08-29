@@ -297,7 +297,7 @@
 
 %\section{Bayesian estimation of incidence proportion}
 
-\begin{frame}
+\begin{frame}<handout:0>
 \frametitle{Example: estimating incidence proportion}
 \textbf{Question:} 
 \only<+>{``Does the new vaccine cause \ldots?''}%
@@ -308,6 +308,43 @@
 \only<+>{%
 (Unfortunately, this turned out to be the case for the 1976 swine flu vaccine, albeit the syndrome remaining extremely rare.)
 }%
+\only<+->{%
+To answer, we want to estimate the incidence proportion within, say, 4 weeks of vaccination and compare it to the background rate.
+}%
+\end{minipage}
+
+\pause[\thebeamerpauses]
+\textbf{Model:} We assume a binomial model
+\begin{tightEquation*}
+y_1, \ldots, y_n \given p 
+	\iidSim \mathrm{Bernoulli}(p)
+\end{tightEquation*}
+with the likelihood function
+\begin{tightEquation*}
+\likelihood(\by \given p) 
+	= \textstyle \prod_i p^{y_i} (1 - p)^{1 - y_i}
+	= p^{{\scriptscriptstyle \sum_i} y_i} (1 - p)^{n - {\scriptscriptstyle \sum_i} y_i}.
+\end{tightEquation*}
+
+\pause
+\textbf{Inference:}
+Maximizing the likelihood gives us $\mle{p} = {\scriptstyle \sum_i} y_i \divby n$.
+
+\pause 
+Problem? 
+There's a good chance $\mle{p} = 0$; the null incidence of Guillain-Barré is $\leq 1.5$ in million during 4-week period.
+
+\pause
+Potential fix is continuity correction, which yields $\widehat{p} = 0.5 \divby (n + 1)$.
+\end{frame}
+
+
+\begin{frame}<beamer:0>
+\frametitle{Example: estimating incidence proportion}
+\textbf{Question:} 
+\only<+->{``Does the new vaccine cause Guillain-Barré syndrome?''}
+
+\begin{minipage}[t][2\baselineskip]{\linewidth}
 \only<+->{%
 To answer, we want to estimate the incidence proportion within, say, 4 weeks of vaccination and compare it to the background rate.
 }%
