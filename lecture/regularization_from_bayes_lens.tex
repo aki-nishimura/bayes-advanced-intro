@@ -229,6 +229,7 @@
 \newcommand{\yesnumber}{\addtocounter{equation}{1}\tag{\theequation}}
 \newcommand{\thinnerspace}{\mskip.5\thinmuskip}
 \newcommand{\thinnestspace}{\mskip.25\thinmuskip}
+\newcommand{\negthinnerspace}{\mskip-.5\thinmuskip}
 \newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
 \newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
 
@@ -360,7 +361,7 @@ JS estimator is an example of \textit{shrinkage estimators}, taking a form $\wid
 Technically, ``shrinkage'' in $\widehat{\bmu}_{\mathrm{JS}}$ is only true with high probability: 
 $\expectation \thinnerspace \| \by \|^2 
 %	= \expectation\!\left[ \expectation[\| \by \|^2 \given \bmu] \right] 
-	= \expectation\!\left[ \| \bmu \|^2  + n \sigma^2 \right] $,
+	= \| \bmu \|^2  + n \sigma^2$,
 so we expect $(n - 2) \sigma^2 / \| \by \|^2 < 1$.
 
 \smallskip
@@ -368,6 +369,115 @@ Better yet, the following modification improves on $\widehat{\bmu}_{\mathrm{JS}}
 \begin{tightEquation*}
 \widehat{\bmu}_{\mathrm{B}}(\by) = \left[ 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right]^+ \! \by.
 	% Note: Subscript "B" for Baranchik (1970), "A family of minimax estimators of the mean of a multivariate normal distribution."
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{M{\normalsize SE} of Gaussian mean estimator}
+By routine algebra,
+\begin{equation*} \defineTightSpacing%
+\| \widehat{\bmu} - \bmu \|^2
+	= - \| \by - \bmu \|^2 + \| \by - \widehat{\bmu} \|^2 
+		+ 2 \left\langle \by - \bmu, \widehat{\bmu} - \bmu \right\rangle.
+\end{equation*}
+Taking expectations, we have
+\begin{equation*} \defineTightSpacing%
+\expectation \| \widehat{\bmu} - \bmu \|^2
+	= - n \sigma^2 + \expectation \| \by - \widehat{\bmu} \|^2 
+%		+ 2 \thinnerspace {\textstyle \sum_i} \covariance(y_i, \widehat{\mu}_i).
+		+ 2 \thinnerspace {\textstyle \sum_i} \thinnerspace \expectation[ (\widehat{\mu}_i - \mu_i) (y_i - \mu_i) ].
+\end{equation*}
+
+We now invoke \textit{Stein's lemma}: if $\mathbf{Y} \sim \normalDist(\bmu, \bSigma)$ and $f: \mathbb{R}^n \to \mathbb{R}$, 
+\begin{equation*} \defineTightSpacing%
+\expectation[ f(\mathbf{Y}) (\mathbf{Y} - \bmu) ] = \bSigma \, \expectation[ \nabla \negthinnerspace f(\mathbf{Y})].
+\end{equation*}
+Applying the lemma to $f(\by) = \widehat{\mu}_i(\by) - \mu_i$ yields
+\begin{equation*} \defineTightSpacing%
+\expectation[ (\widehat{\mu}_i - \mu_i) (\by - \bmu) ] 
+	= \sigma^2 \thinnerspace \expectation[ \nabla \widehat{\mu}_i(\by)].
+\end{equation*}
+
+Plugging this into the earlier equality:
+\begin{equation*} \defineTightSpacing%
+\expectation \| \widehat{\bmu} - \bmu \|^2
+	= - n \sigma^2 + \expectation \| \by - \widehat{\bmu} \|^2 
+%		+ 2 \thinnerspace {\textstyle \sum_i} \covariance(y_i, \widehat{\mu}_i).
+		+ 2 \sigma^2 \thinnerspace {\textstyle \sum_i} \thinnerspace \expectation\!\left[ \frac{\partial \widehat{\mu}_i}{\partial y_i}  \right].
+\end{equation*}
+	% Note: SURE's value lies in the fact that the right-hand side does not depend on the true, unknown $\bmu$. So you can estimate MSE without knowing $\bmu$ and, for example, try to minimize it.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{M{\normalsize SE} of Gaussian mean estimator}
+What we've derived, essentially, is \textit{Stein's unbiased risk estimator}:
+\begin{equation*} \defineTightSpacing%
+\widehat{\operatorname{MSE}}
+	= - n \sigma^2 +  \| \by - \widehat{\bmu} \|^2 
+		+ 2 \sigma^2 \thinnerspace {\textstyle \sum_i} \frac{\partial \widehat{\mu}_i}{\partial y_i}.
+\end{equation*}
+\vspace*{-.7\baselineskip}
+
+We now calculate \textsc{SURE} for $\, \widehat{\bmu}_{\mathrm{JS}}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \! \by$. 
+Note
+\begin{equation*} \defineTightSpacing%
+\| \by - \widehat{\bmu}_{\mathrm{JS}} \|^2 
+	= \left\| \frac{(n - 2) \sigma^2}{\| \by \|^2} \by \thinnerspace \right\|^2 
+	= \frac{(n - 2)^2 \sigma^4}{\| \by \|^2},
+%+ 2 \sigma^2 \thinnerspace {\textstyle \sum_i} \frac{\partial \widehat{\mu}_i}{\partial y_i}.
+\end{equation*}
+and
+\begin{equation*} \defineTightSpacing%
+\frac{\partial \widehat{\mu}_{\mathrm{JS}, i}}{\partial y_i}
+	= \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) - (n - 2) \sigma^2 y_i \thinnerspace \frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2}.
+\end{equation*}
+
+\smallskip
+Since $\frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2 y_i}{\| \by \|^4}$ and $\sum_i  y_i \thinnerspace \frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2}{\| \by \|^2}$ , we have
+\begin{equation*} \defineTightSpacing%
+{\textstyle \sum_i} \frac{\partial \widehat{\mu}_{\mathrm{JS}, i}}{\partial y_i}
+	= n \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) + \frac{2 (n - 2) \sigma^2}{\| \by \|^2} % 2 (n - 2) \sigma^2\frac{\!\!1}{\| \by \|^2}
+	= n - \frac{(n - 2)^2 \sigma^2}{\| \by \|^2}.
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{M{\normalsize SE} of Gaussian mean estimator}
+So \textsc{SURE} for $\widehat{\bmu}_{\mathrm{JS}}$ is given by
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\widehat{\operatorname{MSE}}_{\mathrm{JS}}
+	&= - n \sigma^2 
+		+ \frac{(n - 2)^2 \sigma^4}{\| \by \|^2}
+		+ 2 n \sigma^2 
+		- 2 \frac{(n - 2)^2 \sigma^4}{\| \by \|^2} \\
+	&= n \sigma^2 - \frac{(n - 2)^2 \sigma^4}{\| \by \|^2}.
+\end{aligned}
+\end{equation*}
+
+Taking expectations, we obtain
+\begin{equation*} \defineTightSpacing%
+\expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 
+	= n \sigma^2  - (n - 2)^2 \sigma^4 \thinnerspace \expectation\!\left[ \frac{\!\!1}{\| \by \|^2} \right] 
+%	\leq n \sigma^2
+	\leq \expectation \| \by - \bmu \|^2.
+\end{equation*}
+
+This reduction in \textsc{MSE} can be substantial; 
+e.g.\ in case $\bmu = \bm{0}$, 
+\begin{tightEquation*}
+\| \by \|^2
+	= \textstyle \sum_i y_i^2 
+	\sim \sigma^2 \thinnerspace \chi_n^2 
+	\ \text{ and } \
+\expectation\!\left[ \frac{\!1}{\| \by \|^2} \right] = \frac{1}{(n - 2) \sigma^2};
+\end{tightEquation*}
+\vspace*{-.5\baselineskip}
+\begin{tightEquation*}
+\Rightarrow \ \expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 = n \sigma^2  - (n - 2) \sigma^2 = 2 \sigma^2 \, \text{!}
 \end{tightEquation*}
 \end{frame}
 
@@ -864,7 +974,7 @@ One possibility for estimating the quantity is to train the model on the $\train
 
 \begin{frame}
 \frametitle{Estimating predictive loss via cross-validation}
-Since $(y_i, \bx_i)$'s are assumed i.i.d., their ordering immaterial. 
+Since $(y_i, \bx_i)$'s are assumed i.i.d., their ordering is immaterial. 
 We could equally apply the training and testing on a permuted data:
 \begin{equation*} \defineTightSpacing%
 \widehat{\loss} \overset{?}{=}
