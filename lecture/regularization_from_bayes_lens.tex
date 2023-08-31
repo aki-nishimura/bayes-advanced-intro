@@ -465,20 +465,34 @@ Taking expectations, we obtain
 %	\leq n \sigma^2
 	\leq \expectation \| \by - \bmu \|^2.
 \end{equation*}
+\end{frame}
 
-This reduction in \textsc{MSE} can be substantial; 
-e.g.\ in case $\bmu = \bm{0}$, 
-\begin{tightEquation*}
-\| \by \|^2
-	= \textstyle \sum_i y_i^2 
-	\sim \sigma^2 \thinnerspace \chi_n^2 
-	\ \text{ and } \
-\expectation\!\left[ \frac{\!1}{\| \by \|^2} \right] = \frac{1}{(n - 2) \sigma^2};
-\end{tightEquation*}
-\vspace*{-.5\baselineskip}
-\begin{tightEquation*}
-\Rightarrow \ \expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 = n \sigma^2  - (n - 2) \sigma^2 = 2 \sigma^2 \, \text{!}
-\end{tightEquation*}
+\begin{frame}
+\frametitle{M{\normalsize SE} of Gaussian mean estimator}
+This reduction in \textsc{MSE} can be substantial.
+For large $n$, we have
+\begin{equation*} \defineTightSpacing%
+\frac{1}{n} \| \by \|^2 \approx \frac{1}{n} \| \bmu \|^2 + \sigma^2.
+\end{equation*}
+
+Taking expectations, we obtain
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 
+	&= n \sigma^2  - (n - 2)^2 \sigma^4 \thinnerspace \expectation\!\left[ \frac{\!\!1}{\| \by \|^2} \right] \\
+	&= n \sigma^2 \left(
+		1 - \frac{(n - 2)^2}{n^2} \expectation\!\left[ \frac{n \sigma^2}{\| \by \|^2} \right] 
+	\right) \\
+	&\sim n \sigma^2 \left(
+		1 - \frac{\sigma^2}{\sigma^2 + n^{-1} \| \bmu \|^2} 
+	\right)
+	\ \text{ as } \, n \to \infty.
+\end{aligned}
+\end{equation*}
+
+So the reduction is roughly determined by noise vs.\ signal size (i.e.\ $\sigma^2$ vs.\ $n^{-1} \| \bmu \|^2$);
+e.g.  $\sigma^2 \approx n^{-1} \| \bmu \|^2$ leads to 50\% (!) reduction. 
+
 \end{frame}
 
 
