@@ -492,7 +492,55 @@ Taking expectations, we obtain
 
 So the reduction is roughly determined by noise vs.\ signal size (i.e.\ $\sigma^2$ vs.\ $n^{-1} \| \bmu \|^2$);
 e.g.  $\sigma^2 \approx n^{-1} \| \bmu \|^2$ leads to 50\% (!) reduction. 
+\end{frame}
 
+
+\begin{frame}
+\frametitle{Shrinkage in action: Famous batting ave example}
+% Note: How Efron and Morris dealt with unequal variances is discussed here: https://stats.stackexchange.com/questions/119786/james-stein-estimator-with-unequal-variances.
+\begin{figure}
+\centering
+\includegraphics[width=.75\linewidth]{Figure/batting_ave_example_scientific_american}
+\caption*{\textcolor{themecolor}{\textbf{Figure:}}
+	Predicting the 1970 season's performance from first 45 at bat\\ \hfill \citep{efron1977stein_sci_american}.%
+}%
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Shrinkage in action: Famous batting ave example}
+\vspace*{-.5\baselineskip}
+\begin{figure}
+\centering
+\includegraphics[width=.9\linewidth]{Figure/batting_ave_example_viz}
+% Credit: https://r.tquant.eu/UvA/JamesSteinEstimator/
+\vspace*{-.5\baselineskip}
+\caption*{\textcolor{themecolor}{\textbf{Figure:}}
+	Comparing JS estimates and observed season performances.%
+}%
+\end{figure}
+
+\vspace*{-.8\baselineskip}
+\textbf{Note:} The large amount of shrinkage is a known drawback.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Shrinkage in action:  Toxoplasmosis example}
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{Figure/toxoplasmosis_example_map_scientific_american}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Shrinkage in action:  Toxoplasmosis example}
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{Figure/toxoplasmosis_example_scientific_american}
+\end{figure}
 \end{frame}
 
 
@@ -1012,9 +1060,79 @@ Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-
 \end{frame}
 
 
+\begin{frame}<handout:0>
+\frametitle{Bayesian perspective on cross-validation}
+We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \textsc{CV}'s.
+
+As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradigm considers its average over the posterior:
+\begin{equation*} \defineTightSpacing%
+\loss_\mathrm{ba}(y_{\trainingSize + 1})
+	= \int \loss(y_{\trainingSize + 1}, \widehat{y}(\btheta)) \, \density(\btheta \given \by^\trainingSize) \diff \btheta.
+\end{equation*}
+
+\invisible{% Just to allocate suitable vertical white space
+	Let's now consider a loss function
+	\begin{equation*} \defineTightSpacing%
+	- \loss(y, \widehat{y})
+		= \frac{1}{\sqrt{2\varpi} \sigma}
+			\exp\!\left(%
+			-
+				\frac{1}{2 \sigma^2}
+				(y - \widehat{y})^2
+		\right),
+	\end{equation*}
+	whose expectation over $\widehat{y}(\btheta)$ with $\btheta \sim \density(\thinnerspace \cdot \given \by^\trainingSize) $ corresponds to the (negative) \textit{posterior predictive score} in Gaussian likelihood models.
+	
+	\smallskip
+	More generally, the posterior predictive score corresponds to
+	\begin{equation*} \defineTightSpacing%
+	- \loss_\mathrm{ba}(y_{\trainingSize + 1})
+		= \int \likelihood(y_{\trainingSize + 1} \given \btheta) \, \density(\btheta \given \by^\trainingSize) \diff \btheta
+		= \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize).
+	\end{equation*}
+}%
+\end{frame}
+
+
 \begin{frame}
 \frametitle{Bayesian perspective on cross-validation}
+We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \textsc{CV}'s.
 
+As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradigm considers its average over the posterior:
+\begin{equation*} \defineTightSpacing%
+\loss_\mathrm{bayes}(y_{\trainingSize + 1})
+	= \int \loss(y_{\trainingSize + 1}, \widehat{y}(\btheta)) \, \density(\btheta \given \by^\trainingSize) \diff \btheta.
+\end{equation*}
+
+Let's now consider a loss function
+\begin{equation*} \defineTightSpacing%
+\onslide<3->{-\!} \loss(y, \widehat{y})
+	= \onslide<5->{\frac{1}{\sqrt{2\varpi} \sigma}}
+		\onslide<4->{\exp\!\left(\!\!}%
+		\onslide<3->{-\!}
+			\onslide<2->{\frac{1}{2 \sigma^2}} 
+			(y - \widehat{y})^2
+	\onslide<4->{\right),}
+\end{equation*}
+\onslide<6->{%
+whose expectation over $\widehat{y}(\btheta)$ with $\btheta \sim \density(\thinnerspace \cdot \given \by^\trainingSize) $ corresponds to the (negative) \textit{posterior predictive score} in Gaussian likelihood models.	
+}%
+
+\smallskip
+\onslide<7->{%
+More generally, the posterior predictive score corresponds to
+\begin{equation*} \defineTightSpacing%
+- \loss_\mathrm{bayes}(y_{\trainingSize + 1})
+	= \int \likelihood(y_{\trainingSize + 1} \given \btheta) \, \density(\btheta \given \by^\trainingSize) \diff \btheta
+	= \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize).
+\end{equation*}
+}%
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Bayesian perspective on cross-validation}
+In other words, the predictive likelihood $\likelihood(y_{\trainingSize + 1} \given \by^\trainingSize)$ admits an interpretation as a loss/utility-based measure of prediction quality.
 \end{frame}
 
 
