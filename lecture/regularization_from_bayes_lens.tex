@@ -281,6 +281,7 @@
 
 %% For cross-validation 
 \newcommand{\loss}{\mathcal{L}}
+\newcommand{\score}{\mathcal{S}}
 \newcommand{\modelSymbol}{\mathcal{M}}
 \newcommand{\permutation}{\rho}
 \newcommand{\trainingSize}{m}
@@ -1057,13 +1058,14 @@ Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-
 		\testOutcome, \thinnerspace \testOutcomePredicted
 	\right).
 \end{equation*}
+
+\smallskip
+We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \textsc{CV}'s.
 \end{frame}
 
 
 \begin{frame}<handout:0>
 \frametitle{Bayesian perspective on cross-validation}
-We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \textsc{CV}'s.
-
 As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradigm considers its average over the posterior:
 \begin{equation*} \defineTightSpacing%
 \loss_\mathrm{ba}(y_{\trainingSize + 1})
@@ -1096,15 +1098,15 @@ As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradi
 
 \begin{frame}
 \frametitle{Bayesian perspective on cross-validation}
-We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \textsc{CV}'s.
+
 
 As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradigm considers its average over the posterior:
 \begin{equation*} \defineTightSpacing%
 \loss_\mathrm{bayes}(y_{\trainingSize + 1})
-	= \int \loss(y_{\trainingSize + 1}, \widehat{y}(\btheta)) \, \density(\btheta \given \by^\trainingSize) \diff \btheta.
+	= \int \loss(y_{\trainingSize + 1}, \widehat{y}(\btheta)) \, \density(\btheta \given \by^\trainingSize\negthinnerspace, \modelSymbol) \diff \btheta.
 \end{equation*}
 
-Let's now consider a loss function
+Let's consider a loss function
 \begin{equation*} \defineTightSpacing%
 \onslide<3->{-\!} \loss(y, \widehat{y})
 	= \onslide<5->{\frac{1}{\sqrt{2\varpi} \sigma}}
@@ -1122,9 +1124,11 @@ whose expectation over $\widehat{y}(\btheta)$ with $\btheta \sim \density(\thinn
 \onslide<7->{%
 More generally, the posterior predictive score corresponds to
 \begin{equation*} \defineTightSpacing%
+\begin{aligned}
 - \loss_\mathrm{bayes}(y_{\trainingSize + 1})
-	= \int \likelihood(y_{\trainingSize + 1} \given \btheta) \, \density(\btheta \given \by^\trainingSize) \diff \btheta
-	= \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize).
+	&= \int \likelihood(y_{\trainingSize + 1} \given \btheta) \, \density(\btheta \given \by^\trainingSize\negthinnerspace, \modelSymbol) \diff \btheta \\
+	&= \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
+\end{aligned}
 \end{equation*}
 }%
 \end{frame}
@@ -1133,6 +1137,105 @@ More generally, the posterior predictive score corresponds to
 \begin{frame}
 \frametitle{Bayesian perspective on cross-validation}
 In other words, the predictive likelihood $\likelihood(y_{\trainingSize + 1} \given \by^\trainingSize)$ admits an interpretation as a loss/utility-based measure of prediction quality.
+
+Building on this interpretation, we consider a leave-$\trainingSize$-out \textsc{CV} score for Bayesian models based on the log posterior predictive likelihood:
+\begin{equation*} \defineTightSpacing%
+\widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n) =
+	\frac{1}{{n \choose \trainingSize}} \sum_{\permutation}
+	\frac{1}{n - \trainingSize}\sum_{\testSampleIndex \thinnerspace = \thinnerspace \trainingSize + 1}^n
+	\log \likelihood(y_{\permutation(\testSampleIndex)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol),
+%	\loss\!\left(
+%		\testOutcome, \thinnerspace \testOutcomePredicted
+%	\right).
+\end{equation*}
+which provides an estimate of
+$\displaystyle \thinnerspace
+\score(\modelSymbol, \by^n)
+= \expectation\!\left[
+	\thinnerspace \log \likelihood(y_{n + 1} \given \by^n\negthinnerspace, \modelSymbol)
+\right].$
+
+\smallskip
+\begin{theorem}
+\normalfont
+Marginal likelihood $\likelihood(\by^n \given \modelSymbol)$ coincides with a sum of leave-$\trainingSize$- out \textsc{CV} score based on the log posterior predictive likelihood:
+\begin{equation*} \defineTightSpacing%
+\log \likelihood(\by^n \given \modelSymbol)
+	= \textstyle \sum_{\trainingSize = 1}^n \widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n).
+\end{equation*}
+\end{theorem}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+We can write a marginal likelihood as a product of one-step-ahead posterior predictive scores:
+\begin{equation*} \defineTightSpacing%
+\likelihood(\by^n \given \modelSymbol)
+	= \prod_{m = 0}^{n - 1} \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
+\end{equation*}
+
+In fact, since the likelihood is invariant under permutation of $y_i$'s,
+\begin{equation*} \defineTightSpacing%
+\likelihood(\by^n \given \modelSymbol)
+	= \likelihood(\by_{\permutation}^n \given \modelSymbol)
+	= \prod_{m = 0}^{n - 1} \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol).
+\end{equation*}
+
+Taking the log of both sides, 
+\begin{equation*} \defineTightSpacing%
+\log \likelihood(\by^n \given \modelSymbol)
+	= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol).
+\end{equation*}
+
+%Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-fold \textsc{CV}, averages the estimated losses across all possible permutations:
+%\begin{equation*} \defineTightSpacing%
+%\widehat{\loss}_{-\trainingSize} =
+%	\frac{1}{{n \choose \trainingSize}} \sum_{\permutation}
+%	\frac{1}{n - \trainingSize}\sum_{\testSampleIndex \thinnerspace = \thinnerspace \trainingSize + 1}^n
+%	\loss\!\left(
+%		\testOutcome, \thinnerspace \testOutcomePredicted
+%	\right).
+%\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+Since the equality hold for any permutation, we have
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\log \likelihood(\by^n \given \modelSymbol)
+	&= \frac{1}{n!} \sum_\permutation \sum_{m = 0}^{n - 1} \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\
+	&= \sum_{m = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
+\end{aligned}
+\end{equation*}
+
+Note that, for $m = 0$, we have 
+\begin{equation*} \defineTightSpacing%
+\sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
+	= (n - 1)! \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right),
+\end{equation*}
+and hence
+\begin{equation*} \defineTightSpacing%
+\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
+	= \frac{1}{n} \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right).
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+Similarly, for $m = 1$,  
+\begin{equation*} \defineTightSpacing%
+\sum_\permutation \log \likelihood\!\left(y_{\permutation(2)} \given y_{\permutation(1)}, \modelSymbol \right)
+	= (n - 1)! \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_{\permutation(2)} \given y_\testSampleIndex, \modelSymbol \right),
+\end{equation*}
+and hence
+\begin{equation*} \defineTightSpacing%
+\frac{1}{n!} \sum_\permutation \log \likelihood(y_{\permutation(1)} \given \modelSymbol)
+	= \frac{1}{n} \sum_{\testSampleIndex = 1}^n \log \likelihood(y_\testSampleIndex \given \modelSymbol).
+\end{equation*}
 \end{frame}
 
 
