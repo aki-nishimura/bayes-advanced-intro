@@ -595,6 +595,27 @@ At the least, Bayesian inference has an explicit, clear interpretation in terms 
 }
 \end{frame}
 
+
+\begin{frame}
+\frametitle{Homework}
+\textbf{Problem 1:} 
+The Jeffreys prior is defined as $\density(\btheta) = \det\!\left(\infoMat(\btheta) \right)^{1/2}$, where $\infoMat(\btheta)$ is the Fisher information, and is arguably the prior of choice for objective Bayesian analysis when $\btheta$ is univariate.
+Show that $p \sim \betaDist(\frac12, \frac12)$ is the Jeffreys prior for the bernoulli model.
+What would be the Jeffreys prior if we use an alternate parametrization $\log \frac{p}{1 - p}$? 
+How does that affect posterior inference?
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homework}
+\textbf{Problem 2:} 
+Consider posterior inference for binomial data $y_1, \ldots, y_{25} \given p \iidSim \mathrm{Bernoulli}(p)$ under the prior $p \sim \betaDist(\frac12, \frac12)$.
+Numerically study the frequentist coverage of Bayesian 95\% credible intervals under $p = \frac{k}{100}$ for $k = 1, \ldots, 99$.
+You may analytically/numerically calculate any necessary quantities or resort to Monte Carlo simulation.
+Compare the credible intervals' performance to the coverage achieved by a frequentist procedure, such as the one based on the asymptotic normality of {\small MLE} or any other techniques that may be better suited to this specific setting.
+\end{frame}
+
+
 \section{\centerline{Gaussian likelihood models}}
 
 
