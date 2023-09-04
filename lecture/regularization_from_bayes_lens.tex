@@ -213,6 +213,7 @@
 %% General math macros
 \newcommand{\given}{\thinnerspace | \thinnerspace}
 \newcommand{\spacedColon}{\mkern .5mu : \mkern 1mu}
+\newcommand{\spacedEq}{\mkern 1mu = \mkern 1.5mu}
 \newcommand{\divby}{\thinnerspace /}
 \newcommand{\defeq}{\vcentcolon =} % `\coloneqq` and `\vcentcolon` requires the `mathtools` package: https://tex.stackexchange.com/questions/194344/symbol-for-definition
 \newcommand{\diff}{\operatorname{\mathrm{d}}\!{}}
@@ -1052,7 +1053,7 @@ where $\permutation(1), \ldots, \permutation(n)$ is a permutation of $\{ 1, \ldo
 Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-fold \textsc{CV}, averages the estimated losses across all possible permutations:
 \begin{equation*} \defineTightSpacing%
 \widehat{\loss}_{-\trainingSize} =
-	\frac{1}{{n \choose \trainingSize}} \sum_{\permutation}
+	\frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$\trainingSize$-out-of-$n$}}
 	\frac{1}{n - \trainingSize}\sum_{\testSampleIndex \thinnerspace = \thinnerspace \trainingSize + 1}^n
 	\loss\!\left(
 		\testOutcome, \thinnerspace \testOutcomePredicted
@@ -1141,7 +1142,7 @@ In other words, the predictive likelihood $\likelihood(y_{\trainingSize + 1} \gi
 Building on this interpretation, we consider a leave-$\trainingSize$-out \textsc{CV} score for Bayesian models based on the log posterior predictive likelihood:
 \begin{equation*} \defineTightSpacing%
 \widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n) =
-	\frac{1}{{n \choose \trainingSize}} \sum_{\permutation}
+	\frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$\trainingSize$-out-of-$n$}}
 	\frac{1}{n - \trainingSize}\sum_{\testSampleIndex \thinnerspace = \thinnerspace \trainingSize + 1}^n
 	\log \likelihood(y_{\permutation(\testSampleIndex)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol),
 %	\loss\!\left(
@@ -1156,7 +1157,7 @@ $\displaystyle \thinnerspace
 \right].$
 
 \smallskip
-\begin{theorem}
+\begin{theorem}[\citealt{fong2020marginal_likelihood}]
 \normalfont
 Marginal likelihood $\likelihood(\by^n \given \modelSymbol)$ coincides with a sum of leave-$\trainingSize$- out \textsc{CV} score based on the log posterior predictive likelihood:
 \begin{equation*} \defineTightSpacing%
@@ -1168,14 +1169,35 @@ Marginal likelihood $\likelihood(\by^n \given \modelSymbol)$ coincides with a su
 
 
 \begin{frame}
+\frametitle{Bayesian perspective on cross-validation}
+\begin{theorem}[\citealt{fong2020marginal_likelihood}]
+\normalfont
+Marginal likelihood $\likelihood(\by^n \given \modelSymbol)$ coincides with a sum of leave-$\trainingSize$- out \textsc{CV} score based on the log posterior predictive likelihood:
+\begin{equation*} \defineTightSpacing%
+\log \likelihood(\by^n \given \modelSymbol)
+	= \textstyle \sum_{\trainingSize = 1}^n \widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n).
+\end{equation*}
+\end{theorem}
+
+The result shows that the two seemingly distinct paradigms for comparing models are actually related to each other.
+
+Moreover, as a version of \textsc{CV}, the log marginal likelihood has the desirable property of being an average over all test-train data splits.
+
+In fact, the marginal likelihood can be an effective replacement for freq \textsc{CV} error estimates when the sample size is limited.
+\end{frame}
+
+
+\begin{frame}
 \frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
 We can write a marginal likelihood as a product of one-step-ahead posterior predictive scores:
+\vspace*{-.3\baselineskip}
 \begin{equation*} \defineTightSpacing%
 \likelihood(\by^n \given \modelSymbol)
 	= \prod_{m = 0}^{n - 1} \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
 \end{equation*}
 
 In fact, since the likelihood is invariant under permutation of $y_i$'s,
+\vspace*{-.15\baselineskip}
 \begin{equation*} \defineTightSpacing%
 \likelihood(\by^n \given \modelSymbol)
 	= \likelihood(\by_{\permutation}^n \given \modelSymbol)
@@ -1184,8 +1206,11 @@ In fact, since the likelihood is invariant under permutation of $y_i$'s,
 
 Taking the log of both sides, 
 \begin{equation*} \defineTightSpacing%
+\begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
-	= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol).
+	&= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol) \\
+	&= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given y_{\permutation(\trainingSize)}, \ldots, y_{\permutation(1)}, \modelSymbol).
+\end{aligned}
 \end{equation*}
 
 %Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-fold \textsc{CV}, averages the estimated losses across all possible permutations:
@@ -1213,13 +1238,18 @@ Since the equality hold for any permutation, we have
 
 Note that, for $m = 0$, we have 
 \begin{equation*} \defineTightSpacing%
+\begin{aligned}
 \sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
-	= (n - 1)! \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right),
+%	&= \sum_{\testSampleIndex = 1}^n \sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq i} \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right) \\
+	= \sum_{\testSampleIndex = 1}^n \sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq i} \ldots \thinnerspace
+	&= (n - 1)! \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right),
+\end{aligned}
 \end{equation*}
 and hence
 \begin{equation*} \defineTightSpacing%
 \frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
-	= \frac{1}{n} \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right).
+	= \frac{1}{n} \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right)
+	= \widehat{\score}_{-n}(\modelSymbol, \by^n).
 \end{equation*}
 \end{frame}
 
@@ -1228,15 +1258,123 @@ and hence
 \frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
 Similarly, for $m = 1$,  
 \begin{equation*} \defineTightSpacing%
-\sum_\permutation \log \likelihood\!\left(y_{\permutation(2)} \given y_{\permutation(1)}, \modelSymbol \right)
-	= (n - 1)! \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_{\permutation(2)} \given y_\testSampleIndex, \modelSymbol \right),
+\begin{aligned}
+\sum_\permutation \log \likelihood\!\left(y_{\permutation(2)} \given y_{\permutation(1)}, \modelSymbol \right) 
+	& = \sum_{\testSampleIndex = 1}^n \sum_{j \neq \testSampleIndex} \sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq i, \, \permutation(2) \spacedEq j} \ldots \\
+	&= (n - 2)! \sum_{\testSampleIndex = 1}^n \sum_{j \neq \testSampleIndex} \log \likelihood\!\left(y_j \given y_\testSampleIndex, \modelSymbol \right),
+\end{aligned}
 \end{equation*}
 and hence
 \begin{equation*} \defineTightSpacing%
-\frac{1}{n!} \sum_\permutation \log \likelihood(y_{\permutation(1)} \given \modelSymbol)
-	= \frac{1}{n} \sum_{\testSampleIndex = 1}^n \log \likelihood(y_\testSampleIndex \given \modelSymbol).
+\begin{aligned}
+\frac{1}{n!} \sum_\permutation
+	 \log \likelihood\!\left(y_{\permutation(2)} \given y_{\permutation(1)}, \modelSymbol \right)
+	&= \frac{1}{n} \sum_{\testSampleIndex = 1}^n \frac{1}{n - 1} \sum_{j \neq \testSampleIndex} \log \likelihood\!\left(y_j \given y_\testSampleIndex, \modelSymbol \right) \\
+	&= \widehat{\score}_{-(n - 1)}(\modelSymbol, \by^n).
+\end{aligned}
 \end{equation*}
 \end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+Let's try just one more case by hand: for $m = 2$,  
+\begin{equation*} % \defineTightSpacing%
+\begin{aligned}
+&\sum_\permutation \log \likelihood\!\left(y_{\permutation(3)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\
+	&\hspace*{1.5em}= \sum_{\testSampleIndex, \thinnerspace j, \thinnerspace k \mkern 5mu \mathrm{distinct}} \ 
+	\sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq i, \, \permutation(2) \spacedEq j, \, \permutation(3) \spacedEq k} \ldots \\
+	&\hspace*{1.5em}= (n - 3)! \sum_{\testSampleIndex, \thinnerspace j, \thinnerspace k \mkern 5mu \mathrm{distinct}} \log \likelihood\!\left(y_k \given y_j, y_\testSampleIndex, \modelSymbol \right) \\
+	&\hspace*{1.5em}= (n - 3)! \, 2! \sum_{j \thinnerspace > \thinnerspace \testSampleIndex} \sum_{k \neq \testSampleIndex, \thinnerspace k \neq j} \log \likelihood\!\left(y_k \given y_j, y_\testSampleIndex, \modelSymbol \right) \\
+	&\hspace*{1.5em}= (n - 2)! \, 2! \sum_{j \thinnerspace > \thinnerspace \testSampleIndex} 
+		\frac{1}{n - 2}\sum_{k \neq \testSampleIndex, \thinnerspace k \neq j} \log \likelihood\!\left(y_k \given y_j, y_\testSampleIndex, \modelSymbol \right) \\
+	&\hspace*{1.5em}= (n - 2)! \, 2! \sum_{\permutation \spacedColon \text{$\trainingSize$-out-of-$n$}}
+		\frac{1}{n - 2} \sum_{\testSampleIndex = 3}^{n - \trainingSize} \log \likelihood\!\left(y_{\permutation(\testSampleIndex)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right).
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+So we have shown
+\begin{equation*}
+\setlength{\jot}{0\baselineskip}
+\begin{aligned}
+&\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(3)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\
+	&\hspace*{1.5em}= \frac{1}{{n \choose 2}} \sum_{\permutation \spacedColon \text{$\trainingSize$-out-of-$n$}}
+		\frac{1}{n - 2} \sum_{\testSampleIndex = 3}^{n - \trainingSize} \log \likelihood\!\left(y_{\permutation(\testSampleIndex)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\[.5\baselineskip]
+	&\hspace*{1.5em}= \widehat{\score}_{-(n - 2)}(\modelSymbol, \by^n).
+\end{aligned}
+\end{equation*}
+
+Starting to see a general pattern?
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+%For $\trainingSize \geq 0$, there are $(n - \trainingSize - 1)!$ ways of permuting $\{1, \ldots, n\}$ corresponding to a fixed, ordered indices $ \permutation(1), \ldots, \permutation(\trainingSize), \permutation(\trainingSize + 1)$.
+%
+%Among these permutations, $\trainingSize!$ of them correspond to a fixed set of $\{ \permutation(1), \ldots, \permutation(\trainingSize) \}$.
+
+For given $\testSampleIndex_1, \ldots, \testSampleIndex_\trainingSize, \testSampleIndex_{\trainingSize + 1}$, there're $(n - \trainingSize - 1)!$ permutations of $\{1, \ldots, n\}$ that satisfy $\permutation(\ell) = \testSampleIndex_\ell$ for $\ell = 1, \ldots, \trainingSize + 1$.
+
+Among these permutations, $\trainingSize!$ of them correspond to a fixed set of $\{ \testSampleIndex_1, \ldots, \testSampleIndex_\trainingSize \}$.
+
+Putting these two observations together, we have
+\vspace*{-.15\baselineskip}
+\begin{equation*} % \defineTightSpacing%
+\begin{aligned}
+&\sum_\permutation \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.2\baselineskip]
+&\hspace*{1.5em}= \sum_{\testSampleIndex_1 \thinnerspace \ldots, \thinnerspace \testSampleIndex_{\trainingSize + 1}} \ 
+	\sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq \testSampleIndex_1, \, \ldots, \, \permutation(\trainingSize + 1) \spacedEq \testSampleIndex_{\trainingSize + 1}} \ldots \\
+&\hspace*{1.5em}= (n - \trainingSize - 1)! \, \trainingSize! 
+	\sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}} \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.3\baselineskip]
+&\hspace*{1.5em}= (n - \trainingSize - 1)! \, \trainingSize! 
+	\sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}} \, \sum_{\testSampleIndex = \trainingSize + 1}^n
+		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+We thus have
+\begin{equation*} % \defineTightSpacing%
+\begin{aligned}
+&\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.25\baselineskip]
+&\hspace*{1.5em}= \frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}} 
+	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
+		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[.25\baselineskip]
+&\hspace*{1.5em}= \widehat{\score}_{-(n - m)}(\modelSymbol, \by^n);
+\end{aligned}
+\end{equation*}
+i.e.\ \textit{the log-predictive score's average over all possible data permu- tations is the same as that over all distinct train-test data splits}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+Recalling that
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\log \likelihood(\by^n \given \modelSymbol)
+	&= \sum_{m = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right),
+\end{aligned}
+\end{equation*}
+we conclude
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\log \likelihood(\by^n \given \modelSymbol)
+	&= \sum_{m = 0}^{n - 1} \widehat{\score}_{-(n - m)}(\modelSymbol, \by^n)
+	= \sum_{m = 1}^{n} \widehat{\score}_{-m}(\modelSymbol, \by^n). \ \qedsymbol
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
 
 
 \nobibliography{references} % To cite inline without creating a bibliography
