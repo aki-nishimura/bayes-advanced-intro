@@ -91,6 +91,7 @@
 \usepackage{mathtools} % For \coloneqq (among others)
 \usepackage{subcaption}
 \usepackage{bm}
+\usepackage{soul}
 \usepackage{tikz}
 \usetikzlibrary{bayesnet}
 %\usepackage[normalem]{ulem}
@@ -917,7 +918,7 @@ i.e.\ stronger the regularization, more the shrinkage.
 We now take a more probabilistic view by specifying the error dist:
 \begin{equation*} \defineTightSpacing%
 \by = \bX \bbeta + \bm{\epsilon},
-	\ \bm{\epsilon} \sim \normalDist(\bm{0}, \phi \Id).
+	\ \bm{\epsilon} \sim \normalDist(\bm{0}, \phi^{-1} \Id).
 \end{equation*}
 
 This gives rise to the negative log likelihood to be minimized:
@@ -931,13 +932,15 @@ whose minimizer $\mle{\bbeta}$ coincides with \textsc{OLS}.
 
 \begin{frame}
 \frametitle{Ridge regression: probabilistic perspective}
-Let's now consider adding a prior $\bbeta \sim \normalDist(\bm{0}, \phi_0 \Id)$. 
+Let's now consider adding a prior $\bbeta \sim \normalDist(\bm{0}, \phi_0^{-1} \Id)$. 
 
 \smallskip
 In this case, finding the posterior mode is equivalent to minimizing
 \begin{equation*} \defineTightSpacing%
-- \log \likelihood(\by \given \bX, \bbeta, \phi) - \log \density(\bbeta)
-	= \frac{\phi}{2} \| \by - \bX \bbeta \|^2 + \frac{\phi_0}{2} \| \bbeta \|^2 + \widetilde{C}(\phi),
+\begin{aligned}
+&- \log \likelihood(\by \given \bX, \bbeta, \phi) - \log \density(\bbeta)\\
+	&\hspace*{1.5em}= \frac{\phi}{2} \| \by - \bX \bbeta \|^2 + \frac{\phi_0}{2} \| \bbeta \|^2 + \widetilde{C}(\phi, \phi_0),
+\end{aligned}
 \end{equation*}
 whose minimizer coincides with $\widehat{\bbeta}_{\mathrm{rdg}}(\penaltyParam)$ for $\penaltyParam = \phi_0 / \phi$.
 
@@ -1002,7 +1005,96 @@ Common freq.\ approach to selecting $\lambda$ is through cross-validation (\text
 \hfill \citep{hastie2009esl, bates2023cross_validation}.
 
 \smallskip
-We now show that marginal likelihood can be interpreted as a \textsc{CV}-like procedure to evaluate a Bayesian model's predictive ability.
+We later show that marginal likelihood can be interpreted as a \textsc{CV}-like procedure to evaluate a Bayesian model's predictive ability.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lasso: $\bm{\ell^1}$-regularized regression}
+Lasso is ridge regression's cousin which incorporates regularization based on an $\ell^1$-norm $\| \bbeta \|_1 = \sum_j | \beta_j |$: 
+\begin{equation*} \defineTightSpacing%
+\widehat{\bbeta}_{\mathrm{las}}(\penaltyParam)
+	\defeq \argmin_{\bbeta} \| \by - \bX \bbeta \|^2 + \penaltyParam \| \bbeta \|_1.
+\end{equation*}
+(The minimization problem has no closed-form solution, but is convex and amenable to numerical optimization.)
+
+\smallskip
+Importantly, by virtue of the $\ell^1$-norm having ``cusps'' at $\beta_j = 0$, the lasso yields $\thinnerspace \widehat{\bbeta}_{\mathrm{las}}(\penaltyParam) \thinnerspace$ with exact zeros in some of its components. 
+\end{frame}
+
+\newcommand{\laplaceDist}{\mathrm{Laplace}}
+\begin{frame}
+\frametitle{Lasso: probabilistic perspective}
+Like ridge regression, the lasso admits a \st{Bayesian} probabilistic interpretation based on the model $\thinnerspace \by = \bX \bbeta + \bm{\epsilon}, \, \bm{\epsilon} \sim \normalDist(\bm{0}, \sigma^2 \Id)$.
+
+\smallskip
+If we assume a Laplace prior $\density(\bbeta) \propto \exp\!\big( {- \sum_j} \sigma_0^{-1} | \beta_j | \big)$, then % $\beta_j \iidSim \laplaceDist(\mathrm{scale} = \sigma_0)$
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+&- \log \likelihood(\by \given \bX, \bbeta, \sigma) - \log \density(\bbeta)\\
+	&\hspace*{2em}= \frac{1}{2 \sigma^2} \| \by - \bX \bbeta \|^2 + \frac{1}{\sigma_0} \| \bbeta \|_1 + \widetilde{C}(\sigma, \sigma_0);
+\end{aligned}
+\end{equation*}
+and the posterior mode coincides with $\widehat{\bbeta}_{\mathrm{las}}(\penaltyParam)$ for $\penaltyParam = \frac{2 \sigma^2}{\sigma_0}$.
+
+\smallskip
+In particular, this ``$\frac{2 \times \mathrm{noise}^2}{\mathrm{signal}}$'' interpretation of $\penaltyParam$ can be a useful way to figure out a reasonable range to search for in cross-validation.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lasso: probabilistic perspective}
+The lasso estimate's connection to a posterior mode is a basis of the \textit{Bayesian lasso} of \cite{park2008bayesian_lasso}.
+
+\smallskip
+Despite it, the lasso should \textit{not} be interpreted as a proper Bayesian procedure b/c the mode isn't a Bayes estimator.
+
+\smallskip
+This ain't nit-picking --- the lasso provides an example in which a posterior mean and mode have fundamentally different properties.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lasso: probabilistic perspective}
+Let $\widehat{\bbeta}_{\mathrm{map}}$ denote the posterior mode, where \textsc{MAP} stands for \textit{maximum a posteriori} as commonly used in probabilistic \textsc{ML}.
+
+\smallskip
+Thanks to the ``cusps'' in $\density(\beta_j)$'s, the posterior $\density(\bbeta \given \by, \bX, \sigma) \propto$ $\likelihood(\by \given \bX, \bbeta, \sigma) \thinnerspace \density(\bbeta)$ can have mode with $\widehat{\beta}_{\mathrm{map}, \thinnerspace j} = 0$ for some $j$'s.
+
+\smallskip
+On the other hand, the posterior mean $\widehat{\bbeta}_{\mathrm{bayes}}$ generally have none of its components exactly zero (except in some pathological cases).
+%$\widehat{\beta}_{\mathrm{bayes}, \thinnerspace j} \neq 0$ for all $j$'s
+
+\begin{center}
+\begin{minipage}{.88\linewidth}
+{\slshape
+\ldots the lasso is essentially non-Bayesian, in the sense that the corresponding full posterior distribution is a useless object [for estimating sparse signals].}
+\hfill \citep{castillo2015bayes_sparse_reg}
+\end{minipage}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lasso: probabilistic perspective}
+Nonetheless, the probabilistic interpretation provides an opportunity to utilize a Bayesian technique in the freq procedure.
+
+\smallskip
+For example, you can consider the following ``empirical Bayes'' version of the lasso:
+\begin{tightEnumerate}
+\item Choose $\widehat{\sigma}_0$ (and $\widehat{\sigma}$) by maximizing the marginal likelihood
+	\begin{tightEquation*}
+	\likelihood(\by \given \bX, \sigma_0)
+		= \int \likelihood(\by \given \bX, \bbeta, \sigma, \sigma_0) 
+			\thinnerspace \density(\bbeta \given \sigma_0) 
+			\thinnerspace \density(\sigma) \diff \bbeta \diff \sigma,
+	\end{tightEquation*}
+	which can be done via Markov chain Monte Carlo EM;
+\item Optimize the lasso objective with $\widehat{\penaltyParam} = \frac{2 \widehat{\sigma}^2}{\widehat{\sigma}_0}$ to obtain $\widehat{\bbeta}_{\mathrm{las}}\big(\widehat{\penaltyParam}\big)$.
+\end{tightEnumerate} 
+
+\smallskip
+Empirically, this lasso version works well ``sparse data'' settings \\ \hfill \citep{nishimura2023regularized_shrinkage}.
 \end{frame}
 
 
@@ -1373,8 +1465,6 @@ we conclude
 \end{aligned}
 \end{equation*}
 \end{frame}
-
-
 
 
 \nobibliography{references} % To cite inline without creating a bibliography
