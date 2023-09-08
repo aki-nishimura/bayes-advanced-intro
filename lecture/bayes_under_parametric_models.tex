@@ -974,11 +974,11 @@ with
 \end{frame}
 
 
-\section{Linear regression}
+\section{\centerline{Linear regression}}
 
 
 \begin{frame}
-\frametitle{Linear regression}
+\frametitle{Linear model with Gaussian errors}
 Consider a regression model with design matrix $\bX \in \mathbb{R}^{n \times \nPred}$
 \begin{tightEquation*}
 \bm{y} = \bX \bbeta + \bm{\epsilon} 
@@ -991,11 +991,12 @@ or, to be more precise,
 	\sim \normalDist\!\left( \bX \bbeta, \phi^{- 1} \bm{I} \right).
 \end{tightEquation*}
 
+\pause
 As we will see, posterior inference under this linear model is structurally very similar to the univariate Gaussian model.
 \end{frame}
 
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Prior choice}
 The linear model has the likelihood
 \begin{tightEquation*}
 \begin{aligned}
@@ -1012,6 +1013,7 @@ The linear model has the likelihood
 \end{aligned}
 \end{tightEquation*}
 
+\pause
 As a function of $\bbeta$, the likelihood looks like a Gaussian density
 \begin{tightEquation*}
 \normalDist\!\left( 
@@ -1021,6 +1023,7 @@ As a function of $\bbeta$, the likelihood looks like a Gaussian density
 \right).
 \end{tightEquation*}
 
+\pause
 As a function of $\phi$,  the likelihood looks like a Gamma density.
 %\begin{tightEquation*}
 %\gammaDist\!\left(
@@ -1030,6 +1033,7 @@ As a function of $\phi$,  the likelihood looks like a Gamma density.
 %\right).
 %\end{tightEquation*}
 
+\pause
 \smallskip
 So you can guess the following prior to be conditionally conjugate:
 \begin{tightEquation*}
@@ -1039,8 +1043,9 @@ So you can guess the following prior to be conditionally conjugate:
 \end{tightEquation*}
 \end{frame}
 
+
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Posterior under (conditionally) conjuage priors}
 In particular, note that $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$ means
 \begin{tightEquation*}
 \begin{aligned}
@@ -1056,6 +1061,7 @@ In particular, note that $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$ means
 	\right).
 \end{aligned}
 \end{tightEquation*}
+\pause
 So we have
 \begin{tightEquation*}
 \begin{aligned}
@@ -1084,8 +1090,9 @@ So we have
 where $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$ and $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$.
 \end{frame}
 
+
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Posterior under (conditionally) conjuage priors}
 
 In other words, the posterior conditional for $\bbeta$ is:
 \begin{tightEquation*}
@@ -1097,6 +1104,7 @@ In other words, the posterior conditional for $\bbeta$ is:
 \end{tightEquation*}
 for $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$ and $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$.
 
+\pause
 \medskip
 We similarly obtain the posterior conditional for $\phi$:
 \begin{tightEquation*}
@@ -1106,6 +1114,7 @@ We similarly obtain the posterior conditional for $\phi$:
 	\right).
 \end{tightEquation*}
 
+\pause
 As in the univariate case, we could also consider a conjugate prior
 \begin{tightEquation*}
 \bbeta \given \phi \sim \normalDist(\bmu_0, (\kappa_0 \phi)^{-1} \bm{I})
@@ -1120,9 +1129,10 @@ As in the univariate case, we could also consider a conjugate prior
 
 
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Objective Bayesian analysis in linear regression}
 Standard objective prior here is, unsurprisingly, $\thinnerspace \density(\bbeta, \phi) \propto 1 / \phi$.
 
+\pause
 The corresponding posterior is
 \begin{tightEquation*}
 \begin{gathered}
@@ -1139,8 +1149,9 @@ The corresponding posterior is
 \end{gathered}
 \end{tightEquation*}
 
+\pause
 \textbf{Note:} The posterior is proper only if $n > \nPred$:
-\begin{narrowItemize}
+\begin{narrowItemize}[<+->]
 \item Flat prior in $\mathbb{R}^\nPred$ is even ``more improper/diffuse'' than in $\mathbb{R}$ because prior uncertainties in the parameters add up.
 \item More generally, using improper or proper-but-diffuse priors is a risky business in high-dimensional (i.e.\ large $\nPred$) applications.
 \item Requirement $n > \nPred$ is intuitive enough here but it's less obvious in more complex models (where Bayes really shines).
@@ -1149,25 +1160,28 @@ The corresponding posterior is
 
 
 \begin{frame}
-\frametitle{TBD}
-As an illustration, let's consider constructing a proper yet arguably conservative prior for the linear model.
+\frametitle{Informal objective-ish prior in linear regression}
+Let's try constructing a proper yet arguably conservative prior for the linear model.
 
+\pause
 (``Conservative'' means biasing, if any, the inference towards the null and encoding less prior information than we actually have.)
 
+\pause
 To help us achieve this goal, let's first pre-process the data:
 \begin{narrowEnumerate}
-  \item Scale $\bm{y}$ and cont.\ $\bx_j\mkern-1mu$'s so that $\widehat{\variance}(\by) = 1$ and $\widehat{\variance}(\bx_j \mkern-2mu) = 1/2$.%
+\item Center $\bm{y}$ and $\bx_j$'s. % all (both cont.\ and binary) $\bx_j$'s.
 %  \item For each binary $\bx_j$, set the more freq category as its baseline; % (i.e. assigning it the value of $0$)
 %  this ensures $x_{ij} = 0$ to better represent an average data point.
-  \item Center $\bm{y}$ and all (both cont.\ and binary) $\bx_j$'s.
+\item Scale $\bm{y}$ and cont.\ $\bx_j\mkern-1mu$'s so that $\widehat{\variance}(\by) = 1$ and $\widehat{\variance}(\bx_j \mkern-2mu) = 1/2$.%
 \end{narrowEnumerate}
 
+\pause
 \textbf{Note:} $\widehat{\variance}(\bx) = 1/2$ follows \citet{gelman2008default_prior} and is an attempt to put cont.\ and binary predictors on the same scale. 
 \end{frame}
 
 
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Informal objective-ish prior in linear regression}
 With the pre-processed data $(\by, \bX)$, we can argue $| \beta_j | = 2$ to represent a reasonable upper bound on the effect sizes because:
 \begin{tightEquation*}
 | \beta_j | = 2
@@ -1176,30 +1190,32 @@ With the pre-processed data $(\by, \bX)$, we can argue $| \beta_j | = 2$ to repr
 \end{tightEquation*}
 In other words, the variation in $\bx_j$ explains most of that in $\by$. 
 
+\pause
 The prior choice $\beta_j \sim \normalDist(0, 1)$ hence seems reasonable. % with most of its probability in the range $[-2, 2]$.
 
+\pause
 \smallskip
 As for the intercept, it seems reasonable to set $\beta_0 \sim \normalDist(0, 1)$ so that its prior variance matches that of $\by$.
 
 \end{frame}
 
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Informal objective-ish prior in linear regression}
 For the residual variance $\phi^{-1}$, we can expect $\phi^{-1} \lesssim 1 = \widehat{\variance}(\by)$.
 
+\pause
 If we were to do without conjugacy, we might choose a prior like 
 \begin{tightEquation*}
-\sigma = \phi^{-1/2} \sim \normalDist^+(0, 1) 
-	\ \text{ or } \, \unifDist(0, 2).
+\sigma = \phi^{-1/2} \sim \normalDist^+(0, 1).
 	% Note: the prior variance of 1 / 4 would favor \sigma < 1, which isn't ideal since \sigma may well be very close to 1. 
+	\vspace*{-.1\baselineskip}%
 \end{tightEquation*}
-(Unless there is a reason to assume a lower bound $\phi^{-1} \geq c > 0$.)
+(Also possible to incorporate a soft lower bound, say, $\sigma \geq 0.1$.)
 
+\pause
 \smallskip
-Expressing the same kind of prior assumption is difficult with the gamma prior on $\phi$.
-	% Note: In particular, there is no way to make the density look flat near $\phi^{-1/2} \approx 0$.
-	
-But, based the interpretation of $\nu_0$ as the prior degrees of freedom,
+Gamma prior on $\phi$ is less flexibility but, based the interpretation of $\nu_0$ as the prior degrees of freedom,
+	% Note: In particular, the right exponential tail necessarily penalizes larger $\phi$ and the left polynomial tail cannot aggressively penalize small $\phi$.
 \begin{tightEquation*}
 \phi \sim \gammaDist(\nu_0 / 2, \nu_0 / 2)
 	\ \text{ for } \, \nu_0 \in [0.1, \thinnerspace 1]
@@ -1207,6 +1223,7 @@ But, based the interpretation of $\nu_0$ as the prior degrees of freedom,
 with $\expectation[\phi] = 1 = \widehat{\variance}(\by)$ is defensible.
 % Note: BUGS uses $\nu_0 = 0.002$.
 
+\pause
 \smallskip
 \textbf{Note:} 
 Typically, as long as the prior is in a reasonable range, the inference isn't too sensitive.
@@ -1216,9 +1233,10 @@ So don't fret about gory details.
 
 
 \begin{frame}
-\frametitle{TBD}
+\frametitle{Informal objective-ish prior in linear regression}
 Incidentally, scaling $\by$ and $\bx_j$'s is equivalent to scaling the priors.
 
+\pause
 \smallskip
 In fact, had we only centered them w/o scaling, the same inference would be obtained under the following prior:
 \begin{tightEquation*}
@@ -1233,6 +1251,7 @@ In fact, had we only centered them w/o scaling, the same inference would be obta
 \end{gathered}
 \end{tightEquation*}
 
+\pause
 \smallskip
 Centering variables interacts with the inference as well; e.g.\ had we decided to center $\bx_j$'s but not $\by$, the equivalent inference requires
 \begin{tightEquation*}
@@ -1247,8 +1266,10 @@ Centering variables interacts with the inference as well; e.g.\ had we decided t
 \frametitle{Posteriors' asymptotic behavior}
 We've seen examples in which posteriors yield comparable/ identical inferences as established frequentist procedures.
 
+\pause
 In fact, under regular parametric models, Bayesian inference is \textit{guaranteed} to coincide with a frequentist one asymptotically.
 
+\pause
 In a sense, this is to be expected from the fact 
 \begin{tightEquation*}
 \log \density(\btheta \given \by^n)
@@ -1256,6 +1277,7 @@ In a sense, this is to be expected from the fact
 \end{tightEquation*}
 where the sum of the $n$ i.i.d.\ terms should eventually dominate.
 
+\pause
 Here we will study some asymptotic behaviors of posteriors.
 \end{frame}
 
@@ -1268,8 +1290,10 @@ Here we will study some asymptotic behaviors of posteriors.
 	\defeq - \int \log\!\left( \frac{q(x)}{p(x)} \right) p(x) \diff x
 	= \expectation_{X \thinnestspace \sim \, p(\cdot)}\!\left[ \thinnerspace \log\!\left( \frac{q(X)}{p(X)} \right) \right].
 \end{tightEquation*}
+\pause%
 \noteBullet To see relevance, think $p(\cdot) = \likelihood(\thinnerspace \cdot \given \btheta)$ and $q(\cdot) = \likelihood(\thinnerspace \cdot \given \btheta_\truthSub)$.
 
+\pause
 \smallskip
 In particular, the KL divergence has the property 
 \begin{tightEquation*}
@@ -1279,11 +1303,12 @@ In particular, the KL divergence has the property
 \end{tightEquation*}
 %$\kldivergence(p \| q) \geq 0$ and $\kldivergence(p \| q) = 0$ only if $p(\cdot) \equiv q(\cdot)$. 
 
+\pause
 \textit{Proof:} 
 Jensen's inequality says $f(\expectation[X]) \leq \expectation[f(X)]$ for convex $f$, with the equality only if $f(x) = x$ on the support of $\density_X(\cdot)$. Hence,
 \begin{tightEquation*}
-0 = - \log\!\left( \int q(x) \diff x \right)
-	= - \log\!\left( \int \frac{q(x)}{p(x)} p(x) \diff x \right)
+0 = - \log\!\left( \int q(x) \diff x \right) \pause
+	= - \log\!\left( \int \frac{q(x)}{p(x)} p(x) \diff x \right) \pause
 	\leq \kldivergence(p \| q).
 \end{tightEquation*}
 \end{frame}
@@ -1299,7 +1324,7 @@ To see this, we observe that
 \begin{aligned}
 \log\!\left( 
 	\frac{\density(\btheta_\truthSub \given \by^n)}{\density(\btheta \given \by^n)}
-\right) % Note: while not explicitly denoted, $\by$ obviously depends on the sample size.
+\right)
 	&= \log\!\left( 
 		\frac{%
 			\density(\btheta_\truthSub) \prod_i \likelihood(y_i \given \btheta_\truthSub)
@@ -1307,6 +1332,7 @@ To see this, we observe that
 			\density(\btheta) \prod_i \likelihood(y_i \given \btheta)
 		}%
 	\right) \\
+	\pause
 	&= \log\!\left( 
 		\frac{%
 			\density(\btheta_\truthSub)
@@ -1323,6 +1349,7 @@ To see this, we observe that
 	\right).
 \end{aligned}
 \end{tightEquation*}
+\pause%
 \smallskip
 Now we only need to recognize the latter term as a KL divergence:
 \smallskip
@@ -1343,23 +1370,26 @@ Now we only need to recognize the latter term as a KL divergence:
 	\right) \likelihood(y \given \btheta_\truthSub) \diff y.
 \end{tightEquation*}
 
+\pause%
 Thus
 $\displaystyle 
 	\frac{\density(\btheta_\truthSub \given \by^n)}{\density(\btheta \given \by^n)}
 \to \infty$ whenever $\btheta \neq \btheta_\truthSub$;
 i.e.\ $\density(\thinnerspace \cdot \given \by^n) \to \delta_{\btheta_\truthSub}(\cdot)$.
+	% Note: as long as the parameter is identifiable.
 \end{frame}
 
 \begin{frame}
 \frametitle{Posterior concentration under mis-specified model}
-Examining the proof, we see an analogous asymptotic result holds even when a model is \textit{mis-specified} --- 
-the family $\{ \likelihood(\thinnerspace \cdot \given \btheta) \}_{\btheta}$ doesn't include the true data distribution $y \sim \likelihood_\truthSub(\cdot)$; e.g.\
-\begin{narrowItemize}
+Analogous result holds when a model is \textit{mis-specified} ---
+the family $\{ \likelihood(\thinnerspace \cdot \given \btheta) \}_{\btheta}$ doesn't include the true data dist $y \sim \likelihood_\truthSub(\cdot)$; e.g.\
+\begin{narrowItemize}[<+->]
 \item $\operatorname{Skewness}(y) \neq 0$, but $\likelihood(\thinnerspace \cdot \given \mu, \phi) \sim \normalDist(\mu, \phi^{-1})$.
 \item $\expectation[y] < 0$, but assumed $\mu \geq 0$ under $\likelihood(\thinnerspace \cdot \given \mu, \phi) \sim \normalDist(\mu, \phi^{-1})$.
 \item $y = f(\bx) + \sigma(\bx) \epsilon$ for non-linear $f$ and non-const $\sigma$, \\ but $\likelihood(\thinnerspace \cdot \given \bx, \bbeta, \phi) \sim \normalDist(\bx^\transpose \bbeta, \phi^{-1})$.
 \end{narrowItemize}
 
+\pause[\thebeamerpauses]
 Under mis-specification, we can still speak of an optimal approx
 \begin{tightEquation*}
 \btheta_{\mathrm{opt}}
@@ -1367,6 +1397,7 @@ Under mis-specification, we can still speak of an optimal approx
 		\likelihood(\thinnerspace \cdot \given \btheta) \, \| \, \likelihood_\truthSub
 	\right),
 \end{tightEquation*}
+\pause%
 \mbox{and similarly show $\displaystyle \frac{\density(\btheta_{\mathrm{opt}} \given \by^n)}{\density(\btheta \given \by^n)}
 \to \infty$ if $\btheta_{\mathrm{opt}}\!$ is the unique minimizer.}
 \end{frame}
@@ -1376,6 +1407,7 @@ Under mis-specification, we can still speak of an optimal approx
 \frametitle{Asymptotic Gaussianity of posteriors}
 Besides the posterior concentration, we in fact have a Bayesian asymptotic theory analogous to the frequentist one for {\small MLE}'s:
 
+\pause
 \begin{theorem}[Bernstein-von-Mises/Bayesian Central Limit]
 Under an appropriate regularity assumption, \\
 \smallskip%
@@ -1392,11 +1424,13 @@ $\, \infoMat(\btheta) = \expectation_{\thinnerspace y \thinnerspace \sim \thinne
 \right]$.
 \end{theorem}
 
+\pause
 \textbf{Cf.} Asymptotic theory for {\small MLE}: 
 $\, \mle{\btheta} \to \normalDist(\btheta_\truthSub, \left[
 		 n \infoMat(\btheta_\truthSub)
 \right]^{-1})$.
 
+\pause
 \mbox{In particular, Bayes and freq CI's necessarily coincide asymptotically}
 (even though their interpretations are completely distinct).
 \end{frame}
@@ -1415,18 +1449,22 @@ Consider the Taylor expansion of $\log \density(\theta \given \by^n)$ around its
 		+ \ldots.
 \end{aligned}
 \end{tightEquation*}
+\pause%
 Observe that 
 \begin{tightEquation*}
 \begin{aligned}
 \frac1n \frac{\diff^k}{\diff \theta^k} \log \density\big( \theta \given \by^n \big) 
 	&= \frac1n \frac{\diff^k}{\diff \theta^k} \log \density(\theta) 
 		+ \frac1n \sum_{i = 1}^n \frac{\diff^k}{\diff \theta^k} \log \likelihood(y_i \given \theta) \\
+	\pause%
 	&\to \expectation_{\thinnerspace y \thinnerspace \sim \thinnerspace  \likelihood(\thinnerspace \cdot \given \theta_\truthSub)\!} \!\left[
 		\frac{\diff^k}{\diff \theta^k} \log \likelihood(y \given \theta)
 	\right] \, \text{ as } \thinnerspace n \to \infty.
 \end{aligned}
 \end{tightEquation*}
+\pause%
 Since the posterior concentrates around $\samplesizeDependentMap \approx \theta_\truthSub$, the terms $\big( \theta - \samplesizeDependentMap \big)^3 \frac{\diff^3}{\diff \theta^3} ...$ becomes immaterial relative to $n \big( \theta - \samplesizeDependentMap \big)^2$. 
+\pause%
 \hfill \qedsymbol
 \end{frame}
 
@@ -1434,8 +1472,10 @@ Since the posterior concentrates around $\samplesizeDependentMap \approx \theta_
 \frametitle{``Counterexample'' to the asymptotic theory}
 In invoking the law of large numbers in the proof, the fixed dimen- sionality of $\btheta$ and i.i.d.\ nature of $y_i$'s were important assumptions.
 
+\pause%
 B{\small UT} these assumptions are violated by many modern statistical \mbox{methods; e.g.\ random effects, model selection, non-parametrics, etc.}
 
+\pause%
 \mbox{(In fact, you should go Bayes only when classical methods fall short.)}
 \end{frame}
 
@@ -1451,11 +1491,14 @@ y_{i1}, y_{i2} \given \mu_i, \phi
 for $i = 1, \ldots, n$ with ``across-group'' mean $\mu_{\textrm{grp}}$ and variance $\phi_{\textrm{grp}}^{-1}$.
 % Note: For simplicity, we take the across-group mean and variance to be fixed.
 
+\pause%
 (This is basically the model behind the Neyman-Scott paradox except for slight extension to incorporate shrinkage toward $\mu_{\textrm{grp}}$.)
 
+\pause%
 \smallskip
 For example, $y_{i1}$ and $y_{i2}$ could represent batting averages of the $i$-th player in his 1st and 2nd games (\'{a} la \citealt{efron1975stein_est}).
 
+\pause%
 \smallskip
 \textbf{Question:} Would the posterior of $(\bmu, \phi)$ concentrate around the truth for $n$ large? 
 Would the posterior look Gaussian?
@@ -1467,8 +1510,10 @@ Would the posterior look Gaussian?
 For simplicity, let's just assume the objective prior $\density(\bmu, \phi) \propto 1 / \phi$ \\
 (i.e.\ $\phi_{\textrm{grp}} = \infty$), ignoring the shrinkage estimation aspect.
 
+\pause%
 Asymptotic behavior, if real, shouldn't depend on a prior anyways.
 
+\pause%
 The corresponding posterior is
 \begin{tightEquation*}
 \begin{gathered}
@@ -1485,7 +1530,8 @@ The corresponding posterior is
 \end{gathered}
 \end{tightEquation*}
 
-The posterior means estimate the true parameters consistently:
+\pause%
+The posterior means provide unbiased estimates of the truths:
 \begin{tightEquation*}
 \expectation[\mu_i \given \bm{y}]
 %	= \expectation[ \expectation[\mu_i \given \bm{y}, \phi] ]
@@ -1494,6 +1540,7 @@ The posterior means estimate the true parameters consistently:
 	= \frac{\sum_i (y_{i1} - y_{i2})^2}{2 n}.
 \end{tightEquation*}
 
+\pause%
 In fact, $\density(\phi \given \by) \to \delta_{\phi_\truthSub}(\phi)$, though $\variance(\mu_i \given \bm{y})$ never vanishes.
 \end{frame}
 
@@ -1502,9 +1549,11 @@ In fact, $\density(\phi \given \by) \to \delta_{\phi_\truthSub}(\phi)$, though $
 \frametitle{``Counterexample'' to the asymptotic theory}
 We already see the asymtotic theory breaking down, but let's nonetheless ask the question: Does the posterior look Gaussian?
 
+\pause%
 \smallskip
 That in particular would imply its mean and mode to be similar.
 
+\pause%
 \smallskip
 But the posterior mode exhibits a fundamentally different behavior:
 %But the posterior mode (which is similar to the {\small MLE}) exhibits a fundamentally different behavior, being off by a factor of 2:
@@ -1513,6 +1562,7 @@ But the posterior mode exhibits a fundamentally different behavior:
 \end{tightEquation*}
 % Note: Worth working this out in the class for students to really believe it.
 
+\pause%
 The mode, and {\small MLE}, is off by a factor of 2! (Hence a ``paradox.'')
 \end{frame}
 
@@ -1521,16 +1571,19 @@ The mode, and {\small MLE}, is off by a factor of 2! (Hence a ``paradox.'')
 \frametitle{``Counterexample'' to the asymptotic theory}
 Why the difference? 
 
+\pause%
 The answer, turns out, is not so much ``mean vs.\ mode'' but the Bayes estimator properly accounting for uncertainty in $\mu_i$'s. 
 
+\pause%
 \smallskip
 To be more precise, the mean is based on the posterior marginal
 \begin{tightEquation*}
 \density(\phi \given \by)
-	= \int \density(\phi \given \bmu, \by) \density(\bmu \given \by) \diff \bmu
+	= \int \density(\phi \given \bmu, \by) \thinnerspace \density(\bmu \given \by) \diff \bmu
 \end{tightEquation*}
 which \textit{integrates out} $\bmu$, whose uncertainty remains as $n \to \infty$.
 
+\pause%
 \smallskip
 %Incidentally, the posterior marginal can be equivalently derived as $\propto \likelihood(\by \given \phi) \density(\phi)$ in terms of the marginal likelihood
 %\begin{tightEquation*}
@@ -1555,8 +1608,10 @@ Its effect is also seen in the fact $\thinnerspace \variance(\phi \given \by) \s
 \frametitle{Summary of ``Bayes under parametric models''}
 We have studied behaviors of posteriors under relatively simple models to build intuitions. 
 
+\pause%
 Under parametric models, Bayesian inference has much similarity to the classical one based on {\small MLE}.
-\begin{narrowItemize}
+\pause%
+\begin{narrowItemize}[<+->]
 \item Conjugate analysis demonstrates sound, intuitive behaviors of posteriors and helps quantify relative weights on priors. 
 	% Note: Having been trained in the classical statistics, we cannot help notice the familiar quantities popping up in the Bayesian analysis of the models. But the only thing we did really was just to adhere to what the probability theory tells us and multiply the likelihood and prior. We woud have arrived at a right statistical inference even if we knew nothing about the classical statistical estimation methods.
 	% Note: Many Bayes newbies are, understandably, uncomfortable at picking a prior. But the prior really doesn't have much impact on the posterior when the likelihood is informative and, when the likelihood is not, then we cannot really proceed without imposing some additional structures.
