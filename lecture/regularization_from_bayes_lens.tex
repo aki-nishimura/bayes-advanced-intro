@@ -1,4 +1,4 @@
-\documentclass[18pt, handout]{beamer}
+\documentclass[18pt]{beamer}
 
 \usetheme{metropolis}
 \usefonttheme{professionalfonts}
@@ -329,6 +329,7 @@ One measure of a statistical estimator's quality is its {\small MSE}:
 	\right].
 \end{tightEquation*}
 
+\pause%
 M{\small SE} in particular illustrates a bias-variance trade-off in estimation:
 \begin{tightEquation*}
 \expectation \thinnerspace \big\| \widehat{\btheta} - \btheta_\truthSub \big\|^2
@@ -336,6 +337,7 @@ M{\small SE} in particular illustrates a bias-variance trade-off in estimation:
 	+ \variance(\widehat{\btheta}).
 \end{tightEquation*}
 
+\pause%
 \cite{stein1956inadmissibility} demonstrates a potential benefit of bias --- 
 he consider a problem of estimating unknown means under the model
 \begin{tightEquation*}
@@ -357,9 +359,11 @@ The {\small MLE} is \textit{inadmissible} in $n > 2$, with the James-Stein estim
 \end{tightEquation*}
 having a lower {\small MSE} than $\mle{\bmu} = \by$ for \textit{any} underlying $\bmu_\truthSub$.
 \end{theorem}
+\pause%
 \vspace*{-.2\baselineskip}
 JS estimator is an example of \textit{shrinkage estimators}, taking a form $\widehat{\mu_i} = c_i \thinnerspace y_i$ for $ c_i \in (0, 1)$ that biases the estimate towards 0.
 
+\pause%
 \smallskip
 Technically, ``shrinkage'' in $\widehat{\bmu}_{\mathrm{JS}}$ is only true with high probability: 
 $\expectation \thinnerspace \| \by \|^2 
@@ -367,6 +371,7 @@ $\expectation \thinnerspace \| \by \|^2
 	= \| \bmu \|^2  + n \sigma^2$,
 so we expect $(n - 2) \sigma^2 / \| \by \|^2 < 1$.
 
+\pause%
 \smallskip
 Better yet, the following modification improves on $\widehat{\bmu}_{\mathrm{JS}}$:
 \begin{tightEquation*}
@@ -378,12 +383,14 @@ Better yet, the following modification improves on $\widehat{\bmu}_{\mathrm{JS}}
 
 \begin{frame}
 \frametitle{M{\normalsize SE} of Gaussian mean estimator}
+\pause%
 By routine algebra,
 \begin{equation*} \defineTightSpacing%
 \| \widehat{\bmu} - \bmu \|^2
 	= - \| \by - \bmu \|^2 + \| \by - \widehat{\bmu} \|^2 
 		+ 2 \left\langle \by - \bmu, \widehat{\bmu} - \bmu \right\rangle.
 \end{equation*}
+\pause%
 Taking expectations, we have
 \begin{equation*} \defineTightSpacing%
 \expectation \| \widehat{\bmu} - \bmu \|^2
@@ -392,16 +399,19 @@ Taking expectations, we have
 		+ 2 \thinnerspace {\textstyle \sum_i} \thinnerspace \expectation[ (\widehat{\mu}_i - \mu_i) (y_i - \mu_i) ].
 \end{equation*}
 
+\pause%
 We now invoke \textit{Stein's lemma}: if $\mathbf{Y} \sim \normalDist(\bmu, \bSigma)$ and $f: \mathbb{R}^n \to \mathbb{R}$, 
 \begin{equation*} \defineTightSpacing%
 \expectation[ f(\mathbf{Y}) (\mathbf{Y} - \bmu) ] = \bSigma \, \expectation[ \nabla \negthinnerspace f(\mathbf{Y})].
 \end{equation*}
+\pause%
 Applying the lemma to $f(\by) = \widehat{\mu}_i(\by) - \mu_i$ yields
 \begin{equation*} \defineTightSpacing%
 \expectation[ (\widehat{\mu}_i - \mu_i) (\by - \bmu) ] 
 	= \sigma^2 \thinnerspace \expectation[ \nabla \widehat{\mu}_i(\by)].
 \end{equation*}
 
+\pause%
 Plugging this into the earlier equality:
 \begin{equation*} \defineTightSpacing%
 \expectation \| \widehat{\bmu} - \bmu \|^2
@@ -423,7 +433,9 @@ What we've derived, essentially, is \textit{Stein's unbiased risk estimator}:
 \end{equation*}
 \vspace*{-.7\baselineskip}
 
-We now calculate \textsc{SURE} for $\, \widehat{\bmu}_{\mathrm{JS}}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \! \by$. 
+\pause%
+We now calculate \textsc{SURE} for $\, \widehat{\bmu}_{\mathrm{JS}}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \! \by$.
+\pause% 
 Note
 \begin{equation*} \defineTightSpacing%
 \| \by - \widehat{\bmu}_{\mathrm{JS}} \|^2 
@@ -431,12 +443,14 @@ Note
 	= \frac{(n - 2)^2 \sigma^4}{\| \by \|^2},
 %+ 2 \sigma^2 \thinnerspace {\textstyle \sum_i} \frac{\partial \widehat{\mu}_i}{\partial y_i}.
 \end{equation*}
+\pause%
 and
 \begin{equation*} \defineTightSpacing%
 \frac{\partial \widehat{\mu}_{\mathrm{JS}, i}}{\partial y_i}
 	= \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) - (n - 2) \sigma^2 y_i \thinnerspace \frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2}.
 \end{equation*}
 
+\pause%
 \smallskip
 Since $\frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2 y_i}{\| \by \|^4}$ and $\sum_i  y_i \thinnerspace \frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2}{\| \by \|^2}$ , we have
 \begin{equation*} \defineTightSpacing%
@@ -457,9 +471,11 @@ So \textsc{SURE} for $\widehat{\bmu}_{\mathrm{JS}}$ is given by
 		+ \frac{(n - 2)^2 \sigma^4}{\| \by \|^2}
 		+ 2 n \sigma^2 
 		- 2 \frac{(n - 2)^2 \sigma^4}{\| \by \|^2} \\
+	\pause%
 	&= n \sigma^2 - \frac{(n - 2)^2 \sigma^4}{\| \by \|^2}.
 \end{aligned}
 \end{equation*}
+\pause%
 
 Taking expectations, we obtain
 \begin{equation*} \defineTightSpacing%
@@ -473,19 +489,23 @@ Taking expectations, we obtain
 \begin{frame}
 \frametitle{M{\normalsize SE} of Gaussian mean estimator}
 This reduction in \textsc{MSE} can be substantial.
+\pause%
 For large $n$, we have
 \begin{equation*} \defineTightSpacing%
 \frac{1}{n} \| \by \|^2 \approx \frac{1}{n} \| \bmu \|^2 + \sigma^2.
 \end{equation*}
 
-Taking expectations, we obtain
+\pause%
+Using this, we can study the asymptotic behavior of $\widehat{\bmu}_{\mathrm{JS}}$'s \textsc{MSE}:
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 
 	&= n \sigma^2  - (n - 2)^2 \sigma^4 \thinnerspace \expectation\!\left[ \frac{\!\!1}{\| \by \|^2} \right] \\
+	\pause%
 	&= n \sigma^2 \left(
-		1 - \frac{(n - 2)^2}{n^2} \expectation\!\left[ \frac{n \sigma^2}{\| \by \|^2} \right] 
+		1 - \frac{(n - 2)^2}{n^2} \sigma^2 \expectation\!\left[ \frac{\!n}{\| \by \|^2} \right] 
 	\right) \\
+	\pause%
 	&\sim n \sigma^2 \left(
 		1 - \frac{\sigma^2}{\sigma^2 + n^{-1} \| \bmu \|^2} 
 	\right)
@@ -493,6 +513,7 @@ Taking expectations, we obtain
 \end{aligned}
 \end{equation*}
 
+\pause%
 So the reduction is roughly determined by noise vs.\ signal size (i.e.\ $\sigma^2$ vs.\ $n^{-1} \| \bmu \|^2$);
 e.g.  $\sigma^2 \approx n^{-1} \| \bmu \|^2$ leads to 50\% (!) reduction. 
 \end{frame}
@@ -524,6 +545,7 @@ e.g.  $\sigma^2 \approx n^{-1} \| \bmu \|^2$ leads to 50\% (!) reduction.
 }%
 \end{figure}
 
+\pause%
 \vspace*{-.8\baselineskip}
 \textbf{Note:} The large amount of shrinkage is a known drawback.
 \end{frame}
