@@ -1241,8 +1241,9 @@ Incidentally, scaling $\by$ and $\bx_j$'s is equivalent to scaling the priors.
 In fact, had we only centered them w/o scaling, the same inference would be obtained under the following prior:
 \begin{tightEquation*}
 \begin{gathered}
-\beta_0 \sim \normalDist\!\left( 0, \empiricalVar(\by)^{1/2} \right), \ \,
-\beta_j \sim\normalDist\!\left( 0, \, \frac{ \empiricalVar(\by)^{1/2} }{ \empiricalVar(\bx_j)^{1/2} } \right) \\
+\beta_{\mathrm{cont}, \thinnerspace j} \sim\normalDist\!\left( 0, \, \frac{ \empiricalVar(\by) }{ 4 \empiricalVar(\bx_j) } \right), \ \,
+\beta_{\mathrm{bin}, \thinnerspace j} \sim\normalDist\!\left( 0, \, \frac{ \empiricalVar(\by) }{ \empiricalVar(\bx_j) } \right), \\
+\beta_0 \sim \normalDist\!\left( 0, \empiricalVar(\by) \right), \ \,
 \phi \sim \gammaDist\!\left(
 	\frac{\nu_0}{2}, 
 	\frac{\nu_0}{2} \thinnerspace \empiricalVar(\by)^{-1}
@@ -1255,7 +1256,7 @@ In fact, had we only centered them w/o scaling, the same inference would be obta
 \smallskip
 Centering variables interacts with the inference as well; e.g.\ had we decided to center $\bx_j$'s but not $\by$, the equivalent inference requires
 \begin{tightEquation*}
-\beta_0 \sim \normalDist\!\left( \bar{y}, \thinnerspace \empiricalVar(\by)^{1/2} \right).
+\beta_0 \sim \normalDist\!\left( \bar{y}, \thinnerspace \empiricalVar(\by) \right).
 \end{tightEquation*}
 \end{frame}
 
