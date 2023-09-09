@@ -733,7 +733,7 @@ Easy enough to infer by examining the likehood
 that a (conditionally) conjugate prior for $\phi$ is a gamma distribution:
 \begin{tightEquation*}
 \density(\phi) 
-	\propto \phi^{a - 1} \exp(-b x)
+	\propto \phi^{a - 1} \exp(-b \phi)
 	\sim \gammaDist(\textrm{shape} = a, \thinnerspace \textrm{rate} = b)
 \end{tightEquation*}
 with $\expectation[\phi] = a / b$ and $\variance[\phi] = a / b^2$.
@@ -1172,11 +1172,11 @@ To help us achieve this goal, let's first pre-process the data:
 \item Center $\bm{y}$ and $\bx_j$'s. % all (both cont.\ and binary) $\bx_j$'s.
 %  \item For each binary $\bx_j$, set the more freq category as its baseline; % (i.e. assigning it the value of $0$)
 %  this ensures $x_{ij} = 0$ to better represent an average data point.
-\item Scale $\bm{y}$ and cont.\ $\bx_j\mkern-1mu$'s so that $\widehat{\variance}(\by) = 1$ and $\widehat{\variance}(\bx_j \mkern-2mu) = 1/2$.%
+\item Scale $\bm{y}$ and cont.\ $\bx_j\mkern-1mu$'s so that $\widehat{\variance}(\by) = 1$ and $\widehat{\variance}(\bx_j \mkern-2mu) = 1/4$.%
 \end{narrowEnumerate}
 
 \pause
-\textbf{Note:} $\widehat{\variance}(\bx) = 1/2$ follows \citet{gelman2008default_prior} and is an attempt to put cont.\ and binary predictors on the same scale. 
+\textbf{Note:} $\widehat{\variance}(\bx) = 1/4$ follows \citet{gelman2008default_prior} and is an attempt to put cont.\ and binary predictors on the same scale. 
 \end{frame}
 
 
