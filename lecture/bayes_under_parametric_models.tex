@@ -1261,6 +1261,59 @@ Centering variables interacts with the inference as well; e.g.\ had we decided t
 \end{frame}
 
 
+\begin{frame}
+\frametitle{Homework: Gaussian likelihood models}
+First problem is optional for those who have taken ``Advanced Methods in Biostatistics'' and the second optional for the rest.
+
+\textbf{Problem 1:} Verify that the posterior under the model $y_i \given \mu, \phi \sim \normalDist(\mu, \phi^{-1})$ and conjugate prior 
+\begin{tightEquation*}
+\phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right), \
+\mu \given \phi \sim \normalDist\!\left( \mu_0, \thinnerspace \frac{1}{\kappa_0 \phi} \right)
+\end{tightEquation*}
+is given by 
+\begin{tightEquation*}
+\begin{aligned}
+&\phi \given \bm{y} 
+	\sim \gammaDist\!\left(
+		\frac{\nu_0 + n}{2}, \thinnerspace b_{\textrm{post}}%
+	\right), \\
+&\mu \given \bm{y}, \phi 
+	\sim \normalDist\!\left( \frac{\kappa_0 \mu_0 + n \bar{y}}{\kappa_0 + n}, \thinnerspace \frac{1}{(\kappa_0 + n) \phi} \right),
+\end{aligned}
+\end{tightEquation*}
+where 
+$\, b_{\textrm{post}} = {\displaystyle \frac12} \left(
+	\nu_0 \varphi_0^{-1} 
+	+ \textstyle \sum_i (y_i - \bar{y})^2
+	+ \frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2
+\right)$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homework: Gaussian likelihood models}
+\textbf{Problem 2:}
+%In fitting a regression model to an outcome $\by$ and predictors $\bx_j$, consider scaling 
+Consider fitting the linear regression model to a scaled outcome $\by_{\textrm{scl}} = \gamma_Y^{-1} \by$ and scaled predictors $\bx_{\mathrm{scl}, \thinnerspace j} = \gamma_j^{-1} \bx_j$ under a prior $\bbeta \sim \normalDist(\bmu_0, \bSigma_0)$ and $\phi \sim \gammaDist(a, b)$. 
+If we were to keep the outcome and predictors in the original scale, how must we modify the prior In order to obtain an equivalent inference?
+In what sense(s) the inference ``equivalent''?
+
+\hfill (The problem continues to the next page.)
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homework: Gaussian likelihood models}
+\textbf{Problem 2 (cont'd):}
+Next, we study the effect of centering variables. 
+For this purpose, as you will find out, it is useful to separate out the intercept term from the design matrix and consider the model $\by = \beta_0 \bm{1} + \bX \bbeta + \bm{\epsilon}$ where $\bm{1}$ denotes a vector of $1$'s.
+Let $\by_{\textrm{ctr}} = \by - \bar{y} \thinnerspace \bm{1}$ and $\bx_{\mathrm{ctr}, \thinnerspace j} = \bx_j - \bar{x}_j \bm{1}$, where $\bar{y} = n^{-1} \sum_i y_i$ and$\bar{x}_j = n^{-1} \sum_i x_{ij}$.
+%In this part of the problem, it is convenient to separate out the intercept $\beta_0$ from the rest of coefficients $\bbeta$.
+Consider fitting the regression model with $\by_\mathrm{ctr}$ and $\bX_\mathrm{ctr}$ (i.e.\ $\by_\mathrm{ctr} = \beta_0 \bm{1} + \bX_\mathrm{ctr} \bbeta + \bm{\epsilon}$) under a prior $\beta_0 \sim \normalDist(0, 1)$, $\bbeta \sim \normalDist(\bm{0}, \Id)$, and $\phi \sim \gammaDist(a, b)$.
+If we were to fit the regression model to the original variables $\by$ and $\bX$, how must we modify the prior to obtain an equivalent inference?
+\end{frame}
+
+
 \section{\centerline{Asymptotic properties of Bayesian inference}}
 
 \begin{frame}
