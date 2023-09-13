@@ -1295,7 +1295,7 @@ $\, b_{\textrm{post}} = {\displaystyle \frac12} \left(
 \textbf{Problem 2:}
 %In fitting a regression model to an outcome $\by$ and predictors $\bx_j$, consider scaling 
 Consider fitting the linear regression model to a scaled outcome $\by_{\textrm{scl}} = \gamma_Y^{-1} \by$ and scaled predictors $\bx_{\mathrm{scl}, \thinnerspace j} = \gamma_j^{-1} \bx_j$ under a prior $\bbeta \sim \normalDist(\bmu_0, \bSigma_0)$ and $\phi \sim \gammaDist(a, b)$. 
-If we were to keep the outcome and predictors in the original scale, how must we modify the prior In order to obtain an equivalent inference?
+If we were to keep the outcome and predictors in the original scale, how must we modify the prior in order to obtain an equivalent inference?
 In what sense(s) the inference ``equivalent''?
 
 \hfill (The problem continues to the next page.)
@@ -1306,8 +1306,8 @@ In what sense(s) the inference ``equivalent''?
 \frametitle{Homework: Gaussian likelihood models}
 \textbf{Problem 2 (cont'd):}
 Next, we study the effect of centering variables. 
-For this purpose, as you will find out, it is useful to separate out the intercept term from the design matrix and consider the model $\by = \beta_0 \bm{1} + \bX \bbeta + \bm{\epsilon}$ where $\bm{1}$ denotes a vector of $1$'s.
-Let $\by_{\textrm{ctr}} = \by - \bar{y} \thinnerspace \bm{1}$ and $\bx_{\mathrm{ctr}, \thinnerspace j} = \bx_j - \bar{x}_j \bm{1}$, where $\bar{y} = n^{-1} \sum_i y_i$ and$\bar{x}_j = n^{-1} \sum_i x_{ij}$.
+For this purpose, as you will find out, it is useful to separate out the intercept term from the design matrix and consider the model $\by = \beta_0 \bm{1} + \bX \bbeta + \bm{\epsilon}$ with $\bm{1}$ denoting a vector of $1$'s.
+Let $\by_{\textrm{ctr}} = \by - \bar{y} \thinnerspace \bm{1}$ and $\bx_{\mathrm{ctr}, \thinnerspace j} = \bx_j - \bar{x}_j \bm{1}$, where $\bar{y} = n^{-1} \sum_i y_i$ and $\bar{x}_j = n^{-1} \sum_i x_{ij}$.
 %In this part of the problem, it is convenient to separate out the intercept $\beta_0$ from the rest of coefficients $\bbeta$.
 Consider fitting the regression model with $\by_\mathrm{ctr}$ and $\bX_\mathrm{ctr}$ (i.e.\ $\by_\mathrm{ctr} = \beta_0 \bm{1} + \bX_\mathrm{ctr} \bbeta + \bm{\epsilon}$) under a prior $\beta_0 \sim \normalDist(0, 1)$, $\bbeta \sim \normalDist(\bm{0}, \Id)$, and $\phi \sim \gammaDist(a, b)$.
 If we were to fit the regression model to the original variables $\by$ and $\bX$, how must we modify the prior to obtain an equivalent inference?
