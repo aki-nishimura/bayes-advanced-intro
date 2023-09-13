@@ -235,17 +235,6 @@
 \newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
 \newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
 
-%%% Define a larger "hat" of fixed width: https://tex.stackexchange.com/questions/20473/how-can-i-manually-choose-the-size-of-a-wide-accent-math-mode/20477#20477
-\DeclareMathSymbol{\widehatsym}{\mathord}{largesymbols}{"62}
-\newcommand{\lowerwidehatsym}{\text{\smash{\raisebox{-1.3ex}{$\widehatsym$}}}}
-\newcommand\fixedwidehat[1]{%
-  \mathchoice
-    {\accentset{\displaystyle\lowerwidehatsym}{#1}}
-    {\accentset{\textstyle\lowerwidehatsym}{#1}}
-    {\accentset{\scriptstyle\lowerwidehatsym}{#1}}
-    {\accentset{\scriptscriptstyle\lowerwidehatsym}{#1}}
-}
-
 %% Probability / statistics macros
 \newcommand{\probability}{\mathbb{P}}
 \newcommand{\expectation}{\mathbb{E}}
