@@ -900,6 +900,7 @@ We consider a regression model
 \end{equation*}
 with uncorrelated, homoscedastic, and mean-zero error $\epsilon_i$'s.
 
+\pause
 \smallskip
 Minimizing the residual sum of squares (\textsc{RSS}) yields the ordinary least square (\textsc{OLS}) estimate of $\bbeta$:
 \begin{equation*} \defineTightSpacing%
@@ -908,6 +909,7 @@ Minimizing the residual sum of squares (\textsc{RSS}) yields the ordinary least 
 	= \left( \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \by.
 \end{equation*}
 
+\pause
 Ridge regression instead minimizes the \textit{regularized/penalized} \textsc{RSS}:
 \begin{equation*} \defineTightSpacing%
 \widehat{\bbeta}_{\mathrm{rdg}}(\penaltyParam)
@@ -916,6 +918,7 @@ Ridge regression instead minimizes the \textit{regularized/penalized} \textsc{RS
 \end{equation*}
 where $\penaltyParam$ is referred to as \textit{regularization/penalty} parameter.
 
+\pause
 (Please do \textbf{not} regularize the intercept like other parameters.)
 \end{frame}
 
@@ -929,14 +932,17 @@ Ridge regression is an example of shrinkage estimation in that
 	\ \text{ for any } \penaltyParam.
 \end{equation*}
 
+\pause
 This fact is intuitive enough since $\widehat{\bbeta}_{\mathrm{rdg}}$ ``divides by a larger value.''
 
+\pause
 \textit{Proof:} Note that
 \begin{equation*} \defineTightSpacing%
 \big\| \widehat{\bbeta}_{\mathrm{rdg}} \big\|^2
 	= \widehat{\bbeta}_{\mathrm{rdg}}^\higherTranspose \widehat{\bbeta}_{\mathrm{rdg}}
 	= \by^\transpose \bX^\transpose \left( \bX^\transpose \bX + \lambda \Id \right)^{-2} \! \bX^\transpose \by.
 \end{equation*}
+\pause
 Since $\bX^\transpose \bX \preceq \thinnerspace \bX^\transpose \bX + \lambda \Id \thinnerspace$ and $\left( \bX^\transpose \bX + \lambda \Id \right)^{-1}\! \preceq \left( \bX^\transpose \bX \right)^{-1}\!$, 
 	% Note: $A \preceq B$ means $v^T A v \leq v^T B v$ for any $v$ (which is equivalent to all the eigenvalues of $B$ are larger than $A$).
 \begin{equation*} \defineTightSpacing%
@@ -945,6 +951,7 @@ Since $\bX^\transpose \bX \preceq \thinnerspace \bX^\transpose \bX + \lambda \Id
 	= \big\| \widehat{\bbeta}_{\mathrm{ols}} \big\|^2. \hspace{1.5ex} \qedsymbol
 \end{equation*}
 
+\pause
 \smallskip
 We can similarly show 
 $\big\| \widehat{\bbeta}_{\mathrm{rdg}}(\penaltyParam + \widetilde{\penaltyParam}) \big\|^2 
@@ -962,6 +969,7 @@ We now take a more probabilistic view by specifying the error dist:
 	\ \bm{\epsilon} \sim \normalDist(\bm{0}, \phi^{-1} \Id).
 \end{equation*}
 
+\pause
 This gives rise to the negative log likelihood to be minimized:
 \begin{equation*} \defineTightSpacing%
 - \log \likelihood(\by \given \bX, \bbeta, \phi)
@@ -975,6 +983,7 @@ whose minimizer $\mle{\bbeta}$ coincides with \textsc{OLS}.
 \frametitle{Ridge regression: probabilistic perspective}
 Let's now consider adding a prior $\bbeta \sim \normalDist(\bm{0}, \phi_0^{-1} \Id)$. 
 
+\pause
 \smallskip
 In this case, finding the posterior mode is equivalent to minimizing
 \begin{equation*} \defineTightSpacing%
@@ -985,6 +994,7 @@ In this case, finding the posterior mode is equivalent to minimizing
 \end{equation*}
 whose minimizer coincides with $\widehat{\bbeta}_{\mathrm{rdg}}(\penaltyParam)$ for $\penaltyParam = \phi_0 / \phi$.
 
+\pause
 \smallskip
 To reinforce the connection, recall: under a prior $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$,
 \begin{equation*} \defineTightSpacing%
@@ -1023,8 +1033,11 @@ $\phi_0$ (or $\lambda$) is an example of \textit{hyperparameters}, which are par
 \end{figure}
 \vspace*{-.7\baselineskip}
 
-One way to select $\phi_0$ (or $\lambda$) is via marginal \textsc{ML};
-after marginalizing out $\bbeta$, we have $\thinnerspace \by \given \bX, \phi, \phi_0 \sim \normalDist(\bm{0}, \sigma^2 \Id + \sigma_0^2 \bX^\transpose \bX)$ and hence
+\pause
+{\fontdimen2\font=.7ex 
+One way to select $\phi_0$ (or $\lambda$) is via marginal \textsc{MLE};
+\pause
+after marginalizing out $\bbeta$, we have $\thinnerspace \by \given \bX, \phi, \phi_0 \sim \normalDist(\bm{0}, \sigma^2 \Id + \sigma_0^2 \bX^\transpose \bX)$ and hence}
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 &\log \likelihood(\by \given \bX, \phi, \phi_0)\\
@@ -1033,6 +1046,7 @@ after marginalizing out $\bbeta$, we have $\thinnerspace \by \given \bX, \phi, \
 \end{aligned}
 \end{equation*}
 
+\pause
 Easy enough to maximize over $(\phi, \phi_0)$ via eigen decomp of $\bX^\transpose \bX$.
 \end{frame}
 
@@ -1041,10 +1055,12 @@ Easy enough to maximize over $(\phi, \phi_0)$ via eigen decomp of $\bX^\transpos
 \frametitle{Selecting regularization/hyper parameter}
 Common freq.\ approach to selecting $\lambda$ is through cross-validation (\textsc{CV}), which estimates(-ish) out-of-sample prediction error/loss.
 
+\pause
 \smallskip
 \textbf{Note:} Freq.\ \textsc{CV} estimates the error/loss \textit{not} of the trained model but of a model trained on new data from the same population\\
 \hfill \citep{hastie2009esl, bates2023cross_validation}.
 
+\pause
 \smallskip
 We later show that marginal likelihood can be interpreted as a \textsc{CV}-like procedure to evaluate a Bayesian model's predictive ability.
 \end{frame}
@@ -1057,8 +1073,10 @@ Lasso is ridge regression's cousin which incorporates regularization based on an
 \widehat{\bbeta}_{\mathrm{las}}(\penaltyParam)
 	\defeq \argmin_{\bbeta} \| \by - \bX \bbeta \|^2 + \penaltyParam \| \bbeta \|_1.
 \end{equation*}
+\pause%
 (The minimization problem has no closed-form solution, but is convex and amenable to numerical optimization.)
 
+\pause
 \smallskip
 Importantly, by virtue of the $\ell^1$-norm having ``cusps'' at $\beta_j = 0$, the lasso yields $\thinnerspace \widehat{\bbeta}_{\mathrm{las}}(\penaltyParam) \thinnerspace$ with exact zeros in some of its components. 
 \end{frame}
@@ -1068,6 +1086,7 @@ Importantly, by virtue of the $\ell^1$-norm having ``cusps'' at $\beta_j = 0$, t
 \frametitle{Lasso: probabilistic perspective}
 Like ridge regression, the lasso admits a \st{Bayesian} probabilistic interpretation based on the model $\thinnerspace \by = \bX \bbeta + \bm{\epsilon}, \, \bm{\epsilon} \sim \normalDist(\bm{0}, \sigma^2 \Id)$.
 
+\pause
 \smallskip
 If we assume a Laplace prior $\density(\bbeta) \propto \exp\!\big( {- \sum_j} \sigma_0^{-1} | \beta_j | \big)$, then % $\beta_j \iidSim \laplaceDist(\mathrm{scale} = \sigma_0)$
 \begin{equation*} \defineTightSpacing%
@@ -1078,6 +1097,7 @@ If we assume a Laplace prior $\density(\bbeta) \propto \exp\!\big( {- \sum_j} \s
 \end{equation*}
 and the posterior mode coincides with $\widehat{\bbeta}_{\mathrm{las}}(\penaltyParam)$ for $\penaltyParam = \frac{2 \sigma^2}{\sigma_0}$.
 
+\pause
 \smallskip
 In particular, this ``$\frac{2 \times \mathrm{noise}^2}{\mathrm{signal}}$'' interpretation of $\penaltyParam$ can be a useful way to figure out a reasonable range to search for in cross-validation.
 \end{frame}
@@ -1087,9 +1107,11 @@ In particular, this ``$\frac{2 \times \mathrm{noise}^2}{\mathrm{signal}}$'' inte
 \frametitle{Lasso: probabilistic perspective}
 The lasso estimate's connection to a posterior mode is a basis of the \textit{Bayesian lasso} of \cite{park2008bayesian_lasso}.
 
+\pause
 \smallskip
 Despite it, the lasso should \textit{not} be interpreted as a proper Bayesian procedure b/c the mode isn't a Bayes estimator.
 
+\pause
 \smallskip
 This ain't nit-picking --- the lasso provides an example in which a posterior mean and mode have fundamentally different properties.
 \end{frame}
@@ -1099,13 +1121,16 @@ This ain't nit-picking --- the lasso provides an example in which a posterior me
 \frametitle{Lasso: probabilistic perspective}
 Let $\widehat{\bbeta}_{\mathrm{map}}$ denote the posterior mode, where \textsc{MAP} stands for \textit{maximum a posteriori} as commonly used in probabilistic \textsc{ML}.
 
+\pause
 \smallskip
 Thanks to the ``cusps'' in $\density(\beta_j)$'s, the posterior $\density(\bbeta \given \by, \bX, \sigma) \propto$ $\likelihood(\by \given \bX, \bbeta, \sigma) \thinnerspace \density(\bbeta)$ can have mode with $\widehat{\beta}_{\mathrm{map}, \thinnerspace j} = 0$ for some $j$'s.
 
+\pause
 \smallskip
 On the other hand, the posterior mean $\widehat{\bbeta}_{\mathrm{bayes}}$ generally have none of its components exactly zero (except in some pathological cases).
 %$\widehat{\beta}_{\mathrm{bayes}, \thinnerspace j} \neq 0$ for all $j$'s
 
+\pause
 \begin{center}
 \begin{minipage}{.88\linewidth}
 {\slshape
@@ -1120,9 +1145,10 @@ On the other hand, the posterior mean $\widehat{\bbeta}_{\mathrm{bayes}}$ genera
 \frametitle{Lasso: probabilistic perspective}
 Nonetheless, the probabilistic interpretation provides an opportunity to utilize a Bayesian technique in the freq procedure.
 
+\pause
 \smallskip
 For example, you can consider the following ``empirical Bayes'' version of the lasso:
-\begin{tightEnumerate}
+\begin{tightEnumerate}[<+->]
 \item Choose $\widehat{\sigma}_0$ (and $\widehat{\sigma}$) by maximizing the marginal likelihood
 	\begin{tightEquation*}
 	\likelihood(\by \given \bX, \sigma_0)
@@ -1134,15 +1160,19 @@ For example, you can consider the following ``empirical Bayes'' version of the l
 \item Optimize the lasso objective with $\widehat{\penaltyParam} = \frac{2 \widehat{\sigma}^2}{\widehat{\sigma}_0}$ to obtain $\widehat{\bbeta}_{\mathrm{las}}\big(\widehat{\penaltyParam}\big)$.
 \end{tightEnumerate} 
 
+\pause[\thebeamerpauses]
 \smallskip
 Empirically, this lasso version works well ``sparse data'' settings \\ \hfill \citep{nishimura2023regularized_shrinkage}.
 \end{frame}
 
 
+\section{\centerline{Marginal likelihood as cross-validation}}
+
 \begin{frame}
 \frametitle{Estimating predictive loss via cross-validation}
 Let $\loss(y, \widehat{y})$ denote a \textit{loss function}; e.g.\ $\loss(y, \widehat{y}) = (y - \widehat{y})^2$.
 
+\pause
 \smallskip
 Given a model trained on $(y_i, \bx_i)$ for $i = 1, \ldots, n$, a quantity of interest is an expected loss for a future data point $(y_{n + 1}, \bx_{n + 1})$:
 \begin{equation*} \defineTightSpacing%
@@ -1154,9 +1184,11 @@ Given a model trained on $(y_i, \bx_i)$ for $i = 1, \ldots, n$, a quantity of in
 \end{equation*}
 where $\modelSymbol$ denote the model used to generate the prediction $\widehat{y}^{\, n}$.
 
+\pause
 \smallskip
 Estimated predictive losses can be used to select the ``best'' model.
 
+\pause
 \smallskip
 One possibility for estimating the quantity is to train the model on the $\trainingSize < n$ data points and calculate the loss on remaining $n - \trainingSize$:
 \begin{equation*} \defineTightSpacing%
@@ -1182,6 +1214,7 @@ We could equally apply the training and testing on a permuted data:
 \end{equation*}
 where $\permutation(1), \ldots, \permutation(n)$ is a permutation of $\{ 1, \ldots, n\}$. 
 
+\pause
 \smallskip
 Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-fold \textsc{CV}, averages the estimated losses across all possible permutations:
 \begin{equation*} \defineTightSpacing%
