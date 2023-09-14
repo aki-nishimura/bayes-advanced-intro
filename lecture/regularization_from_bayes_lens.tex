@@ -568,6 +568,7 @@ y_i \given \mu_i
 	\sim \normalDist(0, \phi_{\textrm{grp}}^{-1}\! = \sigma_{\textrm{grp}}^2).
 \end{tightEquation*}
 
+\pause
 The posterior, 
 $\mu_i \given y_i, \phi_{\textrm{grp}} \sim \normalDist\!\left(
 	\frac{\phi}{\phi + \phi_{\textrm{grp}}} y_i, \thinnerspace
@@ -580,6 +581,7 @@ gives rise to
 	= \left( 1 - \frac{\sigma^2}{\sigma^2 + \sigma^2_{\mathrm{grp}}} \right) \by.
 \end{tightEquation*}
 
+\pause
 \smallskip
 % Note $\thinnerspace \expectation \| \by \|^2 = n (\sigma^2 + \sigma_{\mathrm{grp}}^2)$ under this model, so $\frac{\sigma^2}{\sigma^2 + \sigma^2_{\mathrm{grp}}} \approx \frac{n \sigma^2}{\| \by \|^2}$.
 
@@ -591,9 +593,11 @@ Assuming the model to be correct, this is the Bayes estimator we would use if we
 \frametitle{Shrinkage through Bayes lens}
 What $\phi_{\mathrm{grp}}$ should we use for an appropriate amount of shrinkage?
 
+\pause
 \smallskip
 The fully Bayesian way is to place a prior on $\phi_{\mathrm{grp}}$ and estimate it along with $\mu_i$'s, but here we pursue quasi-Bayes, freq alternatives.
 
+\pause
 \smallskip
 One method estimates the desired shrinkage factor $\frac{\sigma^2}{\sigma^2 + \sigma^2_{\mathrm{grp}}}$ from the observed $\by$.
 To this end, we note $y_i \sim \normalDist(0, \sigma^2 + \sigma_{\mathrm{grp}^2})$ and
@@ -603,6 +607,7 @@ To this end, we note $y_i \sim \normalDist(0, \sigma^2 + \sigma_{\mathrm{grp}^2}
 	\sim (\sigma^2 + \sigma_{\mathrm{grp}}^2) \thinnerspace \chi_n^2.
 \end{tightEquation*}
 
+\pause
 This means $\expectation\!\left[ \frac{\!1}{\| \by \|^2} \right] = \frac{1}{(n - 2) (\sigma^2 + \sigma_{\mathrm{grp}}^2)}$ and therefore
 \begin{tightEquation*}
 \expectation\!\left[ \frac{(n - 2) \sigma^2}{\| \by \|^2} \right]
@@ -621,6 +626,7 @@ Another method is more in line, while not fully so, with Bayesian thinking and c
 	= \int \likelihood(\by \given \bmu, \phi_{\mathrm{grp}}) \thinnerspace \density(\bmu \given \phi_{\mathrm{grp}}) \diff  \bmu.
 \end{tightEquation*}
 
+\pause
 Since $y_i \sim \normalDist(0, \phi_{\mathrm{mg}}^{-1})$ for $\phi_{\mathrm{mg}}^{-1} = \phi^{-1} + \phi_{\mathrm{grp}}^{-1}$, we have
 \begin{tightEquation*}
 \begin{aligned}
@@ -637,10 +643,14 @@ Since $y_i \sim \normalDist(0, \phi_{\mathrm{mg}}^{-1})$ for $\phi_{\mathrm{mg}}
 \end{aligned}
 \end{tightEquation*}
 
+\pause
 \smallskip
 Setting the derivative to $0$, we find $\widehat{\phi}_{\mathrm{mg}} = n / \| \by \|^2$ or, equivalently,
 \begin{equation*} \defineTightSpacing%
-\widehat{\sigma}_{\mathrm{mg}}^2 = \frac{\| \by \|^2}{\!\!n} 
+\widehat{\sigma}_{\mathrm{mg}}^2 
+	= \sigma^2 + \widehat{\sigma}_{\mathrm{grp}}^2
+	= \frac{\| \by \|^2}{\!\!n} 
+	\pause
 	\ \, \text{ aaand } \ \,
 %	\widehat{\sigma}_{\mathrm{grp}}^2 = \frac{\| \by \|^2}{\!\!n} - \sigma^2
 \frac{\sigma^2}{\sigma^2 + \widehat{\sigma}_{\mathrm{grp}}^2}
@@ -687,8 +697,10 @@ each $\phi_{\mathrm{grp}}$ defines a model for $\by$ though a likelihood $\likel
 \end{figure}
 \vspace*{-.7\baselineskip}
 
+\pause
 And $\likelihood(\by, \bmu \given \widehat{\phi}_{\mathrm{grp}})$ is the most compatible with the observed $\by$.
 
+\pause
 \smallskip
 Alternatively, it can also be viewed as selecting, from the family of priors $\{ \density(\mu_i \given \phi_{\mathrm{grp}}) \}_{ \phi_{\mathrm{grp}} \thinnerspace \geq \, 0 } $, the most compatible $\density(\mu_i \given \widehat{\phi}_{\mathrm{grp}})$ with $\by$.
 \end{frame}
@@ -699,6 +711,7 @@ Alternatively, it can also be viewed as selecting, from the family of priors $\{
 From this perspective, marginal likelihood is sometimes referred to as \textit{(model) evidence} and marginal \textsc{ML} as \textit{evidence maximization}\\
 \hfill \citep{mackay1992bayesian_model_comparison}.%
 
+\pause
 Correspondingly, the full Bayes estimator based on
 \begin{equation*} \defineTightSpacing%
 \expectation\big[
@@ -716,14 +729,17 @@ Correspondingly, the full Bayes estimator based on
 %\end{equation*}
 can be thought of as a model averaging weighted by evidence.
 
+\pause
 \smallskip
 Methods that select a prior using observed data, or those admitting interpretations as such, are called \textit{empirical Bayes}.
 	% Note: The JS estimator also falls under this category.
 \end{frame}
 
 
+\section{\centerline{Brief detour: Bayesian decision theory}}
+
 \begin{frame}
-\frametitle{Brief detour: Bayesian decision theory}
+\frametitle{Bayes vs.\ Frequentist risks}
 Recall: 
 $\displaystyle 
 \operatorname{MSE}_{\btheta_\truthSub\!}(\widehat{\btheta})
@@ -731,12 +747,15 @@ $\displaystyle
 		\big\| \widehat{\btheta}(\by) - \btheta_\truthSub \big\|^2
 	\right]$.
 	
+\pause
 \smallskip
 Albeit a reasonable metric to evaluate Bayesian (and non-Bayes) procedures, \textsc{MSE} is inherently a frequentist quantity. 
 
+\pause
 \smallskip
-More generally, lets' consider evaluating an estimator under a \textit{loss~function} $\loss\big(\widehat{\btheta}, \btheta\big)$; \textsc{MSE} corresponds to $\loss\big(\widehat{\btheta}, \btheta\big) = \| \widehat{\btheta} - \btheta \|^2$.
+More generally, let's consider evaluating an estimator under a \textit{loss~function} $\loss\big(\widehat{\btheta}, \btheta\big)$; \textsc{MSE} corresponds to $\loss\big(\widehat{\btheta}, \btheta\big) = \| \widehat{\btheta} - \btheta \|^2$.
 
+\pause
 \smallskip
 Frequentist paradigm considers the loss averaged over repeated applications of the estimation procedure to varying datasets: % from the same underlying distribution:
 \begin{equation*} \defineTightSpacing%
@@ -748,12 +767,14 @@ Frequentist paradigm considers the loss averaged over repeated applications of t
 
 
 \begin{frame}
-\frametitle{Brief detour: Bayesian decision theory}
+\frametitle{Bayes vs.\ Frequentist risks}
 Under Bayesian paradigm, a more natural question is: given the posterior $\density(\btheta \given \by)$, how to summarize it as a single quantity $\widehat{\btheta}_{\textrm{bayes}}$?
 
+\pause
 (More generally, one can ask what ``decision'' to take; e.g.\ \\
 \hphantom{(}whether to classify an incoming email as spam given $\density(p_\mathrm{spam} \given \by)$.)
 
+\pause
 \smallskip
 \textit{Bayes estimator} minimizes the loss averaged over $\density(\btheta \given \by)$:
 \begin{equation*} \defineTightSpacing%
@@ -764,6 +785,7 @@ Under Bayesian paradigm, a more natural question is: given the posterior $\densi
 	= \int \loss\big(\btheta, \widehat{\btheta} \thinnerspace \big) \density(\btheta \given \by) \diff \btheta.
 \end{equation*}
 
+\pause
 \smallskip
 This is a likely origin of an occasionally-stated (and misleading) phrase: 
 ``For Bayesians, data are fixed, parameters are random.'' 
@@ -771,7 +793,7 @@ This is a likely origin of an occasionally-stated (and misleading) phrase:
 
 
 \begin{frame}
-\frametitle{Brief detour: Bayesian decision theory}
+\frametitle{Examples of loss functions and Bayes estimators}
 \smallskip
 For example, when using the square loss $\loss\big(\widehat{\btheta}, \btheta \big) = \| \widehat{\btheta} - \btheta\|^2$, the Bayes estimator is given by the posterior mean:
 \begin{equation*} \defineTightSpacing%
@@ -781,15 +803,17 @@ For example, when using the square loss $\loss\big(\widehat{\btheta}, \btheta \b
 	\right].
 \end{equation*}
 
+\pause
 \textit{Proof:} We have $\expectation \| \mathbf{X} - \mathbf{c} \|^2 = \expectation \| \mathbf{X} - \expectation \mathbf{X} \|^2 + \| \expectation \mathbf{X} - \mathbf{c} \|^2$ for any constant $\mathbf{c}$. 
 So $\mathbf{c} = \expectation \mathbf{X}$ minimizes the square norm. \hfill \qedsymbol
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Brief detour: Bayesian decision theory}
+\frametitle{Examples of loss functions and Bayes estimators}
 Posterior (coordinate-wise) median is also a Bayes estimator, corresponding to $\loss\big(\widehat{\btheta}, \btheta \big) = \sum_i \big| \thinnestspace \widehat{\theta}_i - \theta_i \big|$.
 
+\pause
 \smallskip
 \textit{Proof (1-\textsc{D} case):} 
 The expected loss is given by
@@ -799,6 +823,7 @@ The expected loss is given by
 		- \int_{\widehat{\theta}}^\infty \!\!\! \big( \widehat{\theta} - \theta \big) \thinnerspace \density(\theta \given \by) \diff \theta.
 \end{equation*}
 
+\pause
 Differentiating the integrals via chain rule, we have
 \begin{equation*} \defineTightSpacing%
 \frac{\diff}{\diff \widehat{\theta}} \int \big| \thinnestspace \widehat{\theta} - \theta \big| \thinnerspace \density(\theta \given \by) \diff \theta
@@ -807,12 +832,13 @@ Differentiating the integrals via chain rule, we have
 \end{equation*}
 whose root is given by the posterior median.
 
+\pause
 (And the second derivative is trivially positive.) \hfill \qedsymbol
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Brief detour: Bayesian decision theory}
+\frametitle{Examples of loss functions and Bayes estimators}
 We can also consider an asymmetric loss such as 
 \begin{equation*} \defineTightSpacing%
 \loss\big(\widehat{\theta}, \theta \big)
@@ -825,6 +851,7 @@ We can also consider an asymmetric loss such as
 \end{equation*}
 where $c_\mathrm{u}$ and $c_\mathrm{o}$ reflect the costs of under- and over-estimation.
 
+\pause
 \smallskip
 The expected loss's minimizer then satisfies (homework):
 \begin{equation*} \defineTightSpacing%
@@ -835,9 +862,10 @@ The expected loss's minimizer then satisfies (homework):
 
 
 \begin{frame}
-\frametitle{Brief detour: Bayesian decision theory}
+\frametitle{Non-examples of Bayes estimator}
 Important \textit{non}-example of Bayes estimators is a posterior mode.
 
+\pause
 \smallskip
 In order for a mode to act as an approximate Bayes estimator, we'd need a loss function as below for $c \to \infty$ and $\epsilon \to 0$ (\textsc{HW}):
 \begin{equation*} \defineTightSpacing%
@@ -850,8 +878,10 @@ In order for a mode to act as an approximate Bayes estimator, we'd need a loss f
 	\right.
 \end{equation*}
 
+\pause
 The above loss function in particular ignores posterior uncertainty completely, assigning a near-infinite cost $c \approx \infty$ for all $\btheta \neq \widehat{\btheta}$.
 
+\pause
 \smallskip
 One should thus exercise cautions in using a posterior mode for inference/prediction;$\thinnerspace$
 usual Bayesian safeguards can fall apart.
