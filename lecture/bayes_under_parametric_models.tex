@@ -1377,45 +1377,45 @@ To see this, we observe that
 \begin{tightEquation*}
 \begin{aligned}
 \log\!\left( 
-	\frac{\density(\btheta_\truthSub \given \by^n)}{\density(\btheta \given \by^n)}
+	\frac{\density(\btheta \given \by^n)}{\density(\btheta_\truthSub \given \by^n)}
 \right)
 	&= \log\!\left( 
 		\frac{%
-			\density(\btheta_\truthSub) \prod_i \likelihood(y_i \given \btheta_\truthSub)
-		}{%
 			\density(\btheta) \prod_i \likelihood(y_i \given \btheta)
+		}{%
+			\density(\btheta_\truthSub) \prod_i \likelihood(y_i \given \btheta_\truthSub)
 		}%
 	\right) \\
 	\pause
 	&= \log\!\left( 
 		\frac{%
-			\density(\btheta_\truthSub)
-		}{%
 			\density(\btheta)
+		}{%
+			\density(\btheta_\truthSub)
 		}%
 	\right)
 	+ \sum_{i = 1}^n \log\!\left( 
 		\frac{%
-			\likelihood(y_i \given \btheta_\truthSub)
-		}{%
 			\likelihood(y_i \given \btheta)
+		}{%
+			\likelihood(y_i \given \btheta_\truthSub)
 		}%
 	\right).
 \end{aligned}
 \end{tightEquation*}
 \pause%
 \smallskip
-Now we only need to recognize the latter term as a KL divergence:
+Now we only need to recognize the latter term as a negative KL:
 \smallskip
 \begin{tightEquation*}
 \frac{1}{n} \sum_i \log\!\left( 
 	\frac{%
-		\likelihood(y_i \given \btheta_\truthSub)
-	}{%
 		\likelihood(y_i \given \btheta)
+	}{%
+		\likelihood(y_i \given \btheta_\truthSub)
 	}%
 \right) 
-	\to - \int \log\!\left( 
+	\to \int \log\!\left( 
 		\frac{%
 			\likelihood(y \given \btheta)
 		}{%
@@ -1427,8 +1427,8 @@ Now we only need to recognize the latter term as a KL divergence:
 \pause%
 Thus
 $\displaystyle 
-	\frac{\density(\btheta_\truthSub \given \by^n)}{\density(\btheta \given \by^n)}
-\to \infty$ whenever $\btheta \neq \btheta_\truthSub$;
+	\frac{\density(\btheta \given \by^n)}{\density(\btheta_\truthSub \given \by^n)}
+\to 0$ whenever $\btheta \neq \btheta_\truthSub$;
 i.e.\ $\density(\thinnerspace \cdot \given \by^n) \to \delta_{\btheta_\truthSub}(\cdot)$.
 	% Note: as long as the parameter is identifiable.
 \end{frame}
