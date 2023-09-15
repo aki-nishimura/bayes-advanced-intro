@@ -1518,7 +1518,6 @@ Observe that
 \end{tightEquation*}
 \pause%
 Since the posterior concentrates around $\samplesizeDependentMap \approx \theta_\truthSub$, the terms $\big( \theta - \samplesizeDependentMap \big)^3 \frac{\diff^3}{\diff \theta^3} ...$ becomes immaterial relative to $n \big( \theta - \samplesizeDependentMap \big)^2$. 
-\pause%
 \hfill \qedsymbol
 \end{frame}
 
@@ -1530,7 +1529,7 @@ In invoking the law of large numbers in the proof, the fixed dimen- sionality of
 B{\small UT} these assumptions are violated by many modern statistical \mbox{methods; e.g.\ random effects, model selection, non-parametrics, etc.}
 
 \pause%
-\mbox{(In fact, you should go Bayes only when classical methods fall short.)}
+\mbox{(In fact, Bayes is typically most useful in non-asymptotic regimes.)}
 \end{frame}
 
 
@@ -1562,9 +1561,8 @@ Would the posterior look Gaussian?
 \begin{frame}
 \frametitle{``Counterexample'' to the asymptotic theory}
 For simplicity, let's just assume the objective prior $\density(\bmu, \phi) \propto 1 / \phi$ \\
-(i.e.\ $\phi_{\textrm{grp}} = \infty$), ignoring the shrinkage estimation aspect.
+(so, in particular, $\phi_{\textrm{grp}} = \infty$), ignoring the shrinkage  aspect.
 
-\pause%
 Asymptotic behavior, if real, shouldn't depend on a prior anyways.
 
 \pause%
