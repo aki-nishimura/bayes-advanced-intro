@@ -1,0 +1,95 @@
+\documentclass[letterpaper, 12pt]{article}
+
+% Packages
+\usepackage[left=2.54cm, top=2.54cm, right=2.54cm, bottom=2.54cm, nohead]{geometry}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{bm}
+%\usepackage{dsfont} % For typesetting indicator functions
+%\usepackage{natbib}
+\usepackage{graphicx}
+%\usepackage{subcaption} 
+%\usepackage{url}
+%\PassOptionsToPackage{hyphens}{url} % Allow linebreak at hyphens 
+%\usepackage[hidelinks]{hyperref} 
+%\usepackage{placeins} % For 'FloatBarrier'
+%\usepackage{xcolor} % For colored text.
+
+% Theorem Styles
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+
+
+% Macros
+
+%% General math macros
+\newcommand{\diff}{\operatorname{\mathrm{d}}\!{}}
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand{\transpose}{\intercal} %{\text{\raisebox{.5ex}{$\intercal$}}}
+\newcommand{\thinnerspace}{\mskip.5\thinmuskip}
+
+%% Probability / statistics macros
+\newcommand{\probability}{\mathbb{P}}
+\newcommand{\expectation}{\mathbb{E}}
+\newcommand{\variance}{\mathrm{Var}}
+\DeclareMathOperator*{\covariance}{Cov}
+\newcommand{\indep}{\protect\mathpalette{\protect\indepHelper}{\perp}}
+\def\indepHelper#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\indicator}{\mathds{1}}
+\newcommand{\eqDistribution}{\mathrel{\raisebox{-.2ex}{$\overset{\scalebox{.6}{$\, d$}}{=}$}}}
+\newcommand{\iidSim}{\mathrel{\raisebox{-.3ex}{$\overset{\text{i.i.d.}}{\sim}$}}}
+\newcommand{\unifDist}{\mathrm{Unif}}
+\newcommand{\normalDist}{\mathcal{N}}
+\newcommand{\betaDist}{\mathrm{Beta}}
+\newcommand{\gammaDist}{\mathrm{Gamma}}
+\newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
+\newcommand{\map}[1]{\widehat{#1}_{\textrm{map}}}
+\newcommand{\empiricalVar}{\widehat{\variance}}
+\newcommand{\kldivergence}{D_{\mathrm{KL}}}
+\newcommand{\truthSub}{\mathrm{tru}}
+
+%% Variable macros / Aliases
+\newcommand{\nPred}{p}
+\newcommand{\density}{\pi}
+\newcommand{\likelihood}{L}
+\newcommand{\infoMat}{\mathcal{I}}
+\newcommand{\by}{\bm{y}}
+\newcommand{\bx}{\bm{x}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bmu}{\bm{\mu}}
+\newcommand{\bbeta}{\bm{\beta}}
+\newcommand{\btheta}{\bm{\theta}}
+\newcommand{\bPhi}{\bm{\Phi}}
+\newcommand{\bSigma}{\bm{\Sigma}}
+\newcommand{\minus}{\scalebox{1.0}[1.0]{{\scriptsize -}}}
+\newcommand{\Id}{\bm{I}}
+
+
+% Formatting
+\renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
+\renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
+\addtocounter{section}{0}
+\setcounter{section}{0}
+
+
+% Title
+\pagestyle{plain}
+\title{Homework 2}
+\author{Aki Nishimura}
+\date{}
+
+
+\begin{document}
+	
+\maketitle
+
+\section{Problem 2}
+
+\subsection*{Part 1}
+Consider fitting the linear regression model to a scaled outcome $\by_{\textrm{scl}} = \gamma_Y^{-1} \by$ and scaled predictors $\bx_{\mathrm{scl}, \thinnerspace j} = \gamma_j^{-1} \bx_j$ under a prior $\bbeta \sim \normalDist(\bmu_0, \bSigma_0)$ and $\phi \sim \gammaDist(a, b)$. 
+If we were to keep the outcome and predictors in the original scale, how must we modify the prior in order to obtain an equivalent inference?
+In what sense(s) the inference ``equivalent''?
+	
+\end{document}
