@@ -1226,6 +1226,7 @@ Leave-$\trainingSize$-out \textsc{CV}, a.k.a.\ exhaustive $(n / \trainingSize)$-
 	\right).
 \end{equation*}
 
+\pause
 \smallskip
 We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \textsc{CV}'s.
 \end{frame}
@@ -1305,6 +1306,7 @@ More generally, the posterior predictive score corresponds to
 \frametitle{Bayesian perspective on cross-validation}
 In other words, the predictive likelihood $\likelihood(y_{\trainingSize + 1} \given \by^\trainingSize)$ admits an interpretation as a loss/utility-based measure of prediction quality.
 
+\pause
 Building on this interpretation, we consider a leave-$\trainingSize$-out \textsc{CV} score for Bayesian models based on the log posterior predictive likelihood:
 \begin{equation*} \defineTightSpacing%
 \widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n) =
@@ -1315,6 +1317,7 @@ Building on this interpretation, we consider a leave-$\trainingSize$-out \textsc
 %		\testOutcome, \thinnerspace \testOutcomePredicted
 %	\right).
 \end{equation*}
+\pause%
 which provides an estimate of
 $\displaystyle \thinnerspace
 \score(\modelSymbol, \by^n)
@@ -1322,6 +1325,7 @@ $\displaystyle \thinnerspace
 	\thinnerspace \log \likelihood(y_{n + 1} \given \by^n\negthinnerspace, \modelSymbol)
 \right].$
 
+\pause
 \smallskip
 \begin{theorem}[\citealt{fong2020marginal_likelihood}]
 \normalfont
@@ -1345,10 +1349,13 @@ Marginal likelihood $\likelihood(\by^n \given \modelSymbol)$ coincides with a su
 \end{equation*}
 \end{theorem}
 
+\pause
 The result shows that the two seemingly distinct paradigms for comparing models are actually related to each other.
 
+\pause
 Moreover, as a version of \textsc{CV}, the log marginal likelihood has the desirable property of being an average over all test-train data splits.
 
+\pause
 In fact, the marginal likelihood can be an effective replacement for freq \textsc{CV} error estimates when the sample size is limited.
 \end{frame}
 
@@ -1362,6 +1369,7 @@ We can write a marginal likelihood as a product of one-step-ahead posterior pred
 	= \prod_{m = 0}^{n - 1} \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
 \end{equation*}
 
+\pause
 In fact, since the likelihood is invariant under permutation of $y_i$'s,
 \vspace*{-.15\baselineskip}
 \begin{equation*} \defineTightSpacing%
@@ -1370,11 +1378,13 @@ In fact, since the likelihood is invariant under permutation of $y_i$'s,
 	= \prod_{m = 0}^{n - 1} \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol).
 \end{equation*}
 
+\pause
 Taking the log of both sides, 
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
 	&= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol) \\
+	\pause
 	&= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given y_{\permutation(\trainingSize)}, \ldots, y_{\permutation(1)}, \modelSymbol).
 \end{aligned}
 \end{equation*}
@@ -1398,11 +1408,13 @@ Since the equality hold for any permutation, we have
 \begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
 	&= \frac{1}{n!} \sum_\permutation \sum_{m = 0}^{n - 1} \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\
+	\pause
 	&= \sum_{m = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
 \end{aligned}
 \end{equation*}
 
-Note that, for $m = 0$, we have 
+\pause
+Note that, for $m = 0$ (i.e.\ no training data), we have 
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
@@ -1411,6 +1423,7 @@ Note that, for $m = 0$, we have
 	&= (n - 1)! \sum_{\testSampleIndex = 1}^n \log \likelihood\!\left(y_\testSampleIndex \given \modelSymbol \right),
 \end{aligned}
 \end{equation*}
+\pause
 and hence
 \begin{equation*} \defineTightSpacing%
 \frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
@@ -1427,9 +1440,11 @@ Similarly, for $m = 1$,
 \begin{aligned}
 \sum_\permutation \log \likelihood\!\left(y_{\permutation(2)} \given y_{\permutation(1)}, \modelSymbol \right) 
 	& = \sum_{\testSampleIndex = 1}^n \sum_{j \neq \testSampleIndex} \sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq i, \, \permutation(2) \spacedEq j} \ldots \\
+	\pause
 	&= (n - 2)! \sum_{\testSampleIndex = 1}^n \sum_{j \neq \testSampleIndex} \log \likelihood\!\left(y_j \given y_\testSampleIndex, \modelSymbol \right),
 \end{aligned}
 \end{equation*}
+\pause
 and hence
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
@@ -1450,11 +1465,15 @@ Let's try just one more case by hand: for $m = 2$,
 &\sum_\permutation \log \likelihood\!\left(y_{\permutation(3)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\
 	&\hspace*{1.5em}= \sum_{\testSampleIndex, \thinnerspace j, \thinnerspace k \mkern 5mu \mathrm{distinct}} \ 
 	\sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq i, \, \permutation(2) \spacedEq j, \, \permutation(3) \spacedEq k} \ldots \\
+	\pause
 	&\hspace*{1.5em}= (n - 3)! \sum_{\testSampleIndex, \thinnerspace j, \thinnerspace k \mkern 5mu \mathrm{distinct}} \log \likelihood\!\left(y_k \given y_j, y_\testSampleIndex, \modelSymbol \right) \\
+	\pause
 	&\hspace*{1.5em}= (n - 3)! \, 2! \sum_{j \thinnerspace > \thinnerspace \testSampleIndex} \sum_{k \neq \testSampleIndex, \thinnerspace k \neq j} \log \likelihood\!\left(y_k \given y_j, y_\testSampleIndex, \modelSymbol \right) \\
+	\pause
 	&\hspace*{1.5em}= (n - 2)! \, 2! \sum_{j \thinnerspace > \thinnerspace \testSampleIndex} 
 		\frac{1}{n - 2}\sum_{k \neq \testSampleIndex, \thinnerspace k \neq j} \log \likelihood\!\left(y_k \given y_j, y_\testSampleIndex, \modelSymbol \right) \\
-	&\hspace*{1.5em}= (n - 2)! \, 2! \sum_{\permutation \spacedColon \text{$\trainingSize$-out-of-$n$}}
+	\pause
+	&\hspace*{1.5em}= (n - 2)! \, 2! \sum_{\permutation \spacedColon \text{$(n \!-\! 2)$-out-of-$n$}}
 		\frac{1}{n - 2} \sum_{\testSampleIndex = 3}^{n - \trainingSize} \log \likelihood\!\left(y_{\permutation(\testSampleIndex)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right).
 \end{aligned}
 \end{equation*}
@@ -1468,13 +1487,15 @@ So we have shown
 \setlength{\jot}{0\baselineskip}
 \begin{aligned}
 &\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(3)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\
-	&\hspace*{1.5em}= \frac{1}{{n \choose 2}} \sum_{\permutation \spacedColon \text{$\trainingSize$-out-of-$n$}}
+	&\hspace*{1.5em}= \frac{1}{{n \choose 2}} \sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}}
 		\frac{1}{n - 2} \sum_{\testSampleIndex = 3}^{n - \trainingSize} \log \likelihood\!\left(y_{\permutation(\testSampleIndex)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\[.5\baselineskip]
 	&\hspace*{1.5em}= \widehat{\score}_{-(n - 2)}(\modelSymbol, \by^n).
 \end{aligned}
 \end{equation*}
 
-Starting to see a general pattern?
+\pause
+Starting to see a general pattern for how to re-interpret the quantity
+$$\frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \text{?}$$
 \end{frame}
 
 
@@ -1484,22 +1505,38 @@ Starting to see a general pattern?
 %
 %Among these permutations, $\trainingSize!$ of them correspond to a fixed set of $\{ \permutation(1), \ldots, \permutation(\trainingSize) \}$.
 
+\onslide<2->{%
 For given $\testSampleIndex_1, \ldots, \testSampleIndex_\trainingSize, \testSampleIndex_{\trainingSize + 1}$, there're $(n - \trainingSize - 1)!$ permutations of $\{1, \ldots, n\}$ that satisfy $\permutation(\ell) = \testSampleIndex_\ell$ for $\ell = 1, \ldots, \trainingSize + 1$.
+}%
 
+\onslide<3->{%
 Among these permutations, $\trainingSize!$ of them correspond to a fixed set of $\{ \testSampleIndex_1, \ldots, \testSampleIndex_\trainingSize \}$.
+}%
 
-Putting these two observations together, we have
+\onslide<4->{%
+Putting the above observations together, we have
+}%
 \vspace*{-.15\baselineskip}
 \begin{equation*} % \defineTightSpacing%
 \begin{aligned}
+\onslide<1->{%
 &\sum_\permutation \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.2\baselineskip]
 &\hspace*{1.5em}= \sum_{\testSampleIndex_1 \thinnerspace \ldots, \thinnerspace \testSampleIndex_{\trainingSize + 1}} \ 
 	\sum_{\permutation \thinnerspace : \, \permutation(1) \spacedEq \testSampleIndex_1, \, \ldots, \, \permutation(\trainingSize + 1) \spacedEq \testSampleIndex_{\trainingSize + 1}} \ldots \\
+}%
+\onslide<2->{%
 &\hspace*{1.5em}= (n - \trainingSize - 1)! \, \trainingSize! 
-	\sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}} \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.3\baselineskip]
-&\hspace*{1.5em}= (n - \trainingSize - 1)! \, \trainingSize! 
-	\sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}} \, \sum_{\testSampleIndex = \trainingSize + 1}^n
-		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
+	\sum_{\permutation \spacedColon \text{$(n\!-\!\trainingSize)$-out-of-$n$}} \, 
+	\sum_{\testSampleIndex = \trainingSize + 1}^n
+	\log \likelihood\!\left(y_{\permutation(i)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.3\baselineskip]
+}%
+\onslide<4->{%
+&\hspace*{1.5em}= (n - \trainingSize)! \, \trainingSize! 
+	\sum_{\permutation \spacedColon \text{$(n\!-\!\trainingSize)$-out-of-$n$}} \, 
+	\frac{1}{n - \trainingSize}
+	\sum_{\testSampleIndex = \trainingSize + 1}^n
+		\log \likelihood\!\left(y_{\permutation(i)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
+}%
 \end{aligned}
 \end{equation*}
 \end{frame}
@@ -1511,12 +1548,14 @@ We thus have
 \begin{equation*} % \defineTightSpacing%
 \begin{aligned}
 &\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.25\baselineskip]
-&\hspace*{1.5em}= \frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$(n\!-\!2)$-out-of-$n$}} 
+&\hspace*{1.5em}= \frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$(n\!-\!\trainingSize)$-out-of-$n$}} 
 	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
 		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[.25\baselineskip]
+\pause
 &\hspace*{1.5em}= \widehat{\score}_{-(n - m)}(\modelSymbol, \by^n);
 \end{aligned}
 \end{equation*}
+\pause%
 i.e.\ \textit{the log-predictive score's average over all possible data permu- tations is the same as that over all distinct train-test data splits}.
 \end{frame}
 
@@ -1530,6 +1569,7 @@ Recalling that
 	&= \sum_{m = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right),
 \end{aligned}
 \end{equation*}
+\pause
 we conclude
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
