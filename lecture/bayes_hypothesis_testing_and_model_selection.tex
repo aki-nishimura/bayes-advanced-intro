@@ -1,4 +1,4 @@
-\documentclass[18pt]{beamer}
+\documentclass[18pt, handout]{beamer}
 
 \usetheme{metropolis}
 \usefonttheme{professionalfonts}
@@ -91,8 +91,10 @@
 \usepackage{mathtools} % For \coloneqq (among others)
 \usepackage{subcaption}
 \usepackage{bm}
+\usepackage{dsfont}
 \usepackage{soul}
 \usepackage{tikz}
+\usepackage{pgfplots}
 \usetikzlibrary{bayesnet}
 %\usepackage[normalem]{ulem}
 %	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
@@ -212,7 +214,8 @@
 \renewcommand{\textsc}[1]{{\small \MakeUppercase{#1}}}
 
 %% General math macros
-\newcommand{\given}{\thinnerspace | \thinnerspace}
+\newcommand{\given}{\mskip.7\thinmuskip | \mskip.7\thinmuskip}
+\newcommand{\midGiven}{\mskip.7\thinmuskip \middle| \mskip.7\thinmuskip}
 \newcommand{\spacedColon}{\mkern .5mu : \mkern 1mu}
 \newcommand{\spacedEq}{\mkern 1mu = \mkern 1.5mu}
 \newcommand{\divby}{\thinnerspace /}
@@ -236,11 +239,11 @@
 \newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
 
 %% Probability / statistics macros
-\newcommand{\probability}{\mathbb{P}}
+\DeclareMathOperator{\probability}{\mathbb{P}}
 \newcommand{\expectation}{\mathbb{E}}
 \newcommand{\variance}{\mathrm{Var}}
 \DeclareMathOperator*{\covariance}{Cov}
-\newcommand{\indicator}{\mathds{1}}
+\newcommand{\indicator}{\operatorname{\mathds{1}}}
 \newcommand{\eqDistribution}{\mathrel{\raisebox{-.2ex}{$\overset{\scalebox{.6}{$\, d$}}{=}$}}}
 \newcommand{\iidSim}{\mathrel{\raisebox{-.3ex}{$\overset{\text{i.i.d.}}{\sim}$}}}
 \newcommand{\unifDist}{\mathrm{Unif}}
@@ -270,6 +273,14 @@
 \newcommand{\bPhi}{\bm{\Phi}}
 \newcommand{\bSigma}{\bm{\Sigma}}
 
+%% Hypothesis testing macros
+\newcommand{\hypothesis}{H}
+\renewcommand{\action}{A}
+\newcommand{\loss}{\mathcal{L}}
+\newcommand{\nullSub}{\mathrm{nul}}
+\newcommand{\altSub}{\mathrm{alt}}
+\newcommand{\bayesFacAlt}{B_{\mathrm{a} / \mathrm{n}}}
+
 \title{%
 	\centerline{Bayesian hypothesis testing \& model selection}%
 }
@@ -292,6 +303,699 @@
 \maketitle
 
 
-\nobibliography{references} % To cite inline without creating a bibliography
+\begin{frame}
+\frametitle{Testing null vs.\ alternative in Bayes way}
+Let's consider the model $y_i \iidSim \normalDist(\mu, \sigma^2)$ and testing
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \mu = 0 
+	\ \text{ vs.\ } \ 
+	\hypothesis_\altSub: \mu \neq 0.
+\end{equation*}
 
+A Bayesian way to formulate of the problem is to ask
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \mu \sim \delta_0(\cdot) 
+	\ \text{ vs.\ } \ 
+	\hypothesis_\altSub: \mu \sim \density_\altSub(\cdot) 
+\end{equation*}
+where $\density_\altSub(\cdot)$ can be taken, for example, as $\normalDist(0, \sigma_\altSub^2)$.
+
+\smallskip
+Having to explicitly specify $\density_\altSub(\cdot)$ is somewhat awkward (though maybe only b/c we've been immersed in the freq testing paradigm).
+
+But also an opportunity to test a more meaningful hypothesis; e.g.\
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \mu \sim \unifDist([-\epsilon, \epsilon])
+	\ \text{ vs.\ } \ 
+	\hypothesis_\altSub: \mu \sim \unifDist([-L, -\epsilon] \cup [\epsilon, L]).
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Testing null vs.\ alternative in Bayes way}
+Under Bayes, hypothesis testing is equivalent to model selection and amounts to calculating $\probability(\hypothesis_\nullSub \given \by)$ and $\probability(\hypothesis_\altSub \given \by)$ according to
+\begin{equation*} \defineTightSpacing%
+\probability(\hypothesis \given \by)
+	\propto \likelihood(\by \given \hypothesis) \probability(\hypothesis).
+\end{equation*}
+
+In particular, the posterior odds in favor of $\hypothesis_\altSub$ are given by
+\begin{equation*} \defineTightSpacing%
+\frac{%
+	\probability(\hypothesis_\altSub \given \by)%
+}{%
+	\probability(\hypothesis_\nullSub \given \by)
+}%
+	= \frac{%
+		\likelihood(\by \given \hypothesis_\altSub)%
+	}{%
+		\likelihood(\by \given \hypothesis_\nullSub) 
+	}%
+	\frac{%
+		\probability(\hypothesis_\altSub)%
+	}{%
+		\probability(\hypothesis_\nullSub) 
+	}
+	\pause
+	= \bayesFacAlt \thinnerspace
+	\frac{%
+		\probability(\hypothesis_\altSub)%
+	}{%
+		\probability(\hypothesis_\nullSub) 
+	},
+\end{equation*}
+where the \textit{Bayes factor} $\bayesFacAlt$ summarizes the evidence from $\by$.
+
+\smallskip
+The probabilities themselves can be calculated by noting that 
+\begin{equation*} \defineTightSpacing%
+1 
+	= \probability(\hypothesis_\altSub \given \by) + \probability(\hypothesis_\nullSub \given \by)
+	= \probability(\hypothesis_\altSub \given \by) \left(
+		1 + \frac{%
+			\probability(\hypothesis_\nullSub \given \by)%
+		}{%
+			\probability(\hypothesis_\altSub \given \by) 
+		}
+	\right).
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Bayes factor in testing Gaussian mean}
+Let's try calculating the Bayes factor under the hypotheses
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \mu \sim \delta_0(\cdot) 
+	\ \text{ vs.\ } \ 
+	\hypothesis_\altSub: \mu \sim \normalDist(0, \sigma_\altSub^2).
+\end{equation*}
+
+Can think of it as a caricature of `spike-and-slab' variable selection:
+\vspace*{-1.2\baselineskip}%
+\begin{figure}
+\centering
+\includegraphics[height=.5\paperheight]{Figure/spike_and_slab}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Bayes factor in testing Gaussian mean}
+Recall that
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\likelihood(\by \given \mu)
+	&\propto \frac{1}{\sigma^n}
+		\exp\!\left( - \frac{1}{2 \sigma^2} \sum_i (y_i - \bar{y})^2 \right)
+		\exp\!\left( - \frac{n}{2 \sigma^2} (\bar{y} - \mu)^2 \right) \\
+	&\propto \normalDist\!\left(
+		\bar{y} \midGiven \mu, n^{-1} \sigma^2
+	\right).
+\end{aligned}
+\end{equation*}
+
+\smallskip
+The (marginal) likelihood under $\hypothesis_\nullSub$ is, therefore, 
+\begin{equation*} \defineTightSpacing%
+\likelihood(\by \given \hypothesis_\nullSub)
+	\propto \normalDist\!\left(
+		\bar{y} \midGiven 0, n^{-1} \sigma^2
+	\right).
+\end{equation*}
+
+The marginal likelihood under $\hypothesis_\altSub$ is 
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\likelihood(\by \given \hypothesis_\altSub)
+	&\propto \int \normalDist\!\left(
+		\bar{y} \midGiven \mu, n^{-1} \sigma^2
+	\right)
+	\normalDist\!\left(
+		\mu \midGiven 0, \sigma_\altSub^2
+	\right) \diff \mu \\
+	&= \normalDist\!\left(
+		\bar{y} \midGiven 0, n^{-1} \sigma^2 + \sigma_\altSub^2
+	\right).
+\end{aligned}
+\end{equation*}
+
+\textbf{Note:} Be careful with constants when computing Bayes factors; 
+you can only ignore ones that cancel out when taking the ratio. % $\frac{\likelihood(\by \given \hypothesis_\nullSub)}{\likelihood(\by \given \hypothesis_\altSub)}$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Bayes factor in testing Gaussian mean}
+
+So the Bayes factor is
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\frac{%
+	\likelihood(\by \given \hypothesis_\altSub)%
+}{%
+	\likelihood(\by \given \hypothesis_\nullSub) 
+}
+	&= \frac{
+		\normalDist\!\left(
+			\bar{y} \midGiven 0, n^{-1} \sigma^2 + \sigma_\altSub^2
+		\right)
+	}{
+		\normalDist\!\left(
+			\bar{y} \midGiven 0, n^{-1} \sigma^2
+		\right)
+	} \\
+	&= \left( 1 + \frac{n \sigma_\altSub^2}{\sigma^2} \right)^{\!-1/2} \!
+	\exp\!\left(
+		\frac{1}{2} 
+		\left[ 1 + \frac{\sigma^2}{n \sigma_\altSub^2} \right]^{-1} \!
+		\frac{n \bar{y}^2}{\sigma^2}
+	\right).
+\end{aligned}
+\end{equation*}
+
+Setting $\bar{z}_n = \frac{\sqrt{n} \thinnerspace \bar{y}}{\sigma} \sim \normalDist\!\left(\! \frac{\sqrt{n} \thinnerspace \mu_\truthSub}{\sigma}, 1 \right)$, we have
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\bayesFacAlt
+	&= \left( 1 + \frac{n \sigma_\altSub^2}{\sigma^2} \right)^{\!-1/2} \!
+	\exp\!\left(
+		\frac{1}{2} 
+		\left[ 1 + \frac{\sigma^2}{n \sigma_\altSub^2} \right]^{-1} \!
+		\bar{z}_n^2
+	\right).
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Asymptotic behavior of Bayes factor}
+To study its behavior as $n \to \infty$, note that
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\bayesFacAlt
+	&\sim \frac{1}{\sqrt{n}} 
+	\exp\!\left(
+		\frac{1}{2} \thinnerspace \bar{z}_n^2
+	\right)
+	\ \text{ for } \,
+	\bar{z}_n \sim \normalDist\!\left(\! \frac{\sqrt{n} \thinnerspace \mu_\truthSub}{\sigma}, 1 \right).
+\end{aligned}
+\end{equation*}
+
+\medskip
+Under the alternative $\mu_\truthSub \neq 0$, 
+$$\displaystyle 
+\bayesFacAlt
+	\sim \frac{1}{\sqrt{n}} 
+	\exp\!\left(
+		\frac{1}{2} \thinnerspace \frac{n \mu_\truthSub^2}{\sigma^2}
+	\right) \to \infty.$$
+
+Under the null $\mu_\truthSub = 0$,
+$$\displaystyle
+\bayesFacAlt \sim \frac{1}{\sqrt{n}} \to 0.$$
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Asymptotic behavior of Bayes factor}
+This Bayes test is apparently better at accepting the alternative
+
+--- evidence accumulates much more quickly in favor of the correct hypothesis under the alternative than under the null.
+
+\smallskip
+In fact, this asymptotic behavior of Bayes factor holds more generally under \textit{local} alternatives:
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \btheta = \btheta_\nullSub
+	\ \text{ vs.\ } \ 
+\hypothesis_\altSub: \btheta \sim \density_\altSub(\cdot)
+	\, \text{ with } \density_\altSub(\btheta_\nullSub) > 0.
+\end{equation*}
+
+Faster evidence accumulation under null can be achieved by using a \textit{non-local} alternative $\density_\altSub(\btheta_\nullSub) = 0$ \citep{johnson2010nonlocal}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Asymptotic behavior of Bayes factor}
+\begin{figure}
+\centering
+\includegraphics[width=.9\linewidth]{Figure/non_local_prior}
+\caption*{\textcolor{themecolor}{\textbf{Figure:}}
+	Comparison of the $\thinnerspace \normalDist(0, 1)$ prior with two  non-local priors.
+}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Jeffreys-Lindley ``Paradox''}
+Let's now take another, different look at the Bayes factor: 
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\bayesFacAlt
+	&= \left( 1 + \frac{n \sigma_\altSub^2}{\sigma^2} \right)^{\!-1/2} \!
+	\exp\!\left(
+		\frac{1}{2} 
+		\left[ 1 + \frac{\sigma^2}{n \sigma_\altSub^2} \right]^{-1} \!
+		\bar{z}_n^2
+	\right) \\
+	&\sim \frac{1}{\sqrt{n}} 
+		\exp\!\left(
+			\frac{1}{2} \thinnerspace \bar{z}_n^2
+		\right)
+	\ \text{ for } \
+	\bar{z}_n = \frac{\sqrt{n} \thinnerspace \bar{y}}{\sigma}.
+\end{aligned}
+\end{equation*}
+
+\smallskip
+Let's imagine $\bar{z}_n = 2$, so that a frequentist would reject the null.
+
+\smallskip
+But the $1 / \sqrt{n}$ factor mean $\bayesFacAlt$ could be small, so that a Bayesian would favor the null. (!)
+
+\smallskip
+This potential disagreement is known as (Jeffrey-)Lindley paradox.
+
+Of course, this isn't a real paradox b/c the two tests are asking two different questions; 
+e.g.\ you never ``accept'' the null in a freq test.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Bartlett's ``Paradox''}
+Let's take one another look at the Bayes factor: 
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\bayesFacAlt
+	&= \left( 1 + \frac{n \sigma_\altSub^2}{\sigma^2} \right)^{\!-1/2} \!
+	\exp\!\left(
+		\frac{1}{2} 
+		\left[ 1 + \frac{\sigma^2}{n \sigma_\altSub^2} \right]^{-1} \!
+		\bar{z}_n^2
+	\right).
+\end{aligned}
+\end{equation*}
+(This time, we are \textit{not} going to let $n \to \infty$.)
+
+\smallskip
+Imagine that we want to be ``uninformative'' about $\mu$ under $\hypothesis_\altSub$, so we take a large $\sigma_\altSub$.
+What would happen in this case?
+
+\smallskip
+As $\sigma_\altSub \to \infty$, we have $\bayesFacAlt \to 0$ and \textit{always} accept the null.
+
+\smallskip
+\cite{bartlett1957paradox} observed phenomenon, but these paradoxes are often collectively called (Jeffrey-)Lindley(-Bartlett) paradox.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Danger of ``uninformative/vague'' priors}
+Bartlett's paradox is a manifestation of how an ``uninformative'' prior can be \textit{very} informative in an insidious way.
+
+\smallskip
+To understand the cause of the paradox, imagine observing a test statistics value $\bar{z}_n = 5$ or, equivalently, $\thinnerspace \bar{y} = \frac{5 \sigma}{\sqrt{n}} \sim \normalDist\!\left( \mu, \frac{\sigma^2}{n} \right)$.
+
+\smallskip
+This observed value is most likely when $\mu = \frac{5 \sigma}{\sqrt{n}}$ and equally (un)likely when $\mu = 0$ or $\mu = \frac{10 \sigma}{\sqrt{n}}$.
+
+\smallskip
+The problem with an uninformative prior arises from the fact that
+\begin{equation*} \defineTightSpacing%
+\probability_\altSub \!\left( \mu > \frac{10 \sigma}{\sqrt{n}} \right)
+	= \int_{\frac{10 \sigma}{\sqrt{n}}}^{\infty} \normalDist\!\left( \mu \given 0, \sigma_\altSub \right) \diff \mu
+	\to 1 \ \text{ as } \, \sigma_\altSub \to \infty;
+\end{equation*}
+i.e.\ your prior guess is  far off from $\mu_\truthSub$ with nearly 100\% chance.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Danger of ``uninformative/vague'' priors}
+\textbf{Q.} But, wait, isn't $\density(\mu) \propto 1$ a proven objective prior? 
+
+\textbf{A.} Yes for parameter estimation, but not for model selection.
+
+\smallskip
+More generally, it's often a bad idea to place vague priors on hyper- parameters, whose main role is to control the model's complexity; 
+\noteBullet e.g.\ across-group variance parameter in hierarchical models. 
+
+\smallskip
+Improper use of uninformative priors one of the most common, and potentially consequential, mistakes among Bayes amateurs.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Bartlett's ``Paradox'' \& Bayesian Occam's razor}
+%{\fontdimen2\font=.6ex 
+In a more positive light, Bartlett's paradox reveals the complexity control ``Occam's razor'' mechanism built into Bayesian inference.
+%}
+
+\smallskip
+When you introduce additional parameter/flexibility in a Bayesian model, you also pay the price by spreading prior probability into regions of parameter space less compatible with the observed data.
+
+\smallskip
+To put it another way, \textsc{mle} picks the best fitting model from however many options given, but Bayesians have a ``fixed budget.''
+
+\smallskip
+Hyper-parameter/model selection through marginal likelihood auto- matically accounts for this trade-off (e.g.\ in regularized regression).
+\end{frame}
+
+
+\begin{frame}
+\frametitle{On use of posterior tail-probability for testing}
+Sometimes, people use a tail-probability $\probability( \theta > \theta_0 \given \by )$ for some chosen $\theta_0$ as evidence of ``significant effect.''
+
+\smallskip
+While a reasonable heuristic, the tail-probability doesn't really have any formal Bayesian interpretation as a measure of evidence.
+
+\smallskip
+One exception is the case of one-sided testing, where it admits an interpretation as a $p$-value \citep{casella1987onesided_testing}.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{On use of posterior tail-probability for testing}
+To illustrate the $p$-value interpretation, we consider a one-sided test
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \mu \leq \mu_0 
+	\ \text{ vs.\ } \ 
+	\hypothesis_\altSub: \mu > \mu_0
+\end{equation*}
+under the model $y_i \iidSim \normalDist(\mu, \sigma^2)$.
+
+\smallskip
+We assume $\probability(\hypothesis_\nullSub) = \probability(\hypothesis_\altSub) = \frac12$ and priors
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \mu \sim \normalDist(\mu_0, \sigma_0^2) \indicator_{(-\infty, \, \mu_0]}
+	\, \text{ vs.\ } \,
+	\hypothesis_\altSub: \mu \sim \normalDist(\mu_0, \sigma_0^2) \indicator_{(\mu_0, \, \infty]}.
+\end{equation*}
+
+In a sense, this is just a convoluted way to express the familiar prior
+\begin{equation*} \defineTightSpacing%
+\density(\mu) 
+	= \frac{1}{2} \density(\mu \given \hypothesis_\nullSub) + \frac12 \density(\mu \given \hypothesis_\altSub)
+	\sim \normalDist(\mu_0, \sigma_0^2).
+\end{equation*}
+
+Consequently, the test amounts to calculating the probabilities of $\mu \leq \mu_0$ and $\mu > \mu_0 $ under 
+$\displaystyle \mu \given \by \sim \normalDist\!\left( \frac{\phi_0 \mu_0 + n \phi \bar{y}}{\phi_0 + \phi}, \frac{1}{\phi_0 + n \phi} \right)$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{On use of posterior tail-probability for testing}
+For one-sided testing, therefore, calculation of $\bayesFacAlt$, $\probability(\hypothesis_\nullSub \given \by)$, and $\probability(\hypothesis_\altSub \given \by)$ only involves usual estimation problem quantities.
+
+In particular, use of a flat prior $\density(\mu) \propto 1$ can be justifies as a limit.
+
+\smallskip
+The flat prior leads to the posterior $\displaystyle \mu \given \by \sim \normalDist\!\left( \bar{y}, \thinnerspace \sigma^2 / n \right)$ and to
+\begin{equation*} \defineTightSpacing%
+%\begin{aligned}
+\probability(\hypothesis_\nullSub \given \by)
+	= \probability(\mu \leq \mu_0 \given \by) 
+	= \Phi\left( \frac{\mu_0 - \bar{y}}{\sigma / \sqrt{n}} \right) 
+	= 1 - \Phi\left( \frac{\bar{y} - \mu_0}{\sigma / \sqrt{n}} \right),
+%\end{aligned}
+\end{equation*}
+where the last quantity is the $p$-value for a freq one-sided test.
+
+\smallskip
+Agreement between tail-probability and $p$-value here simply reflects the freq property of Bayesian CI, rather than inherent relationship.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{On use of posterior tail-probability for testing}
+
+Takeaway message is \textit{not} that 
+\begin{tightItemize}
+\item ``tail-probability can be interpreted as model probability.''
+\item ``$p$-values has a Bayes interpretation as a measure of evidence'' --- it generally doesn't, though mapping $p$-value to obtain a bound on Bayes factor is a possibility\\
+\hfill \citep{benjamin2019use_of_pvalue}.
+\end{tightItemize}
+
+
+The message is rather that 
+\begin{tightItemize}
+\item it takes quite a bit of maneuvers to justify a tail-probability as a formal measure of evidence;
+\item even after all the maneuvers, it offers little beyond a $p$-value;
+\end{tightItemize}
+\vspace*{-.2\baselineskip}
+so let's not a tail-probability too seriously.
+
+%\begin{indented}[2.3]
+%``it takes quite a bit of maneuvers to justify a tail-probability as a formal measure of evidence, so let's not take it too seriously.''
+%\end{indented}
+%
+%\medskip
+%Even with such maneuvers, a tail-probability doesn't offer much beyond what a $p$-value and freq one-sided test do.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{More general Bayesian tests}
+Bayesian tests become a particularly attractive option for more complex tests, e.g.\ when hypotheses are not nested.
+
+For example, you may want to test three possible scenarios for how ground-level ozone changed over time \citep{kass1995bayes_factor}:
+
+\medskip
+\begin{minipage}{.32\linewidth}
+	\begin{figure}
+		\begin{tikzpicture}
+		\begin{axis}[
+			width=0.48\paperheight,
+			height=0.48\paperheight,
+		    axis lines = left,
+		    xmin=0,
+		    xmax=1,
+		    ymin=0,
+		    ymax=3,
+		    xlabel = {\(t\)},
+		    ylabel = {\(\)},
+		    ticks = none,
+		    legend style={
+		    	font=\small, 
+		    	draw=none, % Remove legend box
+		    	empty legend % Remove line marker
+		    }
+		]
+		%Below the red parabola is defined
+		\addplot [
+			domain=0.01:0.99,
+		    samples=99, 
+		    color=jhuSpiritBlue,
+		    semithick
+		]
+		{1.5};
+		\addlegendentry{\({\tiny \hypothesis_0}\)}
+		\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+\end{minipage}
+\begin{minipage}{.32\linewidth}
+	\begin{figure}
+		\begin{tikzpicture}
+		\begin{axis}[
+			width=0.48\paperheight,
+			height=0.48\paperheight,
+		    axis lines = left,
+		    xmin=0,
+		    xmax=1,
+		    ymin=0,
+		    ymax=3,
+		    xlabel = {\(t\)},
+		    ylabel = {\(\)},
+		    ticks = none,
+		    legend style={
+		    	font=\small, 
+		    	draw=none, % Remove legend box
+		    	empty legend % Remove line marker
+		    }
+		]
+		%Below the red parabola is defined
+		\addplot [
+			domain=0.01:0.99,
+		    samples=99, 
+		    color=jhuSpiritBlue,
+		    semithick
+		]
+		{2 - x};
+		\addlegendentry{\({\tiny \hypothesis_1}\)}
+		\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+\end{minipage}
+\begin{minipage}{.32\linewidth}
+	\begin{figure}
+		\begin{tikzpicture}
+		\begin{axis}[
+			width=0.48\paperheight,
+			height=0.48\paperheight,
+		    axis lines = left,
+		    xmin=0,
+		    xmax=1,
+		    ymin=0,
+		    ymax=3,
+		    xlabel = {\(t\)},
+		    ylabel = {\(\)},
+		    ticks = none,
+		    legend style={
+		    	font=\small, 
+		    	draw=none, % Remove legend box
+		    	empty legend % Remove line marker
+		    }
+		]
+		%Below the red parabola is defined
+		\addplot [
+			domain=0.01:0.49,
+		    samples=49, 
+		    color=jhuSpiritBlue,
+		    semithick
+		]
+		{2};
+		\addplot [
+			domain=0.51:0.99,
+			samples=49, 
+			color=jhuSpiritBlue,
+			semithick
+		]
+		{1};
+		\addlegendentry{\({\tiny \hypothesis_2}\)}
+		\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{How to make decisions based on model evidences}
+Bayesian tests give you $\bayesFacAlt$ as well as $\probability(\hypothesis_\altSub \given \by)$ and $\probability(\hypothesis_\nullSub \given \by)$,
+but how do you actually decide which hypothesis to accept?
+
+\smallskip
+People often cites the following suggestion of \cite{jeffreys1961theory_of_probability}:
+\vspace*{-.5\baselineskip}
+\begin{center}
+\begin{tabular}{c|c} 
+$\bayesFacAlt$ & Strength of evidence \\ [0.5ex] 
+ \hline\hline
+1 to 3 & Barely worth mentioning \\ 
+ \hline
+3 to 10 & Substantial \\
+ \hline
+10 to 100 & Strong \\
+ \hline
+ 100+ & Decisive 
+\end{tabular}
+\end{center}
+This, at least to me, seems somewhat arbitrary.\\ 
+(Though the threshold $p < 0.05$ is arguably just as arbitrary.)
+\end{frame}
+
+
+\begin{frame}
+\frametitle{How to make decisions based on model evidences}
+Alternatively, we can take a decision theoretic perspective and decide between $\action_\nullSub$ and $\action_\altSub$ to minimize the expected loss. 
+% Note: $\action_\nullSub$ means `accept the null hypothesis' (and do nothing)' and $\action_\altSub$ `accept the alternative' (and take appropriate measures)
+
+To this end, we need to assign costs under the four situations --- accept the null or alternative when the null or alternative is true. 
+
+Let's denote these costs as 
+\begin{tightItemize}
+\item $C_{\mathrm{n | a}}$ --- cost when (falsely) accepting the null under $\hypothesis_\altSub$ \\
+	\hphantom{$C_{\mathrm{n | a}}$ ---} (e.g.\ you decide to go uninsured and a disaster hits);
+\item $C_{\mathrm{n | n}}$ --- cost when (correctly) accepting the null under $\hypothesis_\nullSub$; 
+\item $C_{\mathrm{a | n}}$ --- cost when (falsely) accepting the alt.\ under $\hypothesis_\nullSub$ \\
+	\hphantom{$C_{\mathrm{a | n}}$ ---} (e.g.\ you pay for insurance but nothing happens);
+\item $C_{\mathrm{a | a}}$ --- cost when (correctly) accepting the alt.\ under $\hypothesis_\altSub$.
+\end{tightItemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{How to make decisions based on model evidences}
+Above cost assignment defines a loss function $\loss(\hypothesis, \action)$, where $\hypothesis \in \{ \hypothesis_\nullSub, \hypothesis_\altSub \}$ and $\action \in \{ \action_\nullSub, \action_\altSub \}$. 
+
+With this set-up, we can calculate the posterior expected losses:
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+&\expectation_{\hypothesis \sim \, \density(\cdot \given \by)} \left[
+	\loss(\hypothesis, \action_\nullSub)
+\right] \\
+	&\hspace*{1.5em}= \loss(\hypothesis_\nullSub, \action_\nullSub) \probability(\hypothesis_\nullSub \given \by)
+		+ \loss(\hypothesis_\altSub, \action_\nullSub) \probability(\hypothesis_\altSub \given \by) \\
+	&\hspace*{1.5em}= C_{\mathrm{n | n}} \probability(\hypothesis_\nullSub \given \by)
+		+ C_{\mathrm{n | a}} \probability(\hypothesis_\altSub \given \by), \\
+&\expectation_{\hypothesis \sim \, \density(\cdot \given \by)} \left[
+	\loss(\hypothesis, \action_\altSub)
+\right] \\
+	&\hspace*{1.5em}= C_{\mathrm{a | n}} \probability(\hypothesis_\nullSub \given \by)
+		+ C_{\mathrm{a | a}} \probability(\hypothesis_\altSub \given \by).
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{How to make decisions based on model evidences}
+%Assuming $C_{\mathrm{n | a}} \geq C_{\mathrm{a | a}}$ (i.e.\ inaction costs more under $\hypothesis_\altSub$) and $C_{\mathrm{a | n}} \geq C_{\mathrm{n | n}}$ (i.e.\ action requires some upfront cost), 
+Assuming $C_{\mathrm{n | a}} \geq C_{\mathrm{a | a}}$ and $C_{\mathrm{a | n}} \geq C_{\mathrm{n | n}}$ (i.e.\ a wrong decision always cost more), we find that
+\begin{equation*} \defineTightSpacing%
+\expectation_{\hypothesis \sim \, \density(\cdot \given \by)} \left[
+	\loss(\hypothesis, \action_\altSub)
+\right]
+	> 
+\expectation_{\hypothesis \sim \, \density(\cdot \given \by)} \left[
+	\loss(\hypothesis, \action_\nullSub)
+\right] 
+\end{equation*}
+if and only if
+\begin{equation*} \defineTightSpacing%
+\frac{
+	\probability(\hypothesis_\altSub \given \by) 
+}{
+	\probability(\hypothesis_\nullSub \given \by)
+} \geq
+	\frac{
+		C_{\mathrm{a | n}} - C_{\mathrm{n | n}}
+	}{
+		C_{\mathrm{n | a}} - C_{\mathrm{a | a}}
+	}.
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Bayes factor vs.\ $\bm{p}$-value}
+While a Bayesian test's dependence on $\density_\altSub(\cdot)$ might make it a tough sell, $\bayesFacAlt$ is arguably more interpretable than a $p$-value.
+
+Interestingly, we can lower bound $\bayesFacAlt$ as a function of $p$-value under a mild assumption on the $p$-value's distribution under $\hypothesis_\altSub$:
+\begin{equation*} \defineTightSpacing%
+\bayesFacAlt
+	\geq \frac{1}{- e \thinnerspace p \log(p)}
+\end{equation*}
+for $p < e^{-1}$ and the bound is sharp \citep{sellke2001pval_calibration}.
+
+The result in particular demonstrates how $p \leq 0.05$ necessarily doesn't provide much evidence against the null:
+\vspace*{-.5\baselineskip}
+\begin{center}
+\begin{tabular}{c|c|c|c} 
+$p$ & $.05$ & $.01$ & $.005$ \\ 
+ \hline
+$\frac{1}{- e \thinnerspace p \log(p)}$ & $2.46$ & $7.99$ & $13.9$
+\end{tabular}
+\end{center}
+\end{frame}
+
+\nobibliography{references} % To cite inline without creating a bibliography
 \end{document}
