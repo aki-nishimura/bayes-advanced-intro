@@ -1502,6 +1502,53 @@ Since the equality hold for any permutation, we have
 \end{equation*}
 
 \pause
+\vspace*{-.5\baselineskip}
+We will show that 
+\begin{equation*} % \defineTightSpacing%
+\begin{aligned}
+&\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.25\baselineskip]
+&\hspace*{1.5em}= \frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$(n\!-\!\trainingSize)$-out-of-$n$}} 
+	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
+		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right);
+\end{aligned}
+\end{equation*}
+\pause%
+i.e.\ \textit{the log-predictive score averaged over all possible data permu- tations is the same as that over all distinct train-test data splits}.
+\end{frame}
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+The last expression coincides with the leave-$(n - \trainingSize)$-out CV score;
+\pause
+once we establish the previous equality, therefore, we can conclude
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+&\log \likelihood(\by^n \given \modelSymbol) \\
+	&\hspace*{1.5em}= \sum_{\trainingSize = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\
+	&\hspace*{1.5em}= \sum_{\trainingSize = 0}^{n - 1} \frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$(n\!-\!\trainingSize)$-out-of-$n$}} 
+	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
+		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[.25\baselineskip]
+	&\hspace*{1.5em}= \sum_{\trainingSize = 0}^{n - 1} \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n) \\
+	\pause
+	&\hspace*{1.5em}= \sum_{\widetilde{\trainingSize} = 1}^{n} \widehat{\score}_{-\widetilde{\trainingSize}}(\modelSymbol, \by^n).
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
+In other words, the theorem follows once we establish
+\begin{equation*} % \defineTightSpacing%
+\begin{aligned}
+&\frac{1}{n!} \sum_\permutation \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[-.25\baselineskip]
+&\hspace*{1.5em}= \frac{1}{{n \choose \trainingSize}} \sum_{\permutation \spacedColon \text{$(n\!-\!\trainingSize)$-out-of-$n$}} 
+	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
+		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
+\end{aligned}
+\end{equation*}
+
+\pause
 Note that, for $\trainingSize = 0$ (i.e.\ no training data), we have 
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
@@ -1640,30 +1687,7 @@ We thus have
 	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
 		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[.25\baselineskip]
 \pause
-&\hspace*{1.5em}= \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n);
-\end{aligned}
-\end{equation*}
-\pause%
-i.e.\ \textit{the log-predictive score's average over all possible data permu- tations is the same as that over all distinct train-test data splits}.
-\end{frame}
-
-
-\begin{frame}
-\frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
-Recalling that
-\begin{equation*} \defineTightSpacing%
-\begin{aligned}
-\log \likelihood(\by^n \given \modelSymbol)
-	&= \sum_{\trainingSize = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right),
-\end{aligned}
-\end{equation*}
-\pause
-we conclude
-\begin{equation*} \defineTightSpacing%
-\begin{aligned}
-\log \likelihood(\by^n \given \modelSymbol)
-	&= \sum_{\trainingSize = 0}^{n - 1} \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n)
-	= \sum_{\trainingSize = 1}^{n} \widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n). \ \qedsymbol
+&\hspace*{1.5em}= \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n).  \quad \qedsymbol
 \end{aligned}
 \end{equation*}
 \end{frame}
