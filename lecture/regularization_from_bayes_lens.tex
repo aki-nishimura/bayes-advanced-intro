@@ -256,7 +256,7 @@
 %% Variable macros / Aliases
 \newcommand{\nPred}{p}
 \newcommand{\nObs}{n}
-\newcommand{\density}{\pi}
+\newcommand{\density}{\operatorname{\pi}}
 \newcommand{\likelihood}{L}
 \newcommand{\infoMat}{\mathcal{I}}
 \newcommand{\by}{\bm{y}}
@@ -736,6 +736,54 @@ Methods that select a prior using observed data, or those admitting interpretati
 \end{frame}
 
 
+\begin{frame}
+\frametitle{Homework: Shrinkage through Bayes lens}
+In this problem, we consider a Bayesian approach to the problem of predicting season batting averages in \cite{efron1977stein_sci_american}.
+To this end, we assume the hierarchical/random-effect model
+\begin{equation*} \defineTightSpacing%
+y_i \given \mu_i, \sigma_i \sim \normalDist(\mu_i, \sigma_i^2), \ \,
+\mu_i \given \mu_\mathrm{grp}, \sigma_\mathrm{grp} \sim \normalDist(\mu_\mathrm{grp}, \sigma_\mathrm{grp}^2),
+\end{equation*}
+where $y_i$ represents the batting average from the first 45 times at bat and $\mu_i$ as representing the $i$-th player's true batting average, an estimate of which we use to predict his season performance.
+(Arguably, it is more natural to model $y_i$ as a binomial outcome, but we assume the Gaussian model for illustration purpose.)
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homework: Shrinkage through Bayes lens}
+A fully Bayesian solution would require specifying a prior on $\mu_\mathrm{grp}$, $\sigma_\mathrm{grp}$, and $\sigma_i$'s; 
+for simplicity, we plug in empirical estimates for $\mu_\mathrm{grp}$ and $\sigma_i$'s and treat only $\sigma_\mathrm{grp}$ as unknown.
+(If one were to place a prior on $\sigma_i$'s, one should treat it again as a random effect, e.g.\ assuming $\sigma_i \iidSim \gammaDist(a_0, b_0)$.)
+Set these plug-in estimates as 
+\begin{equation*} \defineTightSpacing%
+\widehat{\mu}_\mathrm{grp} = \frac{1}{n} {\textstyle \sum_i} y_i, \ \,
+\widehat{\sigma}_i^2 = \frac{y_i (1 -  y_i)}{45}
+\end{equation*}
+with the latter motivated by the standard variance estimator for binomial outcomes.
+As for a prior on $\sigma_{\mathrm{grp}}$, we take $\widehat{\variance}(\by)^{1/2}$ as a reasonable (soft) upper bound since $\variance(y_i \given \sigma_i, \sigma_{\textrm{grp}}) = \sigma_i^2 + \sigma_{\mathrm{grp}}^2$. 
+We then assign a weakly informative half-Gaussian prior $\sigma_{\mathrm{grp}} \sim \normalDist^+\big(0, \widehat{\variance}(\by) \big)$.
+(More generally, half-t distributions are common choices for variance parameters in hierarchical models \citep{gelman2006prior_for_variance}.)
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homework: Shrinkage through Bayes lens}
+Having specified the model and prior, find the posterior mean of $\mu_i$'s using the relation
+\begin{equation*} \defineTightSpacing%
+\expectation[\mu_i \given \by]
+	= \int \expectation[\mu_i \given \by, \sigma_{\mathrm{grp}}] \density(\sigma_{\mathrm{grp}} \given \by) \diff \sigma_{\mathrm{grp}},
+\end{equation*}
+where the integral can be numerically evaluated via the trapezoidal rule and $\density(\sigma_{\mathrm{grp}} \given \by) \propto L(\by \given \sigma_{\mathrm{grp}}) \density(\sigma_{\mathrm{grp}})$ can be approximated by evaluating the right-hand side over a grid and then normalizing. 
+(This numerical integration approach can be viewed as a basic ver.\ of the \textit{integrated nested Laplace approximation} \citep{rue2009inla}.)
+
+Also, examine the distribution $\density(\sigma_{\mathrm{grp}} \given \by)$ as an informal check of sensitivity to the prior. 
+If the prior has a limited influence on the posterior, most of the posterior mass should lie within high-density regions of the prior. 
+
+%$\int_a^b f(x) \diff x = \frac{1}{2K} f(b) + \frac{1}{K} \sum_{k = 1}^{K - 1} f\left(a + (b - a) \frac{k}{K} \right) \frac{1}{2K} f(a)$
+
+\end{frame}
+
+
 \section{\centerline{Brief detour: Bayesian decision theory}}
 
 \begin{frame}
@@ -885,6 +933,44 @@ The above loss function in particular ignores posterior uncertainty completely, 
 \smallskip
 One should thus exercise cautions in using a posterior mode for inference/prediction;$\thinnerspace$
 usual Bayesian safeguards can fall apart.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homework: Bayesian decision theory}
+
+\vspace*{-.3\baselineskip}
+\textbf{Problem 1}\\
+Show that the Bayes estimator corresponding to the loss function
+\begin{equation*} \defineTightSpacing%
+\loss\big(\widehat{\theta}, \theta \big)
+	= \left\{
+		\begin{array}{@{}cl}
+		c_\mathrm{u} (\theta - \widehat{\theta}) & \text{if } \theta \geq \widehat{\theta} \\
+		c_\mathrm{o}  (\widehat{\theta} - \theta) & \text{otherwise},
+		\end{array}
+	\right.
+\end{equation*}
+is given by a posterior quantile 
+\begin{equation*} \defineTightSpacing%
+\probability \big\{ \theta < \widehat{\theta}_\mathrm{bayes} \given \by \big\}
+	= \frac{c_\mathrm{u}}{c_\mathrm{u} + c_\mathrm{o}}.
+\end{equation*}
+
+\vspace*{-.3\baselineskip}
+\textbf{Problem 2}\\
+{\fontdimen2\font=.6ex 
+Let $\widehat{\btheta}_\mathrm{bayes}(c, \epsilon)$ denote the Bayes estimator corresponding to the loss}
+\begin{equation*} \defineTightSpacing%
+\loss\big(\widehat{\btheta}, \btheta \big)
+	= \left\{
+		\begin{array}{@{}cl}
+		0 & \text{if } \| \widehat{\btheta} - \btheta \|^2 \leq \epsilon \\
+		c & \text{otherwise}.
+		\end{array}
+	\right.
+\end{equation*}
+Argue, without necessarily giving a completely formal proof, that $\widehat{\btheta}_\mathrm{bayes}(c, \epsilon) \to \map{\btheta}$ as $c \to \infty$ and $\epsilon \to 0$. 
 \end{frame}
 
 
