@@ -768,6 +768,7 @@ We then assign a weakly informative half-Gaussian prior $\sigma_{\mathrm{grp}} \
 
 \begin{frame}
 \frametitle{Homework: Shrinkage through Bayes lens}
+\vspace*{-.5\baselineskip}
 Having specified the model and prior, find the posterior mean of $\mu_i$'s using the relation
 \begin{equation*} \defineTightSpacing%
 \expectation[\mu_i \given \by]
@@ -776,7 +777,8 @@ Having specified the model and prior, find the posterior mean of $\mu_i$'s using
 where the integral can be numerically evaluated via the trapezoidal rule and $\density(\sigma_{\mathrm{grp}} \given \by) \propto L(\by \given \sigma_{\mathrm{grp}}) \density(\sigma_{\mathrm{grp}})$ can be approximated by evaluating the right-hand side over a grid and then normalizing. 
 (This numerical integration approach can be viewed as a basic ver.\ of the \textit{integrated nested Laplace approximation} \citep{rue2009inla}.)
 
-Also, examine the distribution $\density(\sigma_{\mathrm{grp}} \given \by)$ as an informal check of sensitivity to the prior. 
+Compare the mean square errors of the Bayes estimator and of \textsc{mle} in predicting the players' season performances.
+Also, examine the posterior $\density(\sigma_{\mathrm{grp}} \given \by)$ as an informal check of sensitivity to the prior. 
 If the prior has a limited influence on the posterior, most of the posterior mass should lie within high-density regions of the prior. 
 
 %$\int_a^b f(x) \diff x = \frac{1}{2K} f(b) + \frac{1}{K} \sum_{k = 1}^{K - 1} f\left(a + (b - a) \frac{k}{K} \right) \frac{1}{2K} f(a)$
