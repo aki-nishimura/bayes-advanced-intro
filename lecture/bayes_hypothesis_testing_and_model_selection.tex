@@ -247,7 +247,7 @@
 \newcommand{\eqDistribution}{\mathrel{\raisebox{-.2ex}{$\overset{\scalebox{.6}{$\, d$}}{=}$}}}
 \newcommand{\iidSim}{\mathrel{\raisebox{-.3ex}{$\overset{\text{i.i.d.}}{\sim}$}}}
 \newcommand{\unifDist}{\mathrm{Unif}}
-\newcommand{\normalDist}{\mathcal{N}}
+\newcommand{\normalDist}{\operatorname{\mathcal{N}}}
 \newcommand{\betaDist}{\mathrm{Beta}}
 \newcommand{\gammaDist}{\mathrm{Gamma}}
 \newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
@@ -259,7 +259,7 @@
 %% Variable macros / Aliases
 \newcommand{\nPred}{p}
 \newcommand{\nObs}{n}
-\newcommand{\density}{\pi}
+\newcommand{\density}{\operatorname{\pi}}
 \newcommand{\likelihood}{L}
 \newcommand{\infoMat}{\mathcal{I}}
 \newcommand{\by}{\bm{y}}
@@ -273,13 +273,16 @@
 \newcommand{\bPhi}{\bm{\Phi}}
 \newcommand{\bSigma}{\bm{\Sigma}}
 
-%% Hypothesis testing macros
+%% Hypothesis testing/model selection macros
 \newcommand{\hypothesis}{H}
 \renewcommand{\action}{A}
+\newcommand{\model}{\mathcal{M}}
 \newcommand{\loss}{\mathcal{L}}
 \newcommand{\nullSub}{\mathrm{nul}}
 \newcommand{\altSub}{\mathrm{alt}}
 \newcommand{\bayesFacAlt}{B_{\mathrm{a} / \mathrm{n}}}
+\newcommand{\nonzeroCoefSet}{J}
+\newcommand{\inclusionProb}{q}
 
 \title{%
 	\centerline{Bayesian hypothesis testing \& model selection}%
@@ -986,7 +989,7 @@ Interestingly, we can lower bound $\bayesFacAlt$ as a function of $p$-value unde
 \end{equation*}
 for $p < e^{-1}$ and the bound is sharp \citep{sellke2001pval_calibration}.
 
-The result in particular demonstrates how $p \leq 0.05$ necessarily doesn't provide much evidence against the null:
+The result in particular demonstrates how $p \leq 0.05$ doesn't necessarily provide much evidence against the null:
 \vspace*{-.5\baselineskip}
 \begin{center}
 \begin{tabular}{c|c|c|c} 
@@ -995,6 +998,141 @@ $p$ & $.05$ & $.01$ & $.005$ \\
 $\frac{1}{- e \thinnerspace p \log(p)}$ & $2.46$ & $7.99$ & $13.9$
 \end{tabular}
 \end{center}
+\end{frame}
+
+
+\section{\centerline{Bayesian model selection}}
+
+\begin{frame}
+\frametitle{Hypothesis testing $\subset$ Model selection $\given$ Bayes}
+Within Bayesian framework, both testing and model selection follow the same principal:
+\vspace*{-.35\baselineskip}
+\begin{itemize}
+\item For each hypothesis/model $\model_\ell$, assign a prior $\density(\btheta_\ell \given \model_\ell)$ on its parameter space $\Theta_\ell$;
+\item Assign prior probability $\density(\model_\ell)$ on each model $\model_\ell$;
+\item {\fontdimen2\font=.68ex 
+	Weigh the prior by $\likelihood(\by \given \model_\ell) = \int \likelihood(\by \given \btheta_\ell, \model_\ell) \density(\btheta_\ell \given \model_\ell) \diff \btheta_\ell$ to get the posterior model prob $\density(\model_\ell \given \by) \propto \likelihood(\by \given \model_\ell) \density(\model_\ell)$.}
+\end{itemize}
+
+\vspace*{-.1\baselineskip}
+Optionally, we can 
+\vspace*{-.35\baselineskip}
+\begin{itemize}
+\item Select one of the models according to some loss function;
+\item Average (if making a prediction) over the models:
+	\begin{equation*} \defineTightSpacing%
+	\expectation[\widehat{\by} \given \by]
+		= \sum_\ell \left( 
+			\int \expectation[\widehat{\by} \given \btheta, \model_\ell] 
+				\density(\btheta_\ell \given \model_\ell, \by) 
+				\diff \btheta_\ell 
+			\right)
+			\density(\model_\ell \given \by).
+	\end{equation*}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Variable selection in regression}
+One prominent application of Bayesian model selection/averaging is \textit{variable selection} in regression models.
+
+\smallskip
+Given a set of potential predictors $x_{i1}, \ldots, x_{i\nPred}$, we consider a collection of $2^\nPred$ models indexed by $\nonzeroCoefSet \subset \{1, \ldots, \nPred\}$:
+\begin{equation*} \defineTightSpacing%
+y_i = \sum_{j \in \nonzeroCoefSet} x_{ij} \beta_j + \epsilon_i.
+\end{equation*}
+
+Variable selection can be considered an exploration of hypotheses:
+\begin{equation*} \defineTightSpacing%
+\model_\nonzeroCoefSet: \beta_j \neq 0
+	\, \text{ for } \, j \in \nonzeroCoefSet.
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Variable selection in regression}
+In order to carry out the model selection/averaging, we need to specify $\density(\model_\nonzeroCoefSet)$ and $\density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet)$ for $\bbeta_\nonzeroCoefSet \in \mathbb{R}^{|\nonzeroCoefSet|}$. 
+
+\smallskip
+One common choice is, for $\inclusionProb \in (0, 1)$,
+\begin{equation*} \defineTightSpacing%
+\density(\model_\nonzeroCoefSet) = \inclusionProb^{|\nonzeroCoefSet|} (1 - \inclusionProb)^{\nPred \thinnerspace - |\nonzeroCoefSet|}
+	\ \text{ and } \ 
+	\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet \sim \normalDist(\bm{0}, \sigma_0^2 \bm{I}).
+\end{equation*}
+
+This is equivalent to placing a spike-and-slab prior on $\beta_j$'s; i.e.\ \\ 
+we assume the full model $y_i = \sum_{j = 1}^\nPred x_{ij} \beta_j + \epsilon_i$ and a prior
+\begin{equation*} \defineTightSpacing%
+\beta_j = 0 \, \text{ with prob.\ } \inclusionProb
+	\ \, \text{ and } \ \,
+	\beta_j \sim \normalDist(0, \sigma_0^2)
+	\, \text{ otherwise.}
+\end{equation*}
+
+%\begin{equation*} \defineTightSpacing%
+%I_j \sim \operatorname{Bernoulli}(\inclusionProb) \, 
+%\beta_j \given I_j \sim \left(1 - I_j \right)\delta_0 + I_j \normalDist(0, \sigma_0^2)
+%\end{equation*}
+
+%\begin{equation*} \defineTightSpacing%
+%\beta_j \sim \indicator\{ j \not\in \nonzeroCoefSet \} \, \delta_0 + \indicator\{ j \in \nonzeroCoefSet \}  \normalDist(0, \sigma_0^2)
+%\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Variable selection in regression}
+Having specified $\density(\model_\nonzeroCoefSet)$ and $\density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet)$, it's conceptually straightforward to calculate $\density(\model_\nonzeroCoefSet \given \by, \bX)$ and other quantities.
+
+In practice, it's impossible to enumerate all the $2^\nPred$ models even when conjugacy makes $\likelihood(\by \given \bX,  \model_\nonzeroCoefSet)$ analytically available.
+
+Model selection thus typically relies on the posterior marginal inclusion probability $\density(\beta_j \neq 0 \given \by, \bX)$ estimated from \textsc{mcmc}. 
+
+Model averaging is also straightforward from the \textsc{mcmc} output. 
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Variable selection vs.\ shrinkage estimation}
+
+Variable selection has its use, but worth remembering that in real life every parameter becomes significant if given enough sample size.
+
+In this sense, it's just a shrinkage estimation in disguise. 
+
+In particular, you might opt to approximate a spike-and-slab with a continuous \textit{shrinkage prior}:
+
+\vspace{-.3\baselineskip}
+	\begin{figure}
+		\begin{minipage}{.48\linewidth}
+		\includegraphics[width=\linewidth]{Figure/lasso_and_bridge_4th_prior}
+		\end{minipage}
+		\begin{minipage}{.48\linewidth}
+			\includegraphics[width=\linewidth]{Figure/lasso_and_bridge_4th_prior_tails}
+		\end{minipage}
+	\end{figure} \vspace{-.3\baselineskip}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Variable selection vs.\ shrinkage estimation}
+%\vspace*{-.25\baselineskip}
+\begin{figure}
+\includegraphics[height=.675\textheight]{Figure/bridge_posterior_examples}
+\caption*{\textcolor{themecolor}{Figure:}
+	Posterior distributions under a shrinkage prior.
+}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Analytical approx.\ of posterior model probabilities}
+If we have
+$\likelihood(\by \given \bX,  \model_\nonzeroCoefSet)$
 \end{frame}
 
 \nobibliography{references} % To cite inline without creating a bibliography
