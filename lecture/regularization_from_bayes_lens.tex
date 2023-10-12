@@ -1454,7 +1454,7 @@ We can write a marginal likelihood as a product of one-step-ahead posterior pred
 \vspace*{-.3\baselineskip}
 \begin{equation*} \defineTightSpacing%
 \likelihood(\by^n \given \modelSymbol)
-	= \prod_{m = 0}^{n - 1} \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
+	= \prod_{\trainingSize = 0}^{n - 1} \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
 \end{equation*}
 
 \pause
@@ -1463,7 +1463,7 @@ In fact, since the likelihood is invariant under permutation of $y_i$'s,
 \begin{equation*} \defineTightSpacing%
 \likelihood(\by^n \given \modelSymbol)
 	= \likelihood(\by_{\permutation}^n \given \modelSymbol)
-	= \prod_{m = 0}^{n - 1} \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol).
+	= \prod_{\trainingSize = 0}^{n - 1} \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol).
 \end{equation*}
 
 \pause
@@ -1471,9 +1471,9 @@ Taking the log of both sides,
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
-	&= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol) \\
+	&= \sum_{\trainingSize = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol) \\
 	\pause
-	&= \sum_{m = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given y_{\permutation(\trainingSize)}, \ldots, y_{\permutation(1)}, \modelSymbol).
+	&= \sum_{\trainingSize = 0}^{n - 1} \log \likelihood(y_{\permutation(\trainingSize + 1)} \given y_{\permutation(\trainingSize)}, \ldots, y_{\permutation(1)}, \modelSymbol).
 \end{aligned}
 \end{equation*}
 
@@ -1495,14 +1495,14 @@ Since the equality hold for any permutation, we have
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
-	&= \frac{1}{n!} \sum_\permutation \sum_{m = 0}^{n - 1} \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\
+	&= \frac{1}{n!} \sum_\permutation \sum_{\trainingSize = 0}^{n - 1} \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\
 	\pause
-	&= \sum_{m = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
+	&= \sum_{\trainingSize = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right).
 \end{aligned}
 \end{equation*}
 
 \pause
-Note that, for $m = 0$ (i.e.\ no training data), we have 
+Note that, for $\trainingSize = 0$ (i.e.\ no training data), we have 
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \sum_\permutation \log \likelihood\!\left(y_{\permutation(1)} \given \modelSymbol \right)
@@ -1523,7 +1523,7 @@ and hence
 
 \begin{frame}
 \frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
-Similarly, for $m = 1$,  
+Similarly, for $\trainingSize = 1$,  
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \sum_\permutation \log \likelihood\!\left(y_{\permutation(2)} \given y_{\permutation(1)}, \modelSymbol \right) 
@@ -1547,7 +1547,7 @@ and hence
 
 \begin{frame}
 \frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
-Let's try just one more case by hand: for $m = 2$,  
+Let's try just one more case by hand: for $\trainingSize = 2$,  
 \begin{equation*} % \defineTightSpacing%
 \begin{aligned}
 &\sum_\permutation \log \likelihood\!\left(y_{\permutation(3)} \given y_{\permutation(2)}, y_{\permutation(1)}, \modelSymbol \right) \\
@@ -1640,7 +1640,7 @@ We thus have
 	\frac{1}{n - \trainingSize} \sum_{\testSampleIndex = \trainingSize + 1}^n
 		\log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right) \\[.25\baselineskip]
 \pause
-&\hspace*{1.5em}= \widehat{\score}_{-(n - m)}(\modelSymbol, \by^n);
+&\hspace*{1.5em}= \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n);
 \end{aligned}
 \end{equation*}
 \pause%
@@ -1654,7 +1654,7 @@ Recalling that
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
-	&= \sum_{m = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right),
+	&= \sum_{\trainingSize = 0}^{n - 1} \frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\trainingSize + 1)} \given \by_\permutation^\trainingSize\negthinnerspace, \modelSymbol \right),
 \end{aligned}
 \end{equation*}
 \pause
@@ -1662,8 +1662,8 @@ we conclude
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \log \likelihood(\by^n \given \modelSymbol)
-	&= \sum_{m = 0}^{n - 1} \widehat{\score}_{-(n - m)}(\modelSymbol, \by^n)
-	= \sum_{m = 1}^{n} \widehat{\score}_{-m}(\modelSymbol, \by^n). \ \qedsymbol
+	&= \sum_{\trainingSize = 0}^{n - 1} \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n)
+	= \sum_{\trainingSize = 1}^{n} \widehat{\score}_{-\trainingSize}(\modelSymbol, \by^n). \ \qedsymbol
 \end{aligned}
 \end{equation*}
 \end{frame}
