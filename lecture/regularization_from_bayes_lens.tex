@@ -854,8 +854,8 @@ For example, when using the square loss $\loss\big(\widehat{\btheta}, \btheta \b
 \end{equation*}
 
 \pause
-\textit{Proof:} We have $\expectation \| \mathbf{X} - \mathbf{c} \|^2 = \expectation \| \mathbf{X} - \expectation \mathbf{X} \|^2 + \| \expectation \mathbf{X} - \mathbf{c} \|^2$ for any constant $\mathbf{c}$. 
-So $\mathbf{c} = \expectation \mathbf{X}$ minimizes the square norm. \hfill \qedsymbol
+\textit{Proof:} We have $\expectation \| \widehat{\btheta} - \btheta \|^2 = \expectation \| \btheta - \expectation \btheta \|^2 + \| \expectation \btheta - \widehat{\btheta} \|^2$ for any constant $\widehat{\btheta}$. 
+So $\widehat{\btheta} = \expectation \btheta$ minimizes the square norm. \hfill \qedsymbol
 \end{frame}
 
 
