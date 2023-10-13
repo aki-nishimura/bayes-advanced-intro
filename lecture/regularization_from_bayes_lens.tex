@@ -829,7 +829,7 @@ Under Bayesian paradigm, a more natural question is: given the posterior $\densi
 \textit{Bayes estimator} minimizes the loss averaged over $\density(\btheta \given \by)$:
 \begin{equation*} \defineTightSpacing%
 \widehat{\btheta}_{\textrm{bayes}} =
-	\argmin_{\btheta} \thinnerspace \expectation_{\thinnerspace \btheta \thinnerspace \sim \thinnerspace \density(\thinnerspace \cdot \given \by)\!}\!\left[
+	\argmin_{\widehat{\btheta}} \thinnerspace \expectation_{\thinnerspace \btheta \thinnerspace \sim \thinnerspace \density(\thinnerspace \cdot \given \by)\!}\!\left[
 		\loss\big(\btheta, \widehat{\btheta} \thinnerspace \big)
 	\right]
 	= \int \loss\big(\btheta, \widehat{\btheta} \thinnerspace \big) \density(\btheta \given \by) \diff \btheta.
@@ -848,7 +848,7 @@ This is a likely origin of an occasionally-stated (and misleading) phrase:
 For example, when using the square loss $\loss\big(\widehat{\btheta}, \btheta \big) = \| \widehat{\btheta} - \btheta\|^2$, the Bayes estimator is given by the posterior mean:
 \begin{equation*} \defineTightSpacing%
 \expectation\!\left[ \btheta \given \by \right] =
-	\argmin_{\btheta} \thinnerspace \expectation_{\thinnerspace \btheta \thinnerspace \sim \thinnerspace \density(\thinnerspace \cdot \given \by)\!}\!\left[
+	\argmin_{\widehat{\btheta}} \thinnerspace \expectation_{\thinnerspace \btheta \thinnerspace \sim \thinnerspace \density(\thinnerspace \cdot \given \by)\!}\!\left[
 		 \| \widehat{\btheta} - \btheta\|^2
 	\right].
 \end{equation*}
