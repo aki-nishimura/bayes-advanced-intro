@@ -648,21 +648,21 @@ Bartlett's paradox is a manifestation of how an ``uninformative'' prior can be \
 
 \pause
 \smallskip
-To understand the cause of the paradox, imagine observing a test statistics value $\bar{z}_n = 5$ or, equivalently, $\thinnerspace \bar{y} = \frac{5 \sigma}{\sqrt{n}} \sim \normalDist\!\left( \mu, \frac{\sigma^2}{n} \right)$.
+%To understand the cause of the paradox, imagine observing a test statistics value $\bar{z}_n = 5$ or, equivalently, $\thinnerspace \bar{y} = \frac{5 \sigma}{\sqrt{n}} \sim \normalDist\!\left( \mu, \frac{\sigma^2}{n} \right)$.
+To understand the cause of the paradox, note that observed data is most likely when $\mu = \bar{y}$ and equally (un)likely when $\mu = 0$ or $= 2 \bar{y}$.
 
 \pause
 \smallskip
-This observed value is most likely when $\mu = \frac{5 \sigma}{\sqrt{n}}$ and equally (un)likely when $\mu = 0$ or $\mu = \frac{10 \sigma}{\sqrt{n}}$.
+In other words, the prior guess $\mu = 0$ is off by $| \bar{y} |$ from the best guess but any other guess with $\left| \mu - \bar{y} \right| > \left| \bar{y} \right|$ even worse.
 
 \pause
 \smallskip
 The problem with an uninformative prior arises from the fact that
 \begin{equation*} \defineTightSpacing%
-\probability_\altSub \!\left( \mu > \frac{10 \sigma}{\sqrt{n}} \right)
-	= \int_{\frac{10 \sigma}{\sqrt{n}}}^{\infty} \normalDist\!\left( \mu \given 0, \sigma_\altSub \right) \diff \mu
+\probability_\altSub \!\left( \left| \mu - \bar{y} \right| > \left| \bar{y} \right| \right)
 	\to 1 \ \text{ as } \, \sigma_\altSub \to \infty;
 \end{equation*}
-i.e.\ your prior guess is  far off from $\mu_\truthSub$ with nearly 100\% chance.
+i.e.\ your prior guess under $\hypothesis_\altSub: \mu \sim \density_\altSub(\cdot)$ is further off than $\hypothesis_\nullSub: \mu = 0$ with nearly 100\% chance.
 \end{frame}
 
 
