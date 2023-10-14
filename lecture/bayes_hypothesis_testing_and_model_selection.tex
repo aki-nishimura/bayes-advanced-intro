@@ -1061,6 +1061,27 @@ $\frac{1}{- e \thinnerspace p \log(p)}$ & $2.46$ & $7.99$ & $13.9$
 \end{frame}
 
 
+\begin{frame}
+\frametitle{Homework: Bayesian hypothesis testing}
+We've discussed Bartlett's paradox for the model $y_i \iidSim \normalDist(\mu, \sigma^2)$ under 
+$\hypothesis_\nullSub: \mu \sim \delta_0(\cdot) 
+	\ \text{ vs.\ } \ 
+	\hypothesis_\altSub: \mu \sim \normalDist(0, \sigma_\altSub^2)$.
+Now show that the paradox holds more generally: a Bayes factor always favors the null when assuming a too vague prior for the alternative.
+
+More precisely, consider a model $y_i \iidSim \likelihood(\thinnerspace \cdot \given \btheta)$ with the likelihood being a continuous function of $\btheta$ and satisfying $\likelihood(\by \given \btheta) > 0$ for all $\btheta$ and $\likelihood(\by \given \btheta) \to 0$ as $\| \btheta \| \to \infty$.
+And consider hypotheses
+\begin{equation*} \defineTightSpacing%
+\hypothesis_\nullSub: \btheta \sim \delta_{\btheta_0}(\cdot) 
+	\ \text{ vs.\ } \ 
+\hypothesis_\altSub: \btheta \sim \density_\altSub(\cdot).
+\end{equation*}
+Show that $\bayesFacAlt \to 0$ in the limit of increasingly uninformative $\density_\altSub(\cdot)$.
+Quantifying the notion ``increasingly uninformative'' is part of the assignment.
+As usual, your argument needs to be mathematically sound but doesn't have to be completely formal.
+\end{frame}
+
+
 \section{\centerline{Bayesian model selection}}
 
 \begin{frame}
