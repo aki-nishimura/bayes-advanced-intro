@@ -1324,7 +1324,7 @@ We now turn to relating a marginal likelihood to leave-$\trainingSize$-out \text
 \frametitle{Bayesian perspective on cross-validation}
 As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradigm considers its average over the posterior:
 \begin{equation*} \defineTightSpacing%
-\loss_\mathrm{ba}(y_{\trainingSize + 1})
+\loss_\mathrm{ba}(y_{\trainingSize + 1}, \modelSymbol)
 	= \int \loss(y_{\trainingSize + 1}, \widehat{y}(\btheta)) \, \density(\btheta \given \by^\trainingSize) \diff \btheta.
 \end{equation*}
 
@@ -1354,11 +1354,9 @@ As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradi
 
 \begin{frame}
 \frametitle{Bayesian perspective on cross-validation}
-
-
 As discussed earlier, for a chosen loss $\loss(y, \widehat{y})$, Bayesian paradigm considers its average over the posterior:
 \begin{equation*} \defineTightSpacing%
-\loss_\mathrm{bayes}(y_{\trainingSize + 1})
+\loss_\mathrm{bayes}(y_{\trainingSize + 1}, \modelSymbol)
 	= \int \loss(y_{\trainingSize + 1}, \widehat{y}(\btheta)) \, \density(\btheta \given \by^\trainingSize\negthinnerspace, \modelSymbol) \diff \btheta.
 \end{equation*}
 
@@ -1381,7 +1379,7 @@ whose expectation over $\widehat{y}(\btheta)$ with $\btheta \sim \density(\thinn
 More generally, the posterior predictive score corresponds to
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
-- \loss_\mathrm{bayes}(y_{\trainingSize + 1})
+- \loss_\mathrm{bayes}(y_{\trainingSize + 1}, \modelSymbol)
 	&= \int \likelihood(y_{\trainingSize + 1} \given \btheta) \, \density(\btheta \given \by^\trainingSize\negthinnerspace, \modelSymbol) \diff \btheta \\
 	&= \likelihood(y_{\trainingSize + 1} \given \by^\trainingSize\negthinnerspace, \modelSymbol).
 \end{aligned}
