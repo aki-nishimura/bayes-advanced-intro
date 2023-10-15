@@ -237,7 +237,13 @@
 \newcommand{\negthinnerspace}{\mskip-.5\thinmuskip}
 \newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
 \newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
-
+\newcommand{\approxpropto}{%
+	\mathrel{\vcenter{
+		\offinterlineskip\halign{
+			\hfil$##$\cr \propto\cr\noalign{\kern2pt}\sim\cr\noalign{\kern-2pt}
+		}
+	}}
+}
 %% Probability / statistics macros
 \DeclareMathOperator{\probability}{\mathbb{P}}
 \newcommand{\expectation}{\mathbb{E}}
@@ -1211,9 +1217,147 @@ In particular, you might opt to approximate a spike-and-slab with a continuous \
 
 
 \begin{frame}
-\frametitle{Analytical approx.\ of posterior model probabilities}
-If we have
-$\likelihood(\by \given \bX,  \model_\nonzeroCoefSet)$
+\frametitle{Linear model selection under unit info prior}
+For illustration, we now consider a situation in which the marginal likelihood $\likelihood(\by \given \bX,  \model_\nonzeroCoefSet)$ is analytically tractable (up to a constant).
+
+\smallskip
+When treating the residual variance $\sigma_\nonzeroCoefSet^2$ as fixed, the model
+\begin{equation*} \defineTightSpacing%
+\by = \bX_\nonzeroCoefSet \bbeta_\nonzeroCoefSet + \bm{\epsilon}, \ \,
+\bm{\epsilon} \sim \normalDist(\bm{0}, \sigma_\nonzeroCoefSet^2 \bm{I}), \ \,
+\bbeta_\nonzeroCoefSet \sim \normalDist(\bmu_\nonzeroCoefSet, \bSigma_\nonzeroCoefSet)
+\end{equation*}
+yields the marginal likelihood
+\begin{equation*} \defineTightSpacing%
+\by \given \model_\nonzeroCoefSet \sim \normalDist\left(
+	\bX_\nonzeroCoefSet \bmu_\nonzeroCoefSet, \,
+	\bX_\nonzeroCoefSet^\transpose \bSigma_\nonzeroCoefSet \bX_\nonzeroCoefSet + \sigma_\nonzeroCoefSet^2 \bm{I}
+\right).
+\end{equation*}
+
+(For $\sigma_\nonzeroCoefSet^2$, we could go empirical and plug in $\widehat{\sigma}_\nonzeroCoefSet^2 = \big\| \by - \bX_\nonzeroCoefSet \widehat{\bbeta}_{\textrm{mle}, \nonzeroCoefSet} \big\|^2$.)
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Linear model selection under unit info prior}
+To further simplify the comparison of models, we consider a \textit{unit information prior}
+\begin{equation*} \defineTightSpacing%
+\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet 
+\sim \normalDist\!\left(
+	\left( \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1} \! \bX_\nonzeroCoefSet^\transpose \thinnerspace \by, \,
+	\left( n^{-1} \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1}
+\right).
+\end{equation*}
+Its influence on posterior is comparable to one data point, with the prior precision equal to $n^{-1}$ times the Fisher information $\sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet$.
+
+\smallskip
+The corresponding posterior is 
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+&\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet \\
+&\hspace*{1.5em}\sim \normalDist\!\left(
+	\left( \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1} \! \bX_\nonzeroCoefSet^\transpose \thinnerspace \by, \,
+	\left( (1 + n^{-1}) \thinnerspace \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1}
+\right).
+\end{aligned}
+\end{equation*}
+
+\smallskip
+\mbox{We can also calculate the marginal likelihood via the earlier formula,} but we'll use a trick for simpler calculation.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Linear model selection under unit info prior}
+Since $\likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet) \density(\bbeta_\nonzeroCoefSet) = \density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet) \likelihood(\by \given \bX_\nonzeroCoefSet)$, we have
+\begin{equation*} \defineTightSpacing%
+\likelihood(\by \given \bX_\nonzeroCoefSet)
+	= \likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet) \frac{\density(\bbeta_\nonzeroCoefSet)}{\density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet)}
+	\ \text{ for any } \bbeta_\nonzeroCoefSet.
+\end{equation*}
+(The conditioning on $\model_\nonzeroCoefSet$ is implicit.)
+
+%Since $\likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet, \model_\nonzeroCoefSet) \density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet) = \density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet) \likelihood(\by \given \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet)$,
+%\begin{equation*} \defineTightSpacing%
+%\likelihood(\by \given \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet)
+%	= \likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet, \model_\nonzeroCoefSet) \frac{\density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet)}{\density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet)}.
+%\end{equation*}
+
+In particular, plugging in the \textsc{mle} $\widehat{\bbeta}_\nonzeroCoefSet = \left( \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1} \! \bX_\nonzeroCoefSet^\transpose \thinnerspace \by$, 
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\likelihood(\by \given \bX_\nonzeroCoefSet)
+	&= \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big) \frac{\density\!\big( \widehat{\bbeta}_\nonzeroCoefSet  \big)}{\density\!\big(\widehat{\bbeta}_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet \big)} \\
+	&= \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big)
+	\frac{
+		\left| n^{-1} \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right|^{1/2}
+	}{
+		\left| (1 + n^{-1}) \thinnerspace \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right|^{1/2}
+	} \\
+	&= \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big) 
+		\left( \frac{n^{-1}}{1 + n^{-1}} \right)^{| \nonzeroCoefSet | / 2}.
+\end{aligned}
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Linear model selection under unit info prior}
+Taking logarithms and applying $\frac{n^{-1}}{1 + n^{-1}} \approx n^{-1}$,
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\likelihood(\by \given \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet)
+	&= \log \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big) 
+		+ \frac{| \nonzeroCoefSet |}{2} \log \! \left( \frac{n^{-1}}{1 + n^{-1}} \right) \\
+	&\approx \log \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big) 
+		- \frac{| \nonzeroCoefSet |}{2} \log n.
+\end{aligned}
+\end{equation*}
+
+In the (approx) marginal likelihood, the maximized likelihood measures goodness of fit while the latter term penalizes complexity.
+
+{\fontdimen2\font=.6ex 
+In fact, multiplying it by $- 2$ recovers \textit{Bayesian information criterion}:
+}%
+\begin{equation*} \defineTightSpacing%
+\begin{aligned}
+\textrm{BIC} 
+	&\defeq | \model | \log n - 2 \log \likelihood\big( \by \given \mle{\btheta}, \model  \big).
+%	&\defeq | \nonzeroCoefSet | \log n - \log \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big).
+\end{aligned}
+\end{equation*}
+
+cf.\ \textit{Akaike information criterion} $\defeq 2 | \model | - 2 \log \likelihood\big( \by \given \mle{\btheta}, \model  \big).$
+\end{frame}
+
+\begin{frame}
+\frametitle{B{\large IC} as asymptotic approx of marginal likelihood}
+B\textsc{IC} can be justified more generally as an approx marginal likelihood based on the asymptotic Gaussianity of a posterior \\ \hfill \citep{kass1995bic}.
+
+Bayesian asymptotic theory tells us that
+\begin{equation*} \defineTightSpacing%
+\likelihood ( \by^n \given \btheta, \model )
+	\approxpropto \thinnerspace \normalDist\!\left( 
+		\btheta \, \middle| \,
+		\mle{\btheta}, % \btheta_{\mathrm{opt}},
+		\left[ n \infoMat(\mle{\btheta}) \right]^{-1} % \left[ n \infoMat(\btheta_{\mathrm{opt}}) \right]^{-1} 
+	\right).
+\end{equation*}
+
+So an analogous calculation under a unit info prior
+\begin{equation*} \defineTightSpacing%
+\density( \btheta \given \model )
+	\approxpropto \thinnerspace \normalDist\!\left( 
+		\btheta \, \middle| \,
+		\mle{\btheta}, % \btheta_{\mathrm{opt}},
+		\left[ \infoMat(\mle{\btheta}) \right]^{-1} % \left[ n \infoMat(\btheta_{\mathrm{opt}}) \right]^{-1} 
+	\right)
+\end{equation*}
+shows \textsc{bic} as an approximate marginal likelihood.
+
+\smallskip
+\textbf{Note:} The asymptotic justification suggests a questionable quality of the approximation in the more general setting.
 \end{frame}
 
 \nobibliography{references} % To cite inline without creating a bibliography
