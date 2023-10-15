@@ -127,6 +127,10 @@
 	\setlength{\abovedisplayskip}{.25\baselineskip}%
 	\setlength{\belowdisplayskip}{.25\baselineskip}%
 }
+\newcommand{\reduceLeftmargin}[1][1]{%
+	\addtolength{\leftmargini}{-#1\labelsep}%
+	\addtolength{\leftmarginii}{-#1\labelsep}%
+}
 \newenvironment{tightEquation}{%
 	\defineTightSpacing%
 	\begin{equation}
@@ -1393,6 +1397,77 @@ shows \textsc{bic} as an approximate marginal likelihood.
 \pause
 \smallskip
 \textbf{Note:} The asymptotic justification suggests a questionable quality of the approximation in the more general setting.
+\end{frame}
+
+
+\section{\centerline{Summary}}
+
+\begin{frame}
+\frametitle{Summary of ``Bayesian testing/model selection''}
+Hypothesis testing is a task in which the freq and Bayes paradigms can really disagree with each other, while both valid in own ways.
+
+\smallskip
+While the freq paradigm dominates practices of hypothesis testing, Bayes actually provides a formal, interpretable measure of evidence. \\
+\noteBullet But be careful w/ ad-hoc ``Bayesian'' tests; e.g.\ via tail prob.
+
+\smallskip
+For complex and/or non-nested testing, Bayes has real advantages.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Summary of ``Bayesian testing/model selection''}
+Bayes test's behavior also demonstrates the danger of vague priors.
+%{\reduceLeftmargin% 
+\begin{tightItemize}
+\item ``Uninformative'' priors place a lot of prior probability on very unlikely parameter values and can actually be informative.
+\item When estimating hyper-parameter via marginal likelihood, Bayes automatically balances model fit and complexity.
+\end{tightItemize}
+%}
+
+\smallskip
+Under Bayes, model selection and hypothesis testing are mathematically equiv and share behaviors such as Occam's razor.
+
+\smallskip
+B\textsc{IC} demonstrates the Bayesian penalty on model complexity.
+\end{frame}
+
+
+\newcommand{\bda}{BDA3}
+\newcommand{\reference}[1]{%
+	\cite{#1}.% 
+		``\usebibentry{#1}{title}.''%
+		\textit{\usebibentry{#1}{journal}}.
+}
+\begin{frame}
+\frametitle{References}
+
+Bayesian hypothesis testing \& model selection in general:
+\vspace*{-.2\baselineskip}
+{\reduceLeftmargin
+\begin{itemize}
+\item \reference{kass1995bayes_factor}
+\item \reference{sellke2001pval_calibration}
+\item \reference{johnson2010nonlocal}
+\end{itemize}
+
+\pause
+Advanced techniques on computing Bayes factors:
+\vspace*{-.2\baselineskip}
+\begin{itemize}
+\item \reference{llorente2023marginal_likelihood_computation}
+\end{itemize}
+}
+\end{frame}
+
+\begin{frame}
+\frametitle{References}
+Bayesian variable selection for regression models:
+\begin{itemize}
+\item Chapter~9.3 of \textit{A First Course in Bayesian Statistical Methods} by Peter Hoff.
+\item \reference{vannucci2021spike_and_slab} 
+\item \reference{bhadra2019lasso_meets_horseshoe}
+\end{itemize}
 \end{frame}
 
 
