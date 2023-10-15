@@ -1092,19 +1092,22 @@ As usual, your argument needs to be mathematically sound but doesn't have to be 
 
 \begin{frame}
 \frametitle{Hypothesis testing $\subset$ Model selection $\given$ Bayes}
-Within Bayesian framework, both testing and model selection follow the same principal:
+Within Bayesian framework, both testing and model selection follow the same principles:
+\pause
 \vspace*{-.35\baselineskip}
-\begin{itemize}
+\begin{enumerate}[<+->]
 \item For each hypothesis/model $\model_\ell$, assign a prior $\density(\btheta_\ell \given \model_\ell)$ on its parameter space $\Theta_\ell$;
 \item Assign prior probability $\density(\model_\ell)$ on each model $\model_\ell$;
 \item {\fontdimen2\font=.68ex 
 	Weigh the prior by $\likelihood(\by \given \model_\ell) = \int \likelihood(\by \given \btheta_\ell, \model_\ell) \density(\btheta_\ell \given \model_\ell) \diff \btheta_\ell$ to get the posterior model prob $\density(\model_\ell \given \by) \propto \likelihood(\by \given \model_\ell) \density(\model_\ell)$.}
-\end{itemize}
+\end{enumerate}
 
+\pause[\thebeamerpauses]
 \vspace*{-.1\baselineskip}
-Optionally, we can 
+Afterward, we can either
 \vspace*{-.35\baselineskip}
-\begin{itemize}
+\pause
+\begin{itemize}[<+->]
 \item Select one of the models according to some loss function;
 \item Average (if making a prediction) over the models:
 	\begin{equation*} \defineTightSpacing%
@@ -1124,12 +1127,14 @@ Optionally, we can
 \frametitle{Variable selection in regression}
 One prominent application of Bayesian model selection/averaging is \textit{variable selection} in regression models.
 
+\pause
 \smallskip
 Given a set of potential predictors $x_{i1}, \ldots, x_{i\nPred}$, we consider a collection of $2^\nPred$ models indexed by $\nonzeroCoefSet \subset \{1, \ldots, \nPred\}$:
 \begin{equation*} \defineTightSpacing%
 y_i = \sum_{j \in \nonzeroCoefSet} x_{ij} \beta_j + \epsilon_i.
 \end{equation*}
 
+\pause
 Variable selection can be considered an exploration of hypotheses:
 \begin{equation*} \defineTightSpacing%
 \model_\nonzeroCoefSet: \beta_j \neq 0
@@ -1142,6 +1147,7 @@ Variable selection can be considered an exploration of hypotheses:
 \frametitle{Variable selection in regression}
 In order to carry out the model selection/averaging, we need to specify $\density(\model_\nonzeroCoefSet)$ and $\density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet)$ for $\bbeta_\nonzeroCoefSet \in \mathbb{R}^{|\nonzeroCoefSet|}$. 
 
+\pause
 \smallskip
 One common choice is, for $\inclusionProb \in (0, 1)$,
 \begin{equation*} \defineTightSpacing%
@@ -1149,7 +1155,11 @@ One common choice is, for $\inclusionProb \in (0, 1)$,
 	\ \text{ and } \ 
 	\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet \sim \normalDist(\bm{0}, \sigma_0^2 \bm{I}).
 \end{equation*}
+\pause
+Or, equivalently, $| \nonzeroCoefSet | \sim \operatorname{Binomial}(\inclusionProb, p)$ and $\density\left( \model_\nonzeroCoefSet \, \big| \, | \nonzeroCoefSet | \right) = \text{\scalebox{0.8}{$\dbinom{p}{| \nonzeroCoefSet|}$}}^{-1}$.
 
+\pause
+\smallskip
 This is equivalent to placing a spike-and-slab prior on $\beta_j$'s; i.e.\ \\ 
 we assume the full model $y_i = \sum_{j = 1}^\nPred x_{ij} \beta_j + \epsilon_i$ and a prior
 \begin{equation*} \defineTightSpacing%
@@ -1174,21 +1184,29 @@ we assume the full model $y_i = \sum_{j = 1}^\nPred x_{ij} \beta_j + \epsilon_i$
 \frametitle{Variable selection in regression}
 Having specified $\density(\model_\nonzeroCoefSet)$ and $\density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet)$, it's conceptually straightforward to calculate $\density(\model_\nonzeroCoefSet \given \by, \bX)$ and other quantities.
 
+\pause
+\smallskip
 In practice, it's impossible to enumerate all the $2^\nPred$ models even when conjugacy makes $\likelihood(\by \given \bX,  \model_\nonzeroCoefSet)$ analytically available.
 
+\pause
+\smallskip
 Model selection thus typically relies on the posterior marginal inclusion probability $\density(\beta_j \neq 0 \given \by, \bX)$ estimated from \textsc{mcmc}. 
 
+\pause
+\smallskip
 Model averaging is also straightforward from the \textsc{mcmc} output. 
 \end{frame}
 
 
 \begin{frame}
 \frametitle{Variable selection vs.\ shrinkage estimation}
-
+\pause
 Variable selection has its use, but worth remembering that in real life every parameter becomes significant if given enough sample size.
 
+\pause
 In this sense, it's just a shrinkage estimation in disguise. 
 
+\pause
 In particular, you might opt to approximate a spike-and-slab with a continuous \textit{shrinkage prior}:
 
 \vspace{-.3\baselineskip}
@@ -1220,6 +1238,7 @@ In particular, you might opt to approximate a spike-and-slab with a continuous \
 \frametitle{Linear model selection under unit info prior}
 For illustration, we now consider a situation in which the marginal likelihood $\likelihood(\by \given \bX,  \model_\nonzeroCoefSet)$ is analytically tractable (up to a constant).
 
+\pause
 \smallskip
 When treating the residual variance $\sigma_\nonzeroCoefSet^2$ as fixed, the model
 \begin{equation*} \defineTightSpacing%
@@ -1227,6 +1246,7 @@ When treating the residual variance $\sigma_\nonzeroCoefSet^2$ as fixed, the mod
 \bm{\epsilon} \sim \normalDist(\bm{0}, \sigma_\nonzeroCoefSet^2 \bm{I}), \ \,
 \bbeta_\nonzeroCoefSet \sim \normalDist(\bmu_\nonzeroCoefSet, \bSigma_\nonzeroCoefSet)
 \end{equation*}
+\pause
 yields the marginal likelihood
 \begin{equation*} \defineTightSpacing%
 \by \given \model_\nonzeroCoefSet \sim \normalDist\left(
@@ -1235,6 +1255,7 @@ yields the marginal likelihood
 \right).
 \end{equation*}
 
+\pause
 (For $\sigma_\nonzeroCoefSet^2$, we could go empirical and plug in $\widehat{\sigma}_\nonzeroCoefSet^2 = \big\| \by - \bX_\nonzeroCoefSet \widehat{\bbeta}_{\textrm{mle}, \nonzeroCoefSet} \big\|^2$.)
 \end{frame}
 
@@ -1249,8 +1270,10 @@ To further simplify the comparison of models, we consider a \textit{unit informa
 	\left( n^{-1} \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1}
 \right).
 \end{equation*}
+\pause
 Its influence on posterior is comparable to one data point, with the prior precision equal to $n^{-1}$ times the Fisher information $\sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet$.
 
+\pause
 \smallskip
 The corresponding posterior is 
 \begin{equation*} \defineTightSpacing%
@@ -1263,6 +1286,7 @@ The corresponding posterior is
 \end{aligned}
 \end{equation*}
 
+\pause
 \smallskip
 \mbox{We can also calculate the marginal likelihood via the earlier formula,} but we'll use a trick for simpler calculation.
 \end{frame}
@@ -1271,11 +1295,13 @@ The corresponding posterior is
 \begin{frame}
 \frametitle{Linear model selection under unit info prior}
 Since $\likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet) \density(\bbeta_\nonzeroCoefSet) = \density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet) \likelihood(\by \given \bX_\nonzeroCoefSet)$, we have
+\pause
 \begin{equation*} \defineTightSpacing%
 \likelihood(\by \given \bX_\nonzeroCoefSet)
 	= \likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet) \frac{\density(\bbeta_\nonzeroCoefSet)}{\density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet)}
 	\ \text{ for any } \bbeta_\nonzeroCoefSet.
 \end{equation*}
+\pause
 (The conditioning on $\model_\nonzeroCoefSet$ is implicit.)
 
 %Since $\likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet, \model_\nonzeroCoefSet) \density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet) = \density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet) \likelihood(\by \given \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet)$,
@@ -1284,17 +1310,20 @@ Since $\likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet) \dens
 %	= \likelihood(\by \given \bX_\nonzeroCoefSet, \bbeta_\nonzeroCoefSet, \model_\nonzeroCoefSet) \frac{\density(\bbeta_\nonzeroCoefSet \given \model_\nonzeroCoefSet)}{\density(\bbeta_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet, \model_\nonzeroCoefSet)}.
 %\end{equation*}
 
+\pause
 In particular, plugging in the \textsc{mle} $\widehat{\bbeta}_\nonzeroCoefSet = \left( \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right)^{-1} \! \bX_\nonzeroCoefSet^\transpose \thinnerspace \by$, 
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
 \likelihood(\by \given \bX_\nonzeroCoefSet)
 	&= \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big) \frac{\density\!\big( \widehat{\bbeta}_\nonzeroCoefSet  \big)}{\density\!\big(\widehat{\bbeta}_\nonzeroCoefSet \given \by, \bX_\nonzeroCoefSet \big)} \\
+	\pause
 	&= \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big)
 	\frac{
 		\left| n^{-1} \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right|^{1/2}
 	}{
 		\left| (1 + n^{-1}) \thinnerspace \sigma_\nonzeroCoefSet^2 \bX_\nonzeroCoefSet^\transpose \bX_\nonzeroCoefSet \right|^{1/2}
 	} \\
+	\pause
 	&= \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big) 
 		\left( \frac{n^{-1}}{1 + n^{-1}} \right)^{| \nonzeroCoefSet | / 2}.
 \end{aligned}
@@ -1315,8 +1344,11 @@ Taking logarithms and applying $\frac{n^{-1}}{1 + n^{-1}} \approx n^{-1}$,
 \end{aligned}
 \end{equation*}
 
+\pause
 In the (approx) marginal likelihood, the maximized likelihood measures goodness of fit while the latter term penalizes complexity.
 
+\pause
+\smallskip
 {\fontdimen2\font=.6ex 
 In fact, multiplying it by $- 2$ recovers \textit{Bayesian information criterion}:
 }%
@@ -1327,14 +1359,15 @@ In fact, multiplying it by $- 2$ recovers \textit{Bayesian information criterion
 %	&\defeq | \nonzeroCoefSet | \log n - \log \likelihood\big( \by \given \bX_\nonzeroCoefSet, \widehat{\bbeta}_\nonzeroCoefSet \big).
 \end{aligned}
 \end{equation*}
-
 cf.\ \textit{Akaike information criterion} $\defeq 2 | \model | - 2 \log \likelihood\big( \by \given \mle{\btheta}, \model  \big).$
 \end{frame}
+
 
 \begin{frame}
 \frametitle{B{\large IC} as asymptotic approx of marginal likelihood}
 B\textsc{IC} can be justified more generally as an approx marginal likelihood based on the asymptotic Gaussianity of a posterior \\ \hfill \citep{kass1995bic}.
 
+\pause
 Bayesian asymptotic theory tells us that
 \begin{equation*} \defineTightSpacing%
 \likelihood ( \by^n \given \btheta, \model )
@@ -1345,6 +1378,7 @@ Bayesian asymptotic theory tells us that
 	\right).
 \end{equation*}
 
+\pause
 So an analogous calculation under a unit info prior
 \begin{equation*} \defineTightSpacing%
 \density( \btheta \given \model )
@@ -1356,9 +1390,11 @@ So an analogous calculation under a unit info prior
 \end{equation*}
 shows \textsc{bic} as an approximate marginal likelihood.
 
+\pause
 \smallskip
 \textbf{Note:} The asymptotic justification suggests a questionable quality of the approximation in the more general setting.
 \end{frame}
+
 
 \nobibliography{references} % To cite inline without creating a bibliography
 \end{document}
