@@ -125,6 +125,10 @@
 	\setlength{\abovedisplayskip}{.25\baselineskip}%
 	\setlength{\belowdisplayskip}{.25\baselineskip}%
 }
+\newcommand{\reduceLeftmargin}[1][1]{%
+	\addtolength{\leftmargini}{-#1\labelsep}%
+	\addtolength{\leftmarginii}{-#1\labelsep}%
+}
 \newenvironment{tightEquation}{%
 	\defineTightSpacing%
 	\begin{equation}
@@ -210,6 +214,14 @@
 %% Utility macros
 \newcommand{\noteBullet}{\hspace*{.75em}\textcolor{themecolor}{$\blacktriangleright$}\ }
 \renewcommand{\textsc}[1]{{\small \MakeUppercase{#1}}}
+\newcommand{\reference}[1]{%
+	\cite{#1}.% 
+		``\usebibentry{#1}{title}.''%
+		\textit{\usebibentry{#1}{journal}}.
+}
+\newcommand{\bookreference}[1]{%
+	\cite{#1}. \textit{\usebibentry{#1}{title}}.
+}
 
 %% General math macros
 \newcommand{\given}{\thinnerspace | \thinnerspace}
@@ -1636,7 +1648,7 @@ $$\frac{1}{n!} \sum_\permutation  \log \likelihood\!\left(y_{\permutation(\train
 \frametitle{Proof of ``marginal likelihood $=$ {\large CV} score''}
 %For $\trainingSize \geq 0$, there are $(n - \trainingSize - 1)!$ ways of permuting $\{1, \ldots, n\}$ corresponding to a fixed, ordered indices $ \permutation(1), \ldots, \permutation(\trainingSize), \permutation(\trainingSize + 1)$.
 %
-%Among these permutations, $\trainingSize!$ of them correspond to a fixed set of $\{ \permutation(1), \ldots, \permutation(\trainingSize) \}$.
+utations, $\trainingSize!$ of them correspond to a fixed set of $\{ \permutation(1), \ldots, \permutation(\trainingSize) \}$.
 
 \onslide<2->{%
 For given $\testSampleIndex_1, \ldots, \testSampleIndex_\trainingSize, \testSampleIndex_{\trainingSize + 1}$, there're $(n - \trainingSize - 1)!$ permutations of $\{1, \ldots, n\}$ that satisfy $\permutation(\ell) = \testSampleIndex_\ell$ for $\ell = 1, \ldots, \trainingSize + 1$.
@@ -1688,6 +1700,78 @@ We thus have
 &\hspace*{1.5em}= \widehat{\score}_{-(n - \trainingSize)}(\modelSymbol, \by^n).  \quad \qedsymbol
 \end{aligned}
 \end{equation*}
+\end{frame}
+
+
+\section{\centerline{Summary}}
+
+\begin{frame}
+\frametitle{Summary of \\ \hspace*{1.5em}``Regularization/shrinkage from Bayes lens''}
+Regularization/shrinkage are essential in modern, high-dimensional applications for which variance reduction outweighs modest bias.
+
+\pause
+\smallskip
+For a probabilistic/likelihood-based model, regularization admits Bayesian interpretation as coming from a prior on unknown $\btheta$:
+\vspace*{-.25\baselineskip}
+\pause
+\begin{itemize}
+\item Minimizing $\thinnerspace \loss(\by \given \btheta) + \operatorname{pen}(\btheta \given \lambda)$ is equiv to maximizing $\thinnerspace \exp(- \loss(\by \given \btheta)) \exp(- \operatorname{pen}(\btheta \given \lambda))$ --- the latter has a probabilistic interpretation if both terms are integrable.
+\pause
+\item But note also that \textsc{map} is not a Bayes estimator.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Summary of \\ \hspace*{1.5em}``Regularization/shrinkage from Bayes lens''}
+Model/hyper-parameter selection is typically done via \textsc{cv} under freq paradigm and via marginal likelihood under Bayes. 
+
+\pause
+\smallskip
+But the two frameworks are connected, with log marginal likelihood being equivalent to cross-validated log-predictive score. 
+
+\pause
+\smallskip
+Bayes lacks frequentists' flexibility to pick an arbitrary loss function, but has the advantage of \textsc{cv} \textit{built into} its inference. 
+\pause
+{\reduceLeftmargin
+\begin{tightItemize}
+\item For flexible models (e.g.\ regression trees), estimating prediction error can be difficult and Bayes may have an advantage.
+\end{tightItemize}
+}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{References}
+Stein's estimator and its Bayesian interpretation:
+\begin{tightItemize}
+\item \reference{efron1973stein_est}
+\end{tightItemize}
+
+\pause
+Bayesian decision theory:
+\begin{tightItemize}
+\item Chapter~1.1--1.5 of \bookreference{berger1985decision_theory}
+\item Chapter~5.7 of \bookreference{murphy2012probabilistic_ml}
+\end{tightItemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{References}
+Regularized regression and its Bayesian interpretation:
+\begin{tightItemize}
+\item Chapter~3 of \bookreference{bishop2006pattern_recognition}
+\item Chapter~7.5 \& 7.6 of \bookreference{murphy2012probabilistic_ml}
+\item \reference{park2008bayesian_lasso}
+\end{tightItemize}
+
+\pause
+Connection between marginal likelihood and \textsc{cv}:
+\begin{tightItemize}
+\item \reference{fong2020marginal_likelihood}
+\end{tightItemize}
 \end{frame}
 
 
