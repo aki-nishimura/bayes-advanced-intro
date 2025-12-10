@@ -1,0 +1,1195 @@
+\documentclass[18pt]{beamer}
+%% !TeX program = xelatex
+
+\usetheme{metropolis}
+\usefonttheme{professionalfonts}
+
+
+%% "Patch" to keep the text widths' of Metropolis similar to that of Madrid.
+%\setbeamersize{text margin left=15pt, text margin right=15pt}
+%\makeatletter
+%\setbeamertemplate{title page}{
+%\centering
+%  \begin{minipage}[b][\paperheight]{.9\textwidth}
+%    \ifx\inserttitlegraphic\@empty\else\usebeamertemplate*{title graphic}\fi
+%    \vfill%
+%    \ifx\inserttitle\@empty\else\usebeamertemplate*{title}\fi
+%    \ifx\insertsubtitle\@empty\else\usebeamertemplate*{subtitle}\fi
+%    \usebeamertemplate*{title separator}
+%    \ifx\beamer@shortauthor\@empty\else\usebeamertemplate*{author}\fi
+%    \ifx\insertdate\@empty\else\usebeamertemplate*{date}\fi
+%    \ifx\insertinstitute\@empty\else\usebeamertemplate*{institute}\fi
+%    \vfill
+%    \vspace*{1mm}
+%  \end{minipage}
+%}
+%\makeatother
+
+% Modify the text widths' of section title pages. See `beamerinnerthememetropolis.dtx`.
+% `\paperheight` requires adjustment after modifying the frame content placement. Not sure why.
+\makeatletter
+\setbeamertemplate{section page}{
+  \centering
+  \begin{minipage}[c][.95\paperheight]{.9\textwidth}
+    \raggedright
+    \usebeamercolor[fg]{section title}
+    \usebeamerfont{section title}
+    \insertsectionhead\\[-1ex]
+    \usebeamertemplate*{progress bar in section page}
+    \par
+    \ifx\insertsubsectionhead\@empty\else%
+      \usebeamercolor[fg]{subsection title}%
+      \usebeamerfont{subsection title}%
+      \insertsubsectionhead
+    \fi
+  \end{minipage}
+  \par
+  \vspace{\baselineskip}
+}
+\makeatother
+
+% Make frametitles larger and place closer to center. See `beamerinnerthememetropolis.dtx`.
+\setbeamerfont{frametitle}{size=\Large}
+\makeatletter
+% Theme default adds paddings of 2.2ex to all the four sides of frame titles
+\newlength{\metropolis@frametitle@toppadding}
+\newlength{\metropolis@frametitle@bottompadding}
+\setlength{\metropolis@frametitle@toppadding}{3.5ex} 
+\setlength{\metropolis@frametitle@bottompadding}{0ex} 
+\setlength{\metropolis@frametitle@padding}{4ex} % Horizontal padding to left
+\renewcommand{\metropolis@frametitlestrut@start}{
+  \rule{0pt}{\metropolis@frametitle@toppadding +%
+    \totalheightof{%
+      \ifcsdef{metropolis@frametitleformat}{\metropolis@frametitleformat X}{X}%
+    }%
+  }%
+}
+\newcommand*\getlength[1]{\number#1}
+\renewcommand{\metropolis@frametitlestrut@end}{%
+  \ifnum\getlength{\metropolis@frametitle@bottompadding}>0%
+    \rule[-\metropolis@frametitle@bottompadding]{0pt}{\metropolis@frametitle@bottompadding}%
+  \fi%
+}
+\makeatother
+
+% Move up the frame content a bit. See:
+% https://github.com/matze/mtheme/blob/master/source/beamerinnerthememetropolis.dtx#L509-L523
+% https://tex.stackexchange.com/questions/247826/beamer-full-vertical-centering
+\makeatletter
+\define@key{beamerframe}{c}[true]{% centered
+  \beamer@frametopskip=0pt plus 0.5fill\relax% Default is `1fill`
+  \beamer@framebottomskip=0pt plus 1.5fill\relax%
+  \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
+  \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
+  \def\beamer@initfirstlineunskip{}%
+}
+\makeatother
+
+
+%% Packages
+\usepackage[english]{babel}
+%\usepackage[T1]{fontenc}
+%\setmainfont[BoldFont={Fira Sans}]{Fira Sans Light}
+\usepackage{graphicx}
+\usepackage{mathtools} % For \coloneqq (among others)
+\usepackage{relsize}
+\usepackage{subcaption}
+\usepackage{bm} 
+\usepackage{dsfont}
+\usepackage{soul} % For \st 
+\usepackage{pgfplots}
+%\usepackage[normalem]{ulem}
+%	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
+%	\newcommand{\coloredUline}{\bgroup\markoverwith{\textcolor{lava}{\rule[-0.5ex]{2pt}{0.6pt}}}\ULon}
+\usepackage{natbib}
+	\bibliographystyle{abbrvnat}
+	\setcitestyle{authoryear, open={(}, close={)}}
+\usepackage{usebib}
+\usepackage{bibentry} % For \nobibliography
+%\nobibliography{references} % To cite inline without creating a bibliography
+\newbibfield{journal}
+\bibinput{references}
+
+
+%% Beamer options.
+\setbeamercovered{dynamic}
+\setbeamercovered{invisible}
+\beamertemplatenavigationsymbolsempty
+%\setbeamertemplate{caption}{unnumbered}
+\setbeamertemplate{footline}{}
+%\setbeameroption{show notes on second screen}
+
+%% Customize styles inside itemize environments
+\addtolength{\leftmargini}{-\labelsep}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize} %to set the body size
+%\setbeamertemplate{frametitle}[default][center]
+\newcommand{\smallerblacktriangleright}{\raisebox{.2\height}{\scalebox{.75}{$\blacktriangleright$}}}
+%\setbeamertemplate{itemize item}{\normalsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}  %to set the symbol size
+\setbeamertemplate{itemize item}{$\smallerblacktriangleright$}  %to set the symbol size
+
+%% Custom environments
+\newcommand{\defineTightSpacing}{%
+	\setlength{\abovedisplayskip}{.3\baselineskip}%
+	\setlength{\belowdisplayskip}{.3\baselineskip}%
+}
+\newenvironment{tightEquation}{%
+	\defineTightSpacing%
+	\begin{equation}
+}{
+	\end{equation} \ignorespacesafterend
+}
+\makeatletter
+\newenvironment{tightEquation*}{%
+	\defineTightSpacing%
+	\begin{equation*}
+}{
+	\end{equation*} \ignorespacesafterend
+}
+\newcommand{\defineWithinItemizeSpacing}{%
+	\setlength{\abovedisplayskip}{.3\baselineskip}%
+	\setlength{\belowdisplayskip}{.3\baselineskip}%
+}
+\newenvironment{itemizedEquation}{%
+	\defineWithinItemizeSpacing%
+	\begin{equation}
+}{
+	\end{equation} \ignorespacesafterend
+}
+\makeatletter
+\newenvironment{itemizedEquation*}{%
+	\defineWithinItemizeSpacing%
+	\begin{equation*}
+}{
+	\end{equation*} \ignorespacesafterend
+}
+\newenvironment{indented}[1][3]{%
+	\hspace*{#1ex}\begin{minipage}{\dimexpr\textwidth-#1ex} 
+	}{
+	\end{minipage}
+}
+\newenvironment{looseItemize}{%
+  \begin{itemize}
+  \addtolength\itemsep{.3\baselineskip}
+}{
+  \end{itemize}
+}
+\newenvironment{tightItemize}[1][]{%
+  \vspace{-.3\baselineskip}%
+  \begin{itemize}[#1]
+  \addtolength\itemsep{-.1\baselineskip}
+}{
+  \end{itemize}
+}
+\newenvironment{tightEnumerate}[1][1.]{%
+  \vspace{-.3\baselineskip}%
+  \begin{enumerate}[#1]
+  \addtolength\itemsep{-.1\baselineskip}
+}{
+  \end{enumerate}
+}
+
+%% Color definitions
+\definecolor{turquoise}{rgb}{0.19, 0.84, 0.78}
+\definecolor{mediumturquoise}{rgb}{0.28, 0.82, 0.8}
+\definecolor{lava}{rgb}{0.81, 0.06, 0.13}
+\colorlet{highlightedTextColor}{lava}
+
+%% JHU colors
+\definecolor{jhuBlue}{RGB}{0, 45, 114} % "Heritage" blue; https://brand.jhu.edu/color/
+\definecolor{jhuSpiritBlue}{RGB}{114, 172, 229} % lighter blue
+\definecolor{jhuMediumBlue}{RGB}{0, 119, 216}
+\definecolor{jhuHarborBlue}{RGB}{78, 151, 224}
+\colorlet{linkColor}{jhuMediumBlue!50!gray}
+
+%% Set the color theme of the presentation
+\colorlet{themecolor}{jhuBlue}
+\colorlet{bgcolor}{themecolor}
+\colorlet{textcolor}{white}
+\usecolortheme[named=themecolor]{structure}
+%\setbeamercolor{titlelike}{fg=black}
+\setbeamercolor{frametitle}{fg=themecolor, bg=white}
+\setbeamercolor{section in head/foot}{fg=textcolor}
+\setbeamercolor{background canvas}{bg=white}
+%\colorlet{toccolor}{black}
+%\setbeamercolor{section in toc}{fg=toccolor}
+\setbeamercolor{block title}{bg=themecolor!75!gray!25}
+\setbeamercolor{block body}{bg=themecolor!75!gray!5}
+
+%% Other colors
+\colorlet{greyedOutThemecolor}{themecolor!75!gray!25}
+\definecolor{emoji-yellow}{RGB}{255, 222, 52}
+
+
+% Macros
+
+%% Beamer macros
+\newcommand{\titleSmallCap}[1]{{\fontsize{12}{14}\selectfont  #1}}
+\newcommand{\smallCap}[1]{{\small \MakeUppercase{#1}}}
+
+%% Utility macros
+\newcommand{\noteBullet}{\hspace*{.75em}\textcolor{themecolor}{$\blacktriangleright$}\ }
+
+%% General math macros
+\newcommand{\spacedColon}{\mkern .5mu : \mkern 1mu}
+\newcommand{\spacedEq}{\mkern 1mu = \mkern 1.5mu}
+\newcommand{\given}{\thinnerspace | \thinnerspace}
+\newcommand{\divby}{\thinnerspace /}
+\newcommand{\defeq}{\vcentcolon =} % `\coloneqq` and `\vcentcolon` requires the `mathtools` package: https://tex.stackexchange.com/questions/194344/symbol-for-definition
+\newcommand{\diff}{\operatorname{\mathrm{d}}\!{}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\medcap}{\mathbin{\mathsmaller{\bigcap}}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\newcommand{\elemwiseProd}{\odot}
+\renewcommand{\complement}{{\raisebox{1.5pt}{\scriptsize $\mathsf{c}$}}}
+\newcommand{\transpose}{\text{\raisebox{.5ex}{$\intercal$}}}
+\newcommand{\lowerscript}[1]{\raisebox{-2pt}{\scriptsize $#1$}}
+\newcommand{\yesnumber}{\addtocounter{equation}{1}\tag{\theequation}}
+\newcommand{\thinnerspace}{\mskip.5\thinmuskip}
+\newcommand{\thinnestspace}{\mskip.25\thinmuskip}
+\newcommand{\negthinnerspace}{\mskip-.5\thinmuskip}
+\newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
+\newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Subscript needs to be within bracket, hence the hard coding
+\newcommand{\placeholder}{\thinnerspace \cdot \thinnerspace}
+\newcommand{\tightTo}{\mskip-.4\thinmuskip \to \mskip-.4\thinmuskip}
+
+%% Probability / statistics macros
+\newcommand{\probability}{\mathbb{P}}
+\DeclareMathOperator{\expectation}{\mathbb{E}}
+\newcommand{\variance}{\mathrm{Var}}
+\DeclareMathOperator*{\covariance}{Cov}
+\newcommand{\indicator}{\mathds{1}}
+\newcommand{\eqDistribution}{\mathrel{\raisebox{-.2ex}{$\overset{\scalebox{.6}{$\, d$}}{=}$}}}
+\newcommand{\iidSim}{\mathrel{\raisebox{-.3ex}{$\overset{\text{i.i.d.}}{\sim}$}}}
+\newcommand{\unifDist}{\mathrm{Unif}}
+\newcommand{\normalDist}{\mathcal{N}}
+\newcommand{\betaDist}{\mathrm{Beta}}
+\newcommand{\gammaDist}{\mathrm{Gamma}}
+\newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
+\newcommand{\map}[1]{\widehat{#1}_{\textrm{map}}}
+\newcommand{\empiricalVar}{\widehat{\variance}}
+\newcommand{\kldivergence}{D_{\mathrm{KL}}}
+\newcommand{\truthSub}{\mathrm{tru}}
+
+%% MCMC macros
+\newcommand{\transKernel}{P}
+\newcommand{\propKernel}{Q}
+\newcommand{\nextMarker}{*}
+\newcommand{\propMarker}{\prime}
+\newcommand{\acceptProb}{a}
+
+\newcommand{\momentum}{p}
+\newcommand{\bmomentum}{\bm{\momentum}}
+\newcommand{\Momentum}{P}
+\newcommand{\bMomentum}{\bm{\Momentum}}
+\newcommand{\mass}{\bm{M}}
+\newcommand{\potential}{U}
+\newcommand{\integTime}{T}
+\newcommand{\integTimeScript}{{\mathsmaller{\integTime}}}
+
+%% Variable macros / Aliases
+\newcommand{\nPred}{p}
+\DeclareMathOperator{\density}{\pi}
+\newcommand{\likelihood}{L}
+\newcommand{\infoMat}{\mathcal{I}}
+\newcommand{\by}{\bm{y}}
+\newcommand{\bx}{\bm{x}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bmu}{\bm{\mu}}
+\newcommand{\bbeta}{\bm{\beta}}
+\newcommand{\btheta}{\bm{\theta}}
+\newcommand{\bPhi}{\bm{\Phi}}
+\newcommand{\bSigma}{\bm{\Sigma}}
+\newcommand{\minus}{\scalebox{1.0}[1.0]{{\scriptsize -}}}
+\newcommand{\Id}{\bm{I}}
+
+\newcommand{\param}{\theta}
+\newcommand{\randVar}{\Theta}
+\newcommand{\bparam}{\bm{\theta}}
+\newcommand{\brandVar}{\bm{\randVar}}
+\newcommand{\mcmc}{{\small MCMC}}
+\newcommand{\Mcmc}{M{\small CMC}}
+\newcommand{\hmc}{{\small HMC}}
+\newcommand{\Hmc}{H{\small MC}}
+\newcommand{\mcIndex}{k}
+\newcommand{\altMcIndex}{\ell}
+\newcommand{\mcSampleSize}{m}
+
+\title{\fontdimen2\font=.55ex% Change inter-word space
+	\centerline{Posterior inference via Markov chain Monte Carlo}
+	\centerline{w/ intro to probabilistic programming language}
+}
+\author{%
+	Aki Nishimura\\
+	Department of Biostatistics%
+}
+%\institute[]{}
+\date{}
+
+\titlegraphic{%
+	\begin{picture}(0,0)
+		% Try coordinate (155, -150) for a one-line title, (165, -160) if two-lines, and (155, -172) if three-lines
+		\put(165, -160){\makebox(0,0)[lb]{\includegraphics[width=.45\textwidth]{jhsph_biostat_logo}}}
+	\end{picture}%
+}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{frame}
+\frametitle{Posterior inference via Markov chain Monte Carlo}
+
+We have so far focused on analytically-tractable Bayesian models.
+\smallskip
+
+Under more complex models, Bayesian inference often has to rely on computational approaches to extract info from the posteriors.
+\smallskip
+
+Various approaches exist, but Markov chain Monte Carlo (\mcmc) remains the most reliable and versatile, and generally fast enough.
+\smallskip
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Posterior inference via Markov chain Monte Carlo}
+
+Notable alternatives to \mcmc{}:
+
+\begin{looseItemize}
+\item Variational inference --- faster, decent point est, poor UQ
+\item Expectation-propagation --- effective in its limited scope % limited in scope but works well when applicable
+\item Analytical/numerical approx (e.g.\ integrated nested Laplace approx) --- effective when applicable or combined w/ others
+\item Sequential Monte Carlo --- useful for online update of posterior
+\item Approx Bayesian computation (\smallCap{abc}) --- ``likelihood-free''  but scales poorly in the number of parameters
+\item Neural net approx of posteriors --- active area of  research 
+\end{looseItemize}
+
+\end{frame}
+
+
+\section{\centerline{Why and What of \titleSmallCap{MCMC}}}
+
+\begin{frame}
+\frametitle{Monte Carlo methods: Why \textcolor{greyedOutThemecolor}{and What}}
+
+Calculating quantities of interest, such as mean and 95\% \smallCap{ci}, from a (posterior) distribution $\density(\theta)$ often cannot be done analytically.
+\medskip
+
+\textbf{Example:}\\
+Consider a posterior under $y \given \theta \sim \normalDist(\theta, 1)$ with $\theta \sim \mathrm{Cauchy}(1)$: %(\textrm{scale} = 1)$:
+\begin{tightEquation*}
+\density(\theta \given y) 
+	\propto
+	\exp\left(
+		- \frac{1}{2} (y - \theta)^2
+	\right)
+	 \frac{1}{1 + \theta^2}.
+\end{tightEquation*}
+Even for such a simple model, we can't calculate the posterior mean nor the normalizing constant analytically.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Monte Carlo methods: \textcolor{greyedOutThemecolor}{Why and} What}
+
+Often easier to generate random variables $\randVar^{(1)}, \randVar^{(2)}, \ldots \sim \density(\cdot)$ 
+%and use the empirical measure $\frac{1}{\mcSampleSize}\sum_{k = 1}^\mcSampleSize \delta_\randVar^{(k)}$
+and use these Monte Carlo samples to calculate quantities of interest.
+
+\textbf{Example:}\\
+Means, quantiles, rankings, etc.\ of (transformed) parameters via
+\begin{tightEquation*}
+\begin{aligned}
+\Bigl(  \exp (\expectation \randVar) \neq \Bigr) \thinnerspace
+	\expectation[ \thinnerspace \exp (\randVar) ] 
+	&\approx \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize \exp \bigl( \randVar^{(\mcIndex)} \bigr) \\
+\operatorname{quantile}_\alpha \! \left( \operatorname{logit} \randVar \right) 
+	&\approx \operatorname{quantile}_\alpha \left( 
+		\operatorname{logit} \randVar^{(1)}, \ldots, \operatorname{logit} \randVar^{(\mcSampleSize)} 
+	\right) \\
+\probability[ \randVar_1 < \randVar_2 + \randVar_3 ] 
+	&\approx \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize \indicator \left\{  \randVar_1^{(\mcIndex)}  < \randVar_2^{(\mcIndex)}  + \randVar_3^{(\mcIndex)} \right\}
+\end{aligned}
+\end{tightEquation*}
+%$$ \Bigl(  \exp (\expectation \randVar) \neq \Bigr) \thinnerspace
+%\expectation[ \thinnerspace \exp (\randVar) ] 
+%	\approx \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize \exp \bigl( \randVar^{(\mcIndex)} \bigr) $$
+%$$ \operatorname{quantile}_\alpha \! \left( \operatorname{logit} \randVar \right) 
+%	\approx \operatorname{quantile}_\alpha \left( 
+%		\operatorname{logit} \randVar^{(1)}, \ldots, \operatorname{logit} \randVar^{(\mcSampleSize)} 
+%	\right) $$
+%$$ \probability[ \randVar_1 < \randVar_2 + \randVar_3 ] 
+%	\approx \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize \indicator \left\{  \randVar_1^{(\mcIndex)}  < \randVar_2^{(\mcIndex)}  + \randVar_3^{(\mcIndex)} \right\}$$
+
+\vspace*{-.3\baselineskip}
+\textbf{Remark:} \\
+Error decays as $\mcSampleSize^{-1/2}$ b/c 
+$\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\left( \bm{\randVar}^{(\mcIndex)} \right) \right)
+	= \frac{1}{\mcSampleSize} 
+	\mathrm{var} \! \left( g \!\left( \bm{\randVar} \right) \right)$.
+%$\frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\left( \bm{\randVar}^{(\mcIndex)} \right)$ estimates $\expectation[ \thinnerspace g(\bm{\randVar}) ] $ w/ var $\frac{1}{\mcSampleSize} \mathrm{var}\left( g \!\left( \bm{\randVar} \right) \right)$
+\end{frame}
+
+
+\newcommand{\frametitleText}{Markov chain Monte Carlo: Why\textcolor{greyedOutThemecolor}{, What, How}}
+\begin{frame}
+\frametitle{\frametitleText}
+
+But sampling (i.e.\ drawing a random variable) directly from a specified, potentially unnormalized density can be difficult.
+\smallskip
+
+Univariate distribution can be hard enough, multivariate far worse.
+\medskip
+
+\textbf{Example:}\\
+If the inverse \smallCap{cdf} is available, then we can do $\randVar = F^{-1}(U)$ for $U \sim \unifDist(0, 1)$.
+For example, $- \log U \sim \mathrm{Exp}(1)$.
+\smallskip
+
+But this doesn't work even for a common dist like $\textrm{Gamma}(\alpha, \beta)$, whose (inverse) \smallCap{cdf}  is expensive to evaluate:
+\begin{tightEquation*}
+F(\param; \alpha, \beta) = 
+	\int_0^\param \frac{\beta^\alpha \tilde{\param}^{\alpha-1} e^{-\beta \tilde{\param}}}{\Gamma(\alpha)} \, \mathrm{d} \tilde{\param}.
+\end{tightEquation*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Example {\normalfont (cont'd)}:}\\
+\medskip
+
+How to sample from $\textrm{Gamma}(\alpha, \mathrm{rate} =  \beta)$ then? 
+\smallskip
+
+%We can focus on generating $\randVar \sim \textrm{Gamma}(\alpha, 1)$ b/c we then have $\beta^{-1} \randVar \sim \textrm{Gamma}(\alpha, \beta)$.
+
+We can focus on $\beta = 1$ because, if $\randVar \sim \textrm{Gamma}(\alpha, 1)$, then $\beta^{-1} \randVar \sim \textrm{Gamma}(\alpha, \beta)$.
+(Technique applicable to any scale family.)%
+\smallskip
+
+We can also focus on $\alpha > 1$ because,  if $\randVar \sim \textrm{Gamma}(\alpha, 1)$, then
+$\randVar U^{1/\alpha} \sim \textrm{Gamma}(\alpha - 1, 1)$.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Example {\normalfont (cont'd)}:}\\
+\smallskip
+
+We now have the following ``simple'' algorithm:
+\vspace*{-.3\baselineskip}
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{Figure/marsaglia_tsang_2000_header}
+%\caption{}
+\label{fig:marsaglia_tsang_2000}
+\end{figure}
+
+{\newcommand{\normalRv}{Z} % Original abstract uses $x$ for the normal along with lowercase $v$
+\begin{quote}
+In brief: generate a normal variate $\normalRv$ and a uniform variate~$U$
+until $\ln (U)<0.5 \normalRv^2+d-d V +d \ln (V)$, then return $\randVar = d V$. 
+Here, the gamma parameter is $\alpha \geq 1$, and $V=(1+\normalRv / \sqrt{9 d})^3$, with $d=\alpha-1 / 3$. 
+\end{quote}
+}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Markov chain Monte Carlo: \textcolor{greyedOutThemecolor}{Why,} What\textcolor{greyedOutThemecolor}{, How}}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Instead of i.i.d.\ draws, \mcmc{} generates a Markovian sequence $\randVar^{(1)}, \randVar^{(2)}, \ldots$ whose stationary distribution coincides with $\density(\cdot)$; i.e.%
+\vspace*{-.2\baselineskip}%
+\begin{itemize}
+\item $\randVar^{(\mcIndex + 1)} \given \randVar^{(\mcIndex)}, \ldots, \randVar^{(1)} \eqDistribution \randVar^{(\mcIndex + 1)} \given \randVar^{(\mcIndex)}$ 
+\item $\randVar^{(\mcIndex)} \sim \density(\cdot) 
+	\, \Rightarrow \, \randVar^{(\mcIndex + 1)} \sim \density(\cdot)$
+\end{itemize}
+
+\smallskip
+Then the draws generated by the \mcmc{} algorithm can be used  in the same manner as i.i.d.\ draws to calculate quantities of interest.
+
+\smallskip
+\mbox{%
+	In the \mcmc{} context, $\density(\cdot)$ is referred to as the \textit{target (distribution)}.
+}
+
+\smallskip
+\textbf{Remark:} 
+Technically, we need to additionally assume that the Markov chain is \textit{ergodic}, but this is rarely a concern in practice.
+
+\end{frame}
+
+\renewcommand{\frametitleText}{Markov chain Monte Carlo: \textcolor{greyedOutThemecolor}{Why, What,} How}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Two arguably most important and widely used \mcmc{} paradigms are the \textit{Metropolis(-Hastings)} algorithm and \textit{Gibbs sampling}.
+
+\smallskip
+Each leads to a range of specific instances of \mcmc{} samplers, and the two paradigms can also be used in conjunction.
+\end{frame}
+
+
+\section{%
+	\centerline{Essential \titleSmallCap{MCMC}: Gibbs and Metropolis}
+	\centerline{(and Hamiltonian Monte Carlo)}%
+}
+
+\renewcommand{\frametitleText}{Gibbs sampling: basic framework}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\mbox{Gibbs sampler divides the parameter into blocks $\bm{\randVar} = (\bm{\randVar}_1, \ldots, \bm{\randVar}_J)$} 
+so that each conditional $\bm{\randVar}_j \given \bm{\randVar}_{-j}$ is more tractable than the joint.
+
+\medskip
+Each iteration cycles through the cond.\ updates $\bm{\randVar}^\nextMarker_j \sim \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$;
+i.e.\ initialize the chain $\bm{\randVar}^\nextMarker = \bm{\randVar}^{(0)}$ and repeat for $\mcIndex = 1, \ldots, \mcSampleSize$
+\begin{tightEnumerate}
+\item $\bm{\randVar}^\nextMarker_j \sim \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ for $j = 1, \ldots, J$
+\item $\bm{\randVar}^{(k)} \gets \bm{\randVar}^\nextMarker$, storing the updated $\bm{\randVar}^\nextMarker$ as the $k$th sample
+\end{tightEnumerate}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+Straightforward to verify that a Gibbs sampler correctly samples from the target;
+i.e.\ it admits $\density(\cdot)$ as its stationary distribution.
+
+\smallskip
+Transition density $\transKernel( \bm{\param} \tightTo \bm{\param}^\nextMarker )$ is given by $\transKernel = \transKernel_J \ldots \transKernel_1$ where
+%\vspace*{-.3\baselineskip}
+\begin{tightEquation*}
+\transKernel_j( \bm{\param} \tightTo \bm{\param}^\nextMarker ) 
+= \delta(\bm{\param}_1^\nextMarker = \bm{\param}_1) \times \ldots \times 
+	\density(\bm{\param}_j^\nextMarker \given \bm{\param}_{-j}) \times \ldots \times
+	\delta(\bm{\param}_J^\nextMarker = \bm{\param}_J).
+\end{tightEquation*}
+
+\smallskip
+At stationarity $\bm{\randVar} \sim \density(\cdot)$, the chain after the $j$th block update $\bm{\randVar} \overset{\!\transKernel_j \thinnerspace}{\mathbin{\scalebox{1.6}[1]{$\to$}}} \negthinnerspace \bm{\randVar}^\nextMarker$ is distributed as (taking $j = 1$ to ease notations)
+\begin{tightEquation*}
+\begin{aligned}
+\density^\nextMarker(\bm{\param}^\nextMarker)
+	&= \int \density(\bm{\param}) \transKernel_1( \bm{\param} \tightTo \bm{\param}^\nextMarker ) \diff \bm{\param} \\
+	&= \int 
+		\density(\bm{\param}_1, \bm{\param}_2^\nextMarker, \ldots, \bm{\param}_J^\nextMarker) 
+		\density(\bm{\param}_1^\nextMarker \given \bm{\param}_{-1}^\nextMarker) 
+	\diff \bm{\param}_1 \\
+	&= \density(\bm{\param}_2^\nextMarker, \ldots, \bm{\param}_J^\nextMarker) 
+		\density(\bm{\param}_1^\nextMarker \given \bm{\param}_{-1}^\nextMarker).
+\end{aligned}
+\end{tightEquation*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Alternatively, $\bm{\randVar}^\nextMarker \sim \density^\nextMarker(\cdot)$ can be viewed as obtained by 
+\begin{tightEnumerate}
+\item Draw $\bm{\randVar} \sim \density(\cdot)$,
+\item Set $\bm{\randVar}_j^\nextMarker \gets \bm{\randVar}_j$ for $j \geq 2$ (and discard $\bm{\randVar}_1$),
+\item Draw $\bm{\randVar}^\nextMarker_1 \sim \density( \placeholder \given \bm{\randVar}^\nextMarker_{-1})$,
+\end{tightEnumerate}
+\vspace{-.3\baselineskip}
+which clearly implies $\bm{\randVar}^\nextMarker \eqDistribution \bm{\randVar}$.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Gibbs sampling: its use in Bayes}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Example {\normalfont (Gibbs sampler for linear regression)}:}\\
+\smallskip
+
+Recall that, under a regression model 
+\begin{tightEquation*}
+\bm{y} = \bX \bbeta + \bm{\epsilon} 
+	\ \text{ for } \,
+	\bm{\epsilon} \sim \normalDist\!\left(\bm{0}, \phi^{-1} \bm{I} \right)
+\end{tightEquation*}
+with prior $\bbeta \sim \normalDist(\bmu_0, \bPhi_0)$ and $\phi \sim \gammaDist\!\left( \frac{\nu_0 \vphantom{\varphi_0^{-1}}}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right)$, 
+the posterior conditionals for $\bbeta$ and $\phi$ are given by:
+\vspace*{.15\baselineskip}
+\begin{tightEquation*}
+\bbeta \given \bm{y}, \bX, \phi
+	\sim \normalDist\!\left(
+		 \bmu_{\textrm{post}},
+		 \bPhi_{\textrm{post}}
+	\right),
+\end{tightEquation*}
+\begin{tightEquation*}
+\phi \given \bm{y}, \bX, \bbeta 
+	\sim \gammaDist\!\left( 
+		\frac{\nu_0 + n}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1} + \| \bm{y} - \bX \bbeta \|^2}{2} 
+	\right),
+\end{tightEquation*}
+\vspace*{.15\baselineskip}%
+for $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$ and $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$.
+
+% Homework idea: derive the corresponding posterior.
+% Homework idea: derive the posterior under non iid noise.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Example {\normalfont (Gibbs sampler for linear regression)}:}\\
+\smallskip
+
+The conjugacy structure makes posterior inference straightforward via Gibbs sampler, which alternately samples from
+%\begin{tightItemize}
+%\item $\bbeta^* 
+%	\sim \normalDist\!\left(
+%		 \bmu_{\textrm{post}}(\phi^*),
+%		 \bPhi_{\textrm{post}}(\phi^*)
+%	\right),$
+%\end{tightItemize}
+\begin{tightEquation*}
+\bbeta^\nextMarker 
+	\sim \normalDist\!\left(
+		 \bmu_{\textrm{post}}(\phi^\nextMarker),
+		 \bPhi_{\textrm{post}}(\phi^\nextMarker)
+	\right),
+\end{tightEquation*}
+\begin{tightEquation*}
+\phi^\nextMarker
+	\sim \gammaDist\!\left( 
+		\frac{\nu_0 + n}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1} + \| \bm{y} - \bX \bbeta^\nextMarker \|^2}{2} 
+	\right).
+\end{tightEquation*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+Gibbs sampler has/had been the main workhorse behind Bayesian inference since its first introduction by \citet{gelfand1990gibbs}.\\
+(The original development is by \citet{geman1984gibbs}.)
+
+\medskip
+Most models are built from exponential families, which always admit conjugate priors, making Gibbs sampling a powerful tool.
+
+\medskip
+Examples of models relying on Gibbs sampling includes:
+\begin{tightItemize}
+\item Hierarchical linear/logistic (sparse) regression models
+\item Gaussian (infinite) mixture models
+\item Latent Dirichlet allocations for topic modeling
+\end{tightItemize}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Gibbs sampling: in more generality}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Applicable even when a model (partially) deviates from conjugacy.
+
+\medskip
+If $\bm{\randVar}_j \given \bm{\randVar}_{-j}$ has a complex distribution, the update of $ \bm{\randVar}_j $ can be replaced by a non-direct sampling algorithm like Metropolis.
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Metropolis(-Hastings) algorithm: basic framework}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\vspace*{-.3\baselineskip}
+Provides a general recipe to construct a chain targeting given $\density(\cdot)$.
+%Provides a general recipe to construct a Markov chain targeting a given $\density(\cdot)$, ensuring its stationary dist coincides w/ the target.
+
+\smallskip
+Takes \textbf{any} \textit{proposal distribution} $\propKernel( \bparam \tightTo \bparam^\propMarker )$, alternatively $\propKernel( \bparam^\propMarker \given \bparam )$, 
+%, for a potential next state $\bparam^\propMarker$ for the chain given the current state $\bparam$.
+and turns it into a transition distribution that preserves $\density(\cdot)$.
+
+\smallskip
+%Achieves this by \textit{accepting or rejecting} the proposed value $\bparam^\propMarker$ according to the \textit{(Metropolis) acceptance probability}
+Achieves this via the \textit{(Metropolis-Hastings) acceptance-rejection} procedure, in which the proposed value $\bparam^\propMarker$ is accepted w/ prob
+\begin{tightEquation*}
+\acceptProb(\bparam \tightTo \bparam^\propMarker)
+	= \min \left\{
+		1, \,
+		\frac{
+			\density(\bparam^\propMarker)
+			\propKernel( \bparam^\propMarker \! \tightTo \bparam  )
+		}{
+			\density(\bparam)
+			\propKernel( \bparam \tightTo \bparam^\propMarker )
+		}
+	\right\}.
+\end{tightEquation*}
+
+\smallskip
+Original algorithm of \cite{metropolis1953} uses a \textit{symmetric} proposal w/ 
+$\propKernel( \bparam \tightTo \bparam^\propMarker )$ = $\propKernel( \bparam^\propMarker \! \tightTo \bparam)$, 
+which simplifies the prob as 
+\begin{tightEquation*}
+\acceptProb(\bparam \tightTo \bparam^\propMarker)
+	= \min \left\{
+		1, \,
+		\frac{
+			\density(\bparam^\propMarker)
+		}{
+			\density(\bparam)
+		}
+	\right\}.
+\end{tightEquation*}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Metropolis algorithm: basic framework}
+\begin{frame}
+\frametitle{\frametitleText}
+\textbf{Pseudocode:}\\
+
+Given the current state $\bm{\randVar} = \bm{\randVar}^{(k)}$, generate the next $\bm{\randVar}^{(k+1)}$ via
+\vspace*{-.2\baselineskip}
+\begin{tightEnumerate}
+\item Propose $\bm{\randVar}^\propMarker \sim \propKernel( \placeholder \given \brandVar )$.
+\item Accept $\bm{\randVar}^\propMarker$ w/ prob
+$ \min \left\{
+		1, \,
+		\density(\brandVar^\propMarker)
+		\divby
+		\density(\brandVar)
+	\right\}$.
+\item Set $\bm{\randVar}^{(k+1)} \gets \bm{\randVar}^\propMarker$ if accepted;
+	$\bm{\randVar}^{(k+1)} \gets \bm{\randVar}$ if rejected.
+\end{tightEnumerate}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Metropolis algorithm: illustrative example}
+\begin{frame}
+\frametitle{\frametitleText}
+Let's get a feel of how it works by studying the classical example:
+\textit{random walk Metropolis} w/ proposal dist $\propKernel( \placeholder \given \bparam) \sim \normalDist(\bparam, \sigma_{\textrm{prop}}^2 \bm{I})$.
+
+(That is, \smallCap{rwm} proposes $\brandVar^\propMarker = \brandVar + \sigma_\mathrm{prop} \bm{Z}$ for $\bm{Z} \sim \normalDist(\bm{0}, \bm{I})$.)
+
+\smallskip
+{\centering
+\href{https://chi-feng.github.io/mcmc-demo/app.html?algorithm=RandomWalkMH}{%
+	\textcolor{linkColor}{%
+		Visual demo by Chi Feng%
+	}%
+}
+\par}
+
+\medskip
+Here $\sigma_\mathrm{prop}$ is the key tuning parameter of \smallCap{rwm} ---
+recalling that 
+$\acceptProb(\brandVar \tightTo \brandVar^\propMarker) =
+\min \left\{
+	1, \,
+	\density(\brandVar^\propMarker) \divby \density(\brandVar)
+\right\}$,
+we see that
+\begin{tightItemize}
+\item Smaller $\sigma_\mathrm{prop}$ $\Rightarrow$ higher acceptance but smaller moves
+\item Larger $\sigma_\mathrm{prop}$ $\Rightarrow$ lower acceptance but, if accepted, larger moves
+\end{tightItemize}
+
+\smallskip
+Trade-off exists between the acceptance rate and size of moves.
+\end{frame}
+
+
+%\begin{frame}
+%\frametitle{\frametitleText}
+%\textbf{Question:}
+%Which leads to more efficient exploration of the parameter space --- many small moves or a few large moves?
+%
+%\medskip
+%One way to reason about this question is to formulate it as
+%\begin{tightItemize}
+%\item ``many small moves'' $\approx \sigma_\mathrm{sm} Z_1 + \ldots + \sigma_\mathrm{sm} Z_L$
+%\item ``a few large moves'' $\approx \sigma_\mathrm{lg} Z \,$ for $\thinnerspace \sigma_\mathrm{lg} > \sigma_\mathrm{sm}$
+%\end{tightItemize}
+%\vspace*{-.2\baselineskip}
+%and ask which corresponds to a bigger overall move.
+%
+%\medskip
+%Albeit simplistic, the reasoning shows the issue of ``random-walk behavior'': $L$ moves of size $\sigma_\mathrm{sm}$ only adds up to a $\sigma_\mathrm{sm} \sqrt{L}$ move.
+%
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+One way to reason about this trade-off is to consider what choice of $\sigma_\mathrm{prop}$ maximizes the expected squared jumping distance (\smallCap{esjd})
+\begin{tightEquation*}
+\begin{aligned}
+\expectation \left\| \brandVar^\nextMarker - \brandVar \right\|^2 
+	&= \expectation \Bigl[
+		 \left\|  \brandVar^\propMarker - \brandVar \right\|^2 
+		 a^2\! \left(\brandVar \tightTo \brandVar^\propMarker \right)
+	\Bigr] \\
+	&= \sigma_\mathrm{prop}^2
+		\expectation \bigl[
+			 \left\| \bm{Z} \right\|^2 
+			 a^2\! \left(\brandVar \tightTo \brandVar + \sigma_\mathrm{prop} \bm{Z} \right)
+		\bigr].
+\end{aligned}
+\end{tightEquation*}
+
+\medskip
+\textbf{Note:} 
+Maximizing \smallCap{esjd} is equiv to minimizing $\operatorname{cor}(\brandVar, \brandVar^*)$ b/c
+\begin{tightEquation*}
+\begin{aligned}
+\expectation \left\| \brandVar^\nextMarker - \brandVar \right\|^2 
+	&= 2 \expectation \!\left\| \brandVar \right\|^2 
+		- 2 \expectation\!\left\langle \brandVar^\nextMarker, \brandVar \right\rangle \\
+	&= 2 \left[
+		\operatorname{var}(\brandVar) -
+		\operatorname{cov}(\brandVar^*, \brandVar)
+	\right],
+\end{aligned}
+\end{tightEquation*}
+which provides additional rationale for its use.
+And, for \smallCap{rwm}, maximizing \smallCap{esjd} does maximize the actual sampling efficiency.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+R\smallCap{wm} can be shown to achieve the optimal eff when $\sigma_\mathrm{prop}$ is tuned so that the accept rate
+%$a\! \left(\brandVar \tightTo \brandVar^\propMarker \right) \approx 0.234$
+$\approx 0.234$, at least for some class of targets.\\
+{\hfill (\citealt{roberts1997rand_walk_metropolis_scaling})}
+
+\smallskip
+Above result is under a high-dim limit;
+a higher rate of around 40\% is recommended for one-dim targets\,
+(\citealt{gelman1996eff_jumping}).
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Metropolis algorithm: basic theory}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Metropolis algorithm guarantees that a resulting chain is \textit{reversible} with respect to, and hence correctly targets, the given density $\density(\cdot)$:
+\begin{tightEquation*}
+\density(\bparam) \transKernel(\bparam \tightTo \bparam^*)
+	= \density(\bparam^*) \transKernel(\bparam^* \tightTo \bparam).
+\end{tightEquation*}
+
+Easy (and left for u) to check that a Metropolis chain is reversible.
+
+And that a reversible transition preserves $\density(\cdot)$---here's an intuition:
+\vspace*{-.5\baselineskip}
+\begin{figure}
+\centering
+\includegraphics[width=.6\linewidth]{Figure/reversible_transition}
+\end{figure}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Metropolis algorithm: its use within Gibbs}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\vspace*{-.3\baselineskip}
+Recall that Gibbs sampler repeats the following for $\mcIndex = 1, \ldots, \mcSampleSize$:
+\begin{tightEnumerate}
+\item $\bm{\randVar}^\nextMarker_j \sim \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ for $j = 1, \ldots, J$
+\item $\bm{\randVar}^{(k)} \gets \bm{\randVar}^\nextMarker$, storing the updated $\bm{\randVar}^\nextMarker$ as the $k$th sample
+\end{tightEnumerate}
+
+Any of the conditional updates $ \bm{\randVar}^\nextMarker_j \sim \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ can be replaced by a Metropolis step if $\density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ is difficult to directly sample from:
+{\addtolength{\leftmargini}{.5\labelsep} 
+\begin{tightItemize}
+\item[(a)] Set up the problem with $\density_j( \placeholder ) = \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ as the target, the yet-to-be-updated $\bm{\randVar}_j \defeq \allowbreak \bm{\randVar}^\nextMarker_j = \bm{\randVar}^{(k - 1)}_j$ as the current state;
+\item[(b)] Make a proposal $\bm{\randVar}^\propMarker_j \sim \propKernel(\placeholder \given \bm{\randVar}_j )$ and accept-reject it 
+with prob
+$\min \{
+	1, \,
+	\density_j(\brandVar_j^\propMarker) \divby \density_j(\brandVar_j)
+\}$;
+\item[(c)] Set $\bm{\randVar}^\nextMarker_j \gets \bm{\randVar}_j'$ if accepted, $\bm{\randVar}^\nextMarker_j \gets \bm{\randVar}_j$ otherwise. 
+\end{tightItemize}
+}%
+
+\smallskip
+Referred to as \textit{Metropolis-within-Gibbs} step/update/sampling.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
+\begin{frame}
+\frametitle{\frametitleText}
+\parbox[c][2.4\baselineskip]{\textwidth}{%
+	\only<1>{%
+		Originating in comp physics \citep{duane1987hybrid_mc}, \smallCap{hmc} was\\ popularized in stats/\smallCap{ml} through \cite{neal1996bayes_neural_net,neal2011hmc} and others:
+	}%
+	\only<2>{%
+		Has since been adopted by many probabilistic programming\\ languages for its broad applicability and general effectiveness:
+	}%
+}%
+\vspace*{-.7\baselineskip}
+\begin{figure}
+	\centering
+	\hspace*{-.05\linewidth}
+	\only<1>{%
+		\includegraphics[width=\linewidth]{Figure/neal_paper_without_software_logos}
+	}%
+	\only<2>{%
+		\includegraphics[width=\linewidth]{Figure/software_logos_around_neal_paper}
+	}%
+\end{figure}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
+\begin{frame}
+\frametitle{\frametitleText}
+To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{momentum} variable $\bmomentum \negthinnerspace \sim \negthinnerspace \normalDist(\bm{0}, \mass)$ and targets the joint dist $\density(\bparam, \bmomentum) = \density(\bparam) \negthinspace \times \negthinnerspace \normalDist(\bm{0}, \mass)$.
+
+\smallskip
+H\smallCap{mc} generates a proposal by simulating Hamiltonian dynamics whose evolution is governed by the differential equation
+\begin{equation*}
+\label{eq:hamilton}
+\setlength{\abovedisplayskip}{.4\baselineskip}%
+\setlength{\belowdisplayskip}{.4\baselineskip}%
+\frac{\diff \bparam}{\diff t}
+	= \mass^{-1} \bmomentum, \ \
+\frac{\diff \bmomentum}{\diff t}
+	= - \nabla \potential(\bparam),
+\end{equation*}
+where $\potential = - \log \pi$ represents the \textit{potential energy} of the system.
+
+\medskip
+In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position} (variable).
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: basic framework}
+\begin{frame}
+\frametitle{\frametitleText}
+
+When $\mass = M \bm{I}$, the equation describes a motion of a particle with mass $M$ under the potential energy field $U(\bparam)$:
+\begin{itemizedEquation*}
+\hspace*{-1em}
+\begin{aligned}
+\text{``velocity''}
+	&= \frac{\diff \bparam}{\diff t} 
+	= M^{-1} \bmomentum
+	\\
+\text{``mass $\times$ acceleration''}
+	&= \frac{\diff \bmomentum}{\diff t} 
+	= - \nabla \potential (\bparam) 
+	= \text{``force''}
+\end{aligned}
+\end{itemizedEquation*}
+
+\medskip
+Trajectory $\bparam(t)$ gets acceleration/``push'' toward lower values of $\potential$ or, equivalently, larger values of $\log \pi = - \potential$.
+
+\medskip
+Useful analogy is:
+
+\centerline{``Frictionless puck sliding over a surface of height $\potential(\bparam)$.''}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+Here's a trajectory $\bparam(t)$ on 2D Gaussian with negative correlation:
+\vspace*{-.2\baselineskip}%
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/harmonic_hmc_trajectory}
+\end{figure}
+\vspace*{-.4\baselineskip}
+
+End point $\big( \bparam_\integTimeScript, - \bmomentum_\integTimeScript )$ for pre-specified $\integTime$ constitutes the proposal.
+
+In practice, the dynamics is usually approximated numerically.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Pseudocode:}\\
+
+Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
+\begin{tightEnumerate}
+	\item Refresh momentum: $\bMomentum \sim \normalDist(\bm{0}, \mass)$;
+	\item Propose $(\brandVar^\propMarker, \bMomentum^\propMarker) \approx (\brandVar_\integTimeScript, \negthinnerspace - \bMomentum_\integTimeScript)$ by approximating the dynamics;%
+	\item Accept-reject with prob
+		$\thinnerspace \min \{
+		1, \,
+		\density(\brandVar^\propMarker, \bMomentum^\propMarker) \divby \density(\brandVar, \bMomentum)
+		\}$.
+\end{tightEnumerate}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: intuition and theory}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\Hmc{} can generate a proposal $\bparam_\integTimeScript$ (and $- \bmomentum_\integTimeScript$) far away from the current state $\bparam_0$ (and $\bmomentum_0$) yet acceptable with high probability.
+
+If the dynamics can be simulated exactly, \hmc{} is rejection-free!
+
+\medskip
+This follows from the fact that \hmc{} proposals are 1) symmetric
+\begin{tightEquation*}
+\propKernel\left(
+	(\bparam_0, \bmomentum_0)
+	\to 
+	(\bparam_\integTimeScript, 
+	- \bmomentum_\integTimeScript)
+\right) = 
+\propKernel\left(
+	(\bparam_\integTimeScript, 
+	- \bmomentum_\integTimeScript)
+	\to
+	(\bparam_0, \bmomentum_0)
+\right)
+\end{tightEquation*}
+and 2) \textit{energy-conserving} under exact simulation
+\begin{tightEquation*}
+\begin{aligned}
+\potential(\bparam_0) + \frac12 \bmomentum_0^\transpose \thinnerspace \mass^{-1} \bmomentum_0
+	&= \potential(\bparam_\integTimeScript) + \frac12 \bmomentum_\integTimeScript^\transpose \thinnerspace \mass^{-1} \bmomentum_\integTimeScript \\
+\text{(i.e.} - \log \density (\bparam_0, \bmomentum_0)
+	&= - \log \density (\bparam_\integTimeScript, - \bmomentum_\integTimeScript) \text{)}.
+\end{aligned}
+\end{tightEquation*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-preserving} property and \textit{time-reversibility}:
+\vspace*{-\baselineskip}
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{Figure/time_reversibility_of_hamiltonian_dynamics}
+\end{figure}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Efficiency of Markov chain}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Estimator based on \mcmc{} generally has larger variance due to auto-correlations in the samples:
+\vspace*{-.15\baselineskip}
+\begin{align*}
+&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= \frac{1}{\mcSampleSize^2} \sum_{\mcIndex = 1}^\mcSampleSize \mathrm{var} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr) \right)
+	+ \frac{1}{\mcSampleSize^2} \sum_{\mcIndex \neq \altMcIndex} \mathrm{cov} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr), g\bigl( \randVar^{(\altMcIndex)} \bigr)  \right)
+\end{align*}
+%
+At stationarity $\randVar^{(1)} \sim \density(\cdot)$, noting
+$\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{d = 1}^\mcSampleSize \sum_{\mcIndex, \altMcIndex \spacedColon \thinnerspace \mcIndex - \altMcIndex \spacedEq d} \thinnerspace$,
+\vspace*{-.3\baselineskip}
+\begin{align*}
+&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= \frac{1}{\mcSampleSize} \mathrm{var} \!\left( g(\randVar) \right)
+	+ \frac{2}{\mcSampleSize^2} \sum_{d = 1}^\mcSampleSize (m - d) \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right)
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+Estimator based on \mcmc{} generally has larger variance due to auto-correlations in the samples:
+\vspace*{-.15\baselineskip}
+\begin{align*}
+&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= \frac{1}{\mcSampleSize^2} \sum_{\mcIndex = 1}^\mcSampleSize \mathrm{var} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr) \right)
+	+ \frac{1}{\mcSampleSize^2} \sum_{\mcIndex \neq \altMcIndex} \mathrm{cov} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr), g\bigl( \randVar^{(\altMcIndex)} \bigr)  \right)
+\end{align*}
+%
+At stationarity $\randVar^{(1)} \sim \density(\cdot)$, noting
+$\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{d = 1}^\mcSampleSize \sum_{\mcIndex, \altMcIndex \spacedColon \thinnerspace \mcIndex - \altMcIndex \spacedEq d} \thinnerspace$,
+\vspace*{-.3\baselineskip}
+\begin{align*}
+&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= \frac{1}{\mcSampleSize} \mathrm{var} \!\left( g(\randVar) \right)
+	+ \frac{2}{\mcSampleSize^2} \sum_{d = 1}^\mcSampleSize (m - d) \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right).
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+As $\mcSampleSize \to \infty$, which also guarantees stationarity, we have
+\vspace*{-.15\baselineskip}
+\begin{align*}
+&\mcSampleSize \operatorname{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= 
+	\mathrm{var} \!\left( g(\randVar) \right)
+	+ 2 \sum_{d = 1}^\mcSampleSize \left( 1 - \frac{d}{m} \right) \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right) \\
+	&\hspace*{1em}\to
+		\mathrm{var} \!\left( g(\randVar) \right)
+		+ 2 \sum_{d = 1}^\infty \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right). 
+\end{align*}
+%
+Error of the \mcmc{} estimator decays as $\mcSampleSize^{-1/2}$, but is inflated relative to the i.i.d.\ estimator by the factor
+\vspace*{-.5\baselineskip}
+\begin{equation*}
+\left[
+1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right)
+\right]^{1/2}.
+\end{equation*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textit{Effective sample size} of $\mcSampleSize$ draws from \mcmc{} is defined as
+\begin{equation*}
+\operatorname{ESS}_g (m) =
+\frac{m}{
+	1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right)
+}
+\end{equation*}
+b/c the estimator's variance equals that of $\operatorname{ESS}_g (m)$ i.i.d.\ samples.
+\end{frame}
+
+
+\nobibliography{references} % To cite inline without creating a bibliography
+\end{document}
