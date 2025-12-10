@@ -283,8 +283,8 @@
 \newcommand{\bmomentum}{\bm{\momentum}}
 \newcommand{\Momentum}{P}
 \newcommand{\bMomentum}{\bm{\Momentum}}
-\newcommand{\mass}{M}
-\newcommand{\bmass}{\bm{\mass}}
+\newcommand{\mass}{\scalebox{.85}{$M$}}
+\newcommand{\bmass}{\bm{M}}
 \newcommand{\potential}{U}
 \newcommand{\integTime}{T}
 \newcommand{\integTimeScript}{{\mathsmaller{\integTime}}}
@@ -890,6 +890,30 @@ Above result is under a high-dim limit;
 a higher rate of around 40\% is recommended for one-dim targets\,
 (\citealt{gelman1996eff_jumping}).
 
+\medskip
+Once the desired rate is specified, an \textit{adaptive \mcmc{}} procedure can automate the tuning of $\sigma_\mathrm{prop}$ \citep{andrieu2008adaptive_mcmc}.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+
+\textbf{Pseudocode {\normalfont (adaptive \mcmc{})}:}
+
+During an initial burn-in/tuning phase of \mcmc{} (to be discarded), update $\sigma_\mathrm{prop}$ for a pre-specified number of times as follows:
+\vspace{-.3\baselineskip}%
+\begin{enumerate}
+\item Run the chain for $K$ iterations with the current value of $\sigma_\mathrm{prop}\thinnerspace$;
+\item Calculate the average acceptance prob $\hat{\acceptProb}(\sigma_\mathrm{prop})$ from Step 1;
+\item Increase $\sigma_\mathrm{prop}$ if $\hat{\acceptProb} > \acceptProb_\mathrm{tar}$, decrease it if $\hat{\acceptProb} < \acceptProb_\mathrm{tar}\thinnerspace$; e.g.\ via
+	\begin{itemizedEquation*}
+	\log(\sigma_\mathrm{prop})
+		\gets \log(\sigma_\mathrm{prop}) + \delta (\hat{\acceptProb} - \acceptProb_\mathrm{tar}).
+	\end{itemizedEquation*}
+\end{enumerate}
+
 \end{frame}
 
 
@@ -1000,13 +1024,13 @@ In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position}
 \begin{frame}
 \frametitle{\frametitleText}
 
-The equation describes a motion of a particle with mass $M$ under the potential energy field $U(\bparam)$:
+The equation describes a motion of a particle with mass $\mass$ under the potential energy field $\potential(\bparam)$:
 \begin{itemizedEquation*}
 \hspace*{-1em}
 \begin{aligned}
 \text{``velocity''}
 	&= \frac{\diff \bparam}{\diff t} 
-	= M^{-1} \bmomentum
+	= \mass^{-1} \bmomentum
 	\\
 \text{``mass $\times$ acceleration''}
 	&= \frac{\diff \bmomentum}{\diff t} 
@@ -1032,7 +1056,7 @@ Here's a trajectory $\bparam(t)$ on 2D Gaussian with negative correlation:
 \vspace*{-.2\baselineskip}%
 \begin{figure}
 \centering
-\includegraphics[width=.7\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/harmonic_hmc_trajectory}
+\includegraphics[width=.7\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/exact_trajectory}
 \end{figure}
 \vspace*{-.4\baselineskip}
 
@@ -1106,6 +1130,144 @@ The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume
 \centering
 \includegraphics[width=\linewidth]{Figure/time_reversibility_of_hamiltonian_dynamics}
 \end{figure}
+\end{frame}
+
+
+\newcommand{\bposition}{\bparam}
+\newcommand{\stepsize}{\delta t}
+\newcommand{\numIntegStep}{L}
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: practical details}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\Hmc{} dynamics in general admits no analytical solutions and requires a numerical integration method to approximate it.
+
+\smallskip
+Basic principal behind numerical solution is that
+\begin{equation*}
+\setlength{\abovedisplayskip}{.5\baselineskip}%
+\setlength{\belowdisplayskip}{.5\baselineskip}%
+\begin{aligned}
+\frac{\bposition (t + \stepsize) - \bposition(t)}{\stepsize}
+	&\approx \frac{\diff \bposition}{\diff t}(t) 
+	= - \mass^{-1} \bmomentum(t),\\
+\frac{\bmomentum (t + \stepsize) - \bmomentum(t)}{\stepsize}
+	&\approx \frac{\diff \bmomentum}{\diff t}(t) 
+	= - \nabla \potential(\bposition(t)),
+\end{aligned}
+\end{equation*}
+meaning the evolution from $t$ to $t + \stepsize$ can be approximated as
+\begin{equation*}
+\setlength{\abovedisplayskip}{.5\baselineskip}%
+\begin{aligned}
+\bposition (t + \stepsize)
+	&\approx \bposition(t) - \stepsize \thinnerspace  \mass^{-1} \bmomentum(t),\\
+\bmomentum (t + \stepsize) 
+	&\approx \bmomentum(t) - \stepsize \thinnerspace \nabla \potential(\bposition(t)).
+\end{aligned}
+\end{equation*}
+ 
+\end{frame}
+ 
+ 
+\begin{frame}
+\frametitle{\frametitleText}
+ 
+\textit{Leapfrog} method approximates the evolution by combining \\ $\stepsize/2$ step in $\bmomentum$, $\stepsize$ step in $\bposition$, and $\stepsize/2$ step in $\bmomentum$:
+% aka velocity Verlet
+	\begin{itemizedEquation*}
+	\arraycolsep=2pt
+	\def\arraystretch{1.7}
+	\begin{array}{ccccc}
+	\bmomentum_{t + \stepsize / 2}
+		&=& \bmomentum_t 
+		&-& \displaystyle \frac{\stepsize}{2} \nabla U(\bposition_t) \\
+	\bposition_{t + \stepsize}
+		&=& \bposition_t
+		&+& \stepsize \, \mass^{-1} \bmomentum_{t + \stepsize / 2} \\
+	\bmomentum_{t + \stepsize}
+		&=& \bmomentum_{t + \stepsize / 2}
+		&-& \displaystyle \frac{\stepsize}{2} \nabla U(\bposition_{t + \stepsize}).
+	\end{array}
+	\end{itemizedEquation*}
+	
+\smallskip
+Taking $L = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps of size $\stepsize$ approximates the exact solution $(\bposition_0, \bmomentum_0) \to (\bposition_\integTimeScript, \bmomentum_\integTimeScript)$ up to an $O(\stepsize^2)$ error.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Performance depends crucially on $\stepsize$ and $\integTime$ (or $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$).
+
+\medskip
+Let's first discuss a choice of $\integTime$, which is analogous to \smallCap{rwm}'s $\sigma_{\textrm{prop}}$ in controlling how far proposals are.
+
+\medskip
+But the two differ critically in that \hmc{} proposals can be far away but maintain high acceptance if leapfrog approx is accurate enough.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Think: $\integTime$ determines efficiency of proposals by exact dynamics;\\
+$\stepsize$ is chosen so that the approx one is close enough to the exact.
+\pause
+\smallskip
+\begin{figure}
+\centering
+\invisible<1>{%
+	\only<1-2>{%
+		\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_11_steps}
+	}%
+}%
+\addtocounter{beamerpauses}{1}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_16_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_23_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_32_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_45_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_64_steps}
+}%
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textit{No-U-turn} algorithm of \cite{hoffman2014nuts} automates tuning of $\integTime$, leaving $\stepsize$ as the only remaining tuning parameter.
+%\hfill (\citealt{hoffman2014nuts})
+
+\medskip
+Once $\stepsize$ is chosen small enough for good approx, further accuracy gain from smaller $\stepsize$ isn't worth the additional computational cost.
+
+\medskip
+In other words, we want the acceptance rate high but not too high.
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+Optimal acceptance rate can be shown to be $\approx 0.651$ \citep{beskos2013optimal_hmc}, albeit for a not-so-realistic class of targets.
+
+\medskip
+In practice, \hmc{} can be quite sensitive to contours and tails of \\ the target, warranting higher acceptance rates like $0.8\,\text{--}\,0.99$.
+
+\medskip
+In Stan, you set the desired acceptance rate via \texttt{adapt\_delta};
+the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rstanarm}.
+
+\medskip
+\textbf{Remark:} 
+$\bmass$ is also a relevant tuning parameter, automatically tuned by Stan to account for variations in parameters' scales.
+
 \end{frame}
 
 
