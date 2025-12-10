@@ -283,7 +283,8 @@
 \newcommand{\bmomentum}{\bm{\momentum}}
 \newcommand{\Momentum}{P}
 \newcommand{\bMomentum}{\bm{\Momentum}}
-\newcommand{\mass}{\bm{M}}
+\newcommand{\mass}{M}
+\newcommand{\bmass}{\bm{\mass}}
 \newcommand{\potential}{U}
 \newcommand{\integTime}{T}
 \newcommand{\integTimeScript}{{\mathsmaller{\integTime}}}
@@ -972,9 +973,11 @@ Referred to as \textit{Metropolis-within-Gibbs} step/update/sampling.
 \renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
 \begin{frame}
 \frametitle{\frametitleText}
-To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{momentum} variable $\bmomentum \negthinnerspace \sim \negthinnerspace \normalDist(\bm{0}, \mass)$ and targets the joint dist $\density(\bparam, \bmomentum) = \density(\bparam) \negthinspace \times \negthinnerspace \normalDist(\bm{0}, \mass)$.
+To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{momentum} variable $\bmomentum \negthinnerspace \sim \negthinnerspace \normalDist(\bm{0}, \bmass)$ and targets the joint dist $\density(\bparam, \bmomentum) = \density(\bparam) \negthinspace \times \negthinnerspace \normalDist(\bm{0}, \bmass)$.
 
-\smallskip
+We'll focus on the most classical and intuitive case $\bmass = \mass \bm{I}$.
+
+\medskip
 H\smallCap{mc} generates a proposal by simulating Hamiltonian dynamics whose evolution is governed by the differential equation
 \begin{equation*}
 \label{eq:hamilton}
@@ -997,7 +1000,7 @@ In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position}
 \begin{frame}
 \frametitle{\frametitleText}
 
-When $\mass = M \bm{I}$, the equation describes a motion of a particle with mass $M$ under the potential energy field $U(\bparam)$:
+The equation describes a motion of a particle with mass $M$ under the potential energy field $U(\bparam)$:
 \begin{itemizedEquation*}
 \hspace*{-1em}
 \begin{aligned}
@@ -1046,7 +1049,7 @@ In practice, the dynamics is usually approximated numerically.
 
 Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
 \begin{tightEnumerate}
-	\item Refresh momentum: $\bMomentum \sim \normalDist(\bm{0}, \mass)$;
+	\item Refresh momentum: $\bMomentum \sim \normalDist(\bm{0}, \mass \bm{I})$;
 	\item Propose $(\brandVar^\propMarker, \bMomentum^\propMarker) \approx (\brandVar_\integTimeScript, \negthinnerspace - \bMomentum_\integTimeScript)$ by approximating the dynamics;%
 	\item Accept-reject with prob
 		$\thinnerspace \min \{
@@ -1085,8 +1088,8 @@ This follows from the fact that \hmc{} proposals are 1) symmetric
 and 2) \textit{energy-conserving} under exact simulation
 \begin{tightEquation*}
 \begin{aligned}
-\potential(\bparam_0) + \frac12 \bmomentum_0^\transpose \thinnerspace \mass^{-1} \bmomentum_0
-	&= \potential(\bparam_\integTimeScript) + \frac12 \bmomentum_\integTimeScript^\transpose \thinnerspace \mass^{-1} \bmomentum_\integTimeScript \\
+\potential(\bparam_0) + \frac{1}{2 \mass} \bmomentum_0^\transpose \bmomentum_0
+	&= \potential(\bparam_\integTimeScript) + \frac{1}{2 \mass} \bmomentum_\integTimeScript^\transpose \bmomentum_\integTimeScript \\
 \text{(i.e.} - \log \density (\bparam_0, \bmomentum_0)
 	&= - \log \density (\bparam_\integTimeScript, - \bmomentum_\integTimeScript) \text{)}.
 \end{aligned}
