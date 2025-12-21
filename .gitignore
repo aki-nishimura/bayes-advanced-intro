@@ -11,3 +11,6 @@
 
 lecture/*.pdf
 homework/*.pdf
+code/*.html
+code/*_files
+.Rproj.user
