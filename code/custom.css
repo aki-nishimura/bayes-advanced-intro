@@ -1,0 +1,9 @@
+h1.title { color: #00255C; }
+h2 { color: #00122e; }
+
+.author {
+  font-size: 1.5em; 
+  color: #00255C;
+  margin-top: 0.25em;
+  margin-bottom: 0.75em;
+}

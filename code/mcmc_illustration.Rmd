@@ -1,0 +1,219 @@
+---
+title: "Illustration of MCMC concepts"
+author: |
+  By Akihiko Nishimura for "Bayesian Methods II" (Biostat 140.763) at Johns Hopkins
+output: 
+  html_document:
+    highlight: pygments
+    css: custom.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("mcmc_helper.R")
+```
+
+## Mixing and sampling efficiency of MCMC algorithms {#mixing}
+
+### Random-walk Metropolis sampler
+
+```{r rand_walk_metropolis, echo=TRUE}
+rand_walk_metropolis <- function(eval_logp, init, n_iter, prop_sd, seed = NA) {
+  
+  if (!is.na(seed)) { set.seed(seed) }
+  
+  n_dim <- length(init)
+  samples <- matrix(NA, nrow = n_dim, ncol = n_iter)
+  logp_samples <- vector("numeric", n_iter)
+  n_accepted <- 0L
+  x <- init
+  logp <- eval_logp(x)
+  
+  for (i in 1:n_iter) {
+    x_prop <- x + prop_sd * rnorm(n_dim)
+    logp_prop <- eval_logp(x_prop)
+    accepted <- logp_prop - logp > log(runif(1))
+    if (accepted) {
+      x <- x_prop
+      logp <- logp_prop
+    }
+    samples[, i] <- x
+    logp_samples[i] <- logp
+    n_accepted <- n_accepted + accepted
+  }
+  
+  rownames(samples) <- paste0("param_", 1:n_dim)
+  return(list(
+    samples = samples, 
+    logp = logp_samples,
+    accept_rate = n_accepted / n_iter
+  ))
+}
+```
+
+
+
+### Sample from 16-dimensional i.i.d. Gaussian
+
+```{r iid_gauss, echo=TRUE}
+d <- 16
+target_logp <- function(x) { - 0.5 * sum(x^2) }
+
+# Pick theoretically optimal (for sufficiently large `d`) proposal sd
+prop_sd <- 2.38 / sqrt(d) 
+
+init <- rep(0, d)
+n_iter <- 10^5
+rwm_output <- rand_walk_metropolis(
+  target_logp, init, n_iter, prop_sd, seed = 1918
+)
+```
+
+#### Examine the traceplot, auto-correlation, and ESS along the first coordinate
+
+```{r}
+coord_samples <- rwm_output$samples[1, ]
+trace_plot(coord_samples[1:1000])
+auto_cor_plot(coord_samples, lag.max = 100)
+```
+
+```{r}
+ess_est <- list(
+  ar_proc = coda::effectiveSize(coord_samples)[[1]],
+  batch_means = mcmcse::ess(coord_samples, method = "bm"),
+  init_pos_seq = n_iter / mcmc::initseq(coord_samples)$var.pos
+)
+print(ess_est) 
+
+mcmc_iter_per_ess <- lapply(ess_est, function (ess) n_iter / ess)
+print(mcmc_iter_per_ess)
+```
+
+#### Check that the dist of MCMC samples coincides with the target
+
+```{r, echo=F}
+hist_against_truth(coord_samples, true_density = dnorm)
+```
+
+#### Compound symmetric Gaussian target
+
+Consider a Gaussian target with covariance $\Sigma_{ij} = \rho$ for all $i \neq j$.  
+
+```{r}
+d <- 16
+rho <- 0.9
+Sigma <- (1 - rho) * diag(d) + rho * array(1., dim = c(d, d))
+# Analytically invert `Sigma`
+Prec <- 1 / (1 - rho) * (
+  diag(d) - rho / (1 - rho + rho * d) * array(1., dim = c(d, d))
+) 
+
+cs_target_logp <- function(x) { - 0.5 * t(x) %*% Prec %*% x }
+
+# Approximate, based on the compound symmetry structure, the optimal proposal sd
+smaller_target_sd <- sqrt(min(eigen(Sigma)$values)) # only two unique eigenvalues
+prop_sd <- smaller_target_sd * 2.38 / sqrt(d) 
+
+init <- rep(0, d)
+n_iter <- 10^5
+rwm_output <- rand_walk_metropolis(
+  cs_target_logp, init, n_iter, prop_sd, seed=1
+)
+```
+
+#### As before, examine the traceplot, auto-correlation, and ESS
+
+```{r}
+coord_samples <- rwm_output$samples[1, ]
+trace_plot(coord_samples, thin = 100L)
+auto_cor_plot(coord_samples, lag.max = 10000)
+```
+
+```{r}
+ess_est <- list(
+  ar_proc = coda::effectiveSize(coord_samples)[[1]],
+  batch_means = mcmcse::ess(coord_samples, method = "bm"),
+  init_pos_seq = n_iter / mcmc::initseq(coord_samples)$var.pos
+)
+print(ess_est) 
+
+mcmc_iter_per_ess <- lapply(ess_est, function (ess) n_iter / ess)
+print(mcmc_iter_per_ess)
+```
+
+#### How does the dist of MCMC samples compare to the actual target?
+
+```{r, echo=F}
+hist_against_truth(coord_samples, true_density = dnorm)
+```
+
+#### Don't easily trust the output when the mixing is this bad
+
+```{r}
+rwm_output <- rand_walk_metropolis(
+  cs_target_logp, init, n_iter, prop_sd, seed=615
+)
+coord_samples <- rwm_output$samples[1, ]
+trace_plot(coord_samples, thin = 100L)
+auto_cor_plot(coord_samples, lag.max = 10000)
+
+ess_est <- list(
+  ar_proc = coda::effectiveSize(coord_samples)[[1]],
+  batch_means = mcmcse::ess(coord_samples, method = "bm"),
+  init_pos_seq = n_iter / mcmc::initseq(coord_samples)$var.pos
+)
+print(ess_est) 
+
+hist_against_truth(coord_samples, true_density = dnorm)
+```
+
+## Convergence of MCMC algorithms {#convergence}
+
+### Start away from stationarity on the compound symmetric target
+
+```{r}
+set.seed(410)
+init <- rnorm(d)
+init[c(1, 2)] <- 3.5
+
+n_iter <- 10^4
+rwm_output <- rand_walk_metropolis(
+  cs_target_logp, init, n_iter, prop_sd, seed=21205
+)
+```
+
+#### Examine the chain's trajectory in the first two dimensions
+
+```{r}
+index <- c(1, 2)
+target_density <- function(xy) {
+  mvtnorm::dmvnorm(xy, sigma = Sigma[index, index])
+}
+n_iter_to_plot <- 1000L
+plot_trajectory(rwm_output$samples, index, n_iter_to_plot, target_density)
+```
+
+#### Assess convergence via the log target density 
+
+```{r}
+trace_plot(
+  rwm_output$logp[1:500],
+  ylab = "Log density"
+)
+```
+
+#### Visually check if the convergence in log density coincides with that in parameter values
+
+```{r}
+n_iter_to_plot <- 200L
+plot_trajectory(rwm_output$samples, index, n_iter_to_plot, target_density)
+```
+
+#### Also check that, by zooming in a bit, the log density actually stabilized
+
+```{r}
+trace_plot(
+  rwm_output$logp[200:1200],
+  ylab = "Log density"
+)
+```
