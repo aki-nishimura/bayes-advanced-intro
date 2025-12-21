@@ -23,11 +23,13 @@ rand_walk_metropolis <- function(eval_logp, init, n_iter, prop_sd, seed = NA) {
   if (!is.na(seed)) { set.seed(seed) }
   
   n_dim <- length(init)
-  samples <- matrix(NA, nrow = n_dim, ncol = n_iter)
-  logp_samples <- vector("numeric", n_iter)
+  samples <- matrix(NA, nrow = n_dim, ncol = n_iter + 1L)
+  logp_samples <- vector("numeric", n_iter + 1L)
   n_accepted <- 0L
   x <- init
   logp <- eval_logp(x)
+  samples[, 1] <- init
+  logp_samples[1] <- logp
   
   for (i in 1:n_iter) {
     x_prop <- x + prop_sd * rnorm(n_dim)
@@ -37,8 +39,8 @@ rand_walk_metropolis <- function(eval_logp, init, n_iter, prop_sd, seed = NA) {
       x <- x_prop
       logp <- logp_prop
     }
-    samples[, i] <- x
-    logp_samples[i] <- logp
+    samples[, i + 1] <- x
+    logp_samples[i + 1] <- logp
     n_accepted <- n_accepted + accepted
   }
   
