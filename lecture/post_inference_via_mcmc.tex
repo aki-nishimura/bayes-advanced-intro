@@ -224,7 +224,7 @@
 % Macros
 
 %% Beamer macros
-\newcommand{\titleSmallCap}[1]{{\fontsize{12}{14}\selectfont  #1}}
+\newcommand{\titleSmallCap}[1]{{\fontsize{12}{14}\selectfont  \MakeUppercase{#1}}}
 \newcommand{\smallCap}[1]{{\small \MakeUppercase{#1}}}
 
 %% Utility macros
@@ -555,8 +555,8 @@ Each leads to a range of specific instances of \mcmc{} samplers, and the two par
 
 
 \section{%
-	\centerline{Essential \titleSmallCap{MCMC}: Gibbs and Metropolis}
-	\centerline{(and Hamiltonian Monte Carlo)}%
+	\centerline{Essential \titleSmallCap{MCMC} algorithms:}
+	\centerline{Gibbs and Metropolis}%
 }
 
 \renewcommand{\frametitleText}{Gibbs sampling: basic framework}
@@ -983,322 +983,6 @@ Referred to as \textit{Metropolis-within-Gibbs} step/update/sampling.
 \end{frame}
 
 
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
-\begin{frame}
-\frametitle{\frametitleText}
-\parbox[c][2.4\baselineskip]{\textwidth}{%
-	\only<1>{%
-		Originating in comp physics \citep{duane1987hybrid_mc}, \smallCap{hmc} was\\ popularized in stats/\smallCap{ml} through \cite{neal1996bayes_neural_net,neal2011hmc} and others:
-	}%
-	\only<2>{%
-		Has since been adopted by many probabilistic programming\\ languages for its broad applicability and general effectiveness:
-	}%
-}%
-\vspace*{-.7\baselineskip}
-\begin{figure}
-	\centering
-	\hspace*{-.05\linewidth}
-	\only<1>{%
-		\includegraphics[width=\linewidth]{Figure/neal_paper_without_software_logos}
-	}%
-	\only<2>{%
-		\includegraphics[width=\linewidth]{Figure/software_logos_around_neal_paper}
-	}%
-\end{figure}
-\end{frame}
-
-
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
-\begin{frame}
-\frametitle{\frametitleText}
-To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{momentum} variable $\bmomentum \negthinnerspace \sim \negthinnerspace \normalDist(\bm{0}, \bmass)$ and targets the joint dist $\density(\bparam, \bmomentum) = \density(\bparam) \negthinspace \times \negthinnerspace \normalDist(\bm{0}, \bmass)$.
-
-We'll focus on the most classical and intuitive case $\bmass = \mass \bm{I}$.
-
-\medskip
-H\smallCap{mc} generates a proposal by simulating Hamiltonian dynamics whose evolution is governed by the differential equation
-\begin{equation*}
-\label{eq:hamilton}
-\setlength{\abovedisplayskip}{.4\baselineskip}%
-\setlength{\belowdisplayskip}{.4\baselineskip}%
-\frac{\diff \bparam}{\diff t}
-	= \mass^{-1} \bmomentum, \ \
-\frac{\diff \bmomentum}{\diff t}
-	= - \nabla \potential(\bparam),
-\end{equation*}
-where $\potential = - \log \pi$ represents the \textit{potential energy} of the system.
-
-\medskip
-In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position} (variable).
-
-\end{frame}
-
-
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: basic framework}
-\begin{frame}
-\frametitle{\frametitleText}
-
-The equation describes a motion of a particle with mass $\mass$ under the potential energy field $\potential(\bparam)$:
-\begin{itemizedEquation*}
-\hspace*{-1em}
-\begin{aligned}
-\text{``velocity''}
-	&= \frac{\diff \bparam}{\diff t} 
-	= \mass^{-1} \bmomentum
-	\\
-\text{``mass $\times$ acceleration''}
-	&= \frac{\diff \bmomentum}{\diff t} 
-	= - \nabla \potential (\bparam) 
-	= \text{``force''}
-\end{aligned}
-\end{itemizedEquation*}
-
-\medskip
-Trajectory $\bparam(t)$ gets acceleration/``push'' toward lower values of $\potential$ or, equivalently, larger values of $\log \pi = - \potential$.
-
-\medskip
-Useful analogy is:
-
-\centerline{``Frictionless puck sliding over a surface of height $\potential(\bparam)$.''}
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
-
-Here's a trajectory $\bparam(t)$ on 2D Gaussian with negative correlation:
-\vspace*{-.2\baselineskip}%
-\begin{figure}
-\centering
-\includegraphics[width=.7\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/exact_trajectory}
-\end{figure}
-\vspace*{-.4\baselineskip}
-
-End point $\big( \bparam_\integTimeScript, - \bmomentum_\integTimeScript )$ for pre-specified $\integTime$ constitutes the proposal.
-
-In practice, the dynamics is usually approximated numerically.
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
-
-\textbf{Pseudocode:}\\
-
-Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
-\begin{tightEnumerate}
-	\item Refresh momentum: $\bMomentum \sim \normalDist(\bm{0}, \mass \bm{I})$;
-	\item Propose $(\brandVar^\propMarker, \bMomentum^\propMarker) \approx (\brandVar_\integTimeScript, \negthinnerspace - \bMomentum_\integTimeScript)$ by approximating the dynamics;%
-	\item Accept-reject with prob
-		$\thinnerspace \min \{
-		1, \,
-		\density(\brandVar^\propMarker, \bMomentum^\propMarker) \divby \density(\brandVar, \bMomentum)
-		\}$.
-\end{tightEnumerate}
-
-\medskip
-{\centering
-	\href{https://chi-feng.github.io/mcmc-demo/app.html?algorithm=HamiltonianMC}{%
-		\textcolor{linkColor}{%
-			Visual demo by Chi Feng%
-		}%
-	}
-\par}
-\end{frame}
-
-
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: intuition and theory}
-\begin{frame}
-\frametitle{\frametitleText}
-
-\Hmc{} can generate a proposal $\bparam_\integTimeScript$ (and $- \bmomentum_\integTimeScript$) far away from the current state $\bparam_0$ (and $\bmomentum_0$) yet acceptable with high probability.
-
-If the dynamics can be simulated exactly, \hmc{} is rejection-free!
-
-\medskip
-This follows from the fact that \hmc{} proposals are 1) symmetric
-\begin{tightEquation*}
-\propKernel\left(
-	(\bparam_0, \bmomentum_0)
-	\to 
-	(\bparam_\integTimeScript, 
-	- \bmomentum_\integTimeScript)
-\right) = 
-\propKernel\left(
-	(\bparam_\integTimeScript, 
-	- \bmomentum_\integTimeScript)
-	\to
-	(\bparam_0, \bmomentum_0)
-\right)
-\end{tightEquation*}
-and 2) \textit{energy-conserving} under exact simulation
-\begin{tightEquation*}
-\begin{aligned}
-\potential(\bparam_0) + \frac{1}{2 \mass} \bmomentum_0^\transpose \bmomentum_0
-	&= \potential(\bparam_\integTimeScript) + \frac{1}{2 \mass} \bmomentum_\integTimeScript^\transpose \bmomentum_\integTimeScript \\
-\text{(i.e.} - \log \density (\bparam_0, \bmomentum_0)
-	&= - \log \density (\bparam_\integTimeScript, - \bmomentum_\integTimeScript) \text{)}.
-\end{aligned}
-\end{tightEquation*}
-
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
-The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-preserving} property and \textit{time-reversibility}:
-\vspace*{-\baselineskip}
-\begin{figure}
-\centering
-\includegraphics[width=\linewidth]{Figure/time_reversibility_of_hamiltonian_dynamics}
-\end{figure}
-\end{frame}
-
-
-\newcommand{\bposition}{\bparam}
-\newcommand{\stepsize}{\delta t}
-%\renewcommand{\stepsize}{%
-%  \mathchoice
-%    {\scalebox{0.8}{$\Delta$} t}         % displaystyle (equation line)
-%    {\scalebox{0.8}{$\Delta$} t}         % textstyle (inline math)
-%    {\scalebox{0.65}{$\Delta$} t}        % scriptstyle (subscript/superscript)
-%    {\scalebox{0.5}{$\Delta$} t}         % scriptscriptstyle (sub-subscript)
-%}
-\newcommand{\numIntegStep}{L}
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: practical details}
-\begin{frame}
-\frametitle{\frametitleText}
-
-\Hmc{} dynamics in general admits no analytical solutions and requires a numerical integration method to approximate it.
-
-\smallskip
-Basic principal behind numerical solution is that
-\begin{equation*}
-\setlength{\abovedisplayskip}{.5\baselineskip}%
-\setlength{\belowdisplayskip}{.5\baselineskip}%
-\begin{aligned}
-\frac{\bposition (t + \stepsize) - \bposition(t)}{\stepsize}
-	&\approx \frac{\diff \bposition}{\diff t}(t) 
-	= - \mass^{-1} \bmomentum(t),\\
-\frac{\bmomentum (t + \stepsize) - \bmomentum(t)}{\stepsize}
-	&\approx \frac{\diff \bmomentum}{\diff t}(t) 
-	= - \nabla \potential(\bposition(t)),
-\end{aligned}
-\end{equation*}
-meaning the evolution from $t$ to $t + \stepsize$ can be approximated as
-\begin{equation*}
-\setlength{\abovedisplayskip}{.5\baselineskip}%
-\begin{aligned}
-\bposition (t + \stepsize)
-	&\approx \bposition(t) - \stepsize \thinnerspace  \mass^{-1} \bmomentum(t),\\
-\bmomentum (t + \stepsize) 
-	&\approx \bmomentum(t) - \stepsize \thinnerspace \nabla \potential(\bposition(t)).
-\end{aligned}
-\end{equation*}
- 
-\end{frame}
- 
- 
-\begin{frame}
-\frametitle{\frametitleText}
- 
-\textit{Leapfrog} method approximates the evolution by combining \\ $\stepsize/2$ step in $\bmomentum$, $\stepsize$ step in $\bposition$, and $\stepsize/2$ step in $\bmomentum$:
-% aka velocity Verlet
-	\begin{itemizedEquation*}
-	\arraycolsep=2pt
-	\def\arraystretch{1.7}
-	\begin{array}{ccccc}
-	\bmomentum_{t + \stepsize / 2}
-		&=& \bmomentum_t 
-		&-& \displaystyle \frac{\stepsize}{2} \nabla U(\bposition_t) \\
-	\bposition_{t + \stepsize}
-		&=& \bposition_t
-		&+& \stepsize \, \mass^{-1} \bmomentum_{t + \stepsize / 2} \\
-	\bmomentum_{t + \stepsize}
-		&=& \bmomentum_{t + \stepsize / 2}
-		&-& \displaystyle \frac{\stepsize}{2} \nabla U(\bposition_{t + \stepsize}).
-	\end{array}
-	\end{itemizedEquation*}
-	
-\smallskip
-Taking $L = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps of size $\stepsize$ approximates the exact solution $(\bposition_0, \bmomentum_0) \to (\bposition_\integTimeScript, \bmomentum_\integTimeScript)$ up to an $O(\stepsize^2)$ error.
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
-Performance depends crucially on $\stepsize$ and $\integTime$ (or $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$).
-
-\medskip
-Let's first discuss a choice of $\integTime$, which is analogous to \smallCap{rwm}'s $\sigma_{\textrm{prop}}$ in controlling how far proposals are.
-
-\medskip
-But the two differ critically in that \hmc{} proposals can be far away but maintain high acceptance if leapfrog approx is accurate enough.
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
-Think: $\integTime$ determines efficiency of proposals by exact dynamics;\\
-$\stepsize$ is chosen so that the approx one is close enough to the exact.
-\pause
-\smallskip
-\begin{figure}
-\centering
-\invisible<1>{%
-	\only<1-2>{%
-		\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_11_steps}
-	}%
-}%
-\addtocounter{beamerpauses}{1}%
-\only<+>{%
-	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_16_steps}
-}%
-\only<+>{%
-	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_23_steps}
-}%
-\only<+>{%
-	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_32_steps}
-}%
-\only<+>{%
-	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_45_steps}
-}%
-\only<+>{%
-	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_64_steps}
-}%
-\end{figure}
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
-\textit{No-U-turn} algorithm of \cite{hoffman2014nuts} automates tuning of $\integTime$, leaving $\stepsize$ as the only remaining tuning parameter.
-%\hfill (\citealt{hoffman2014nuts})
-
-\medskip
-Once $\stepsize$ is chosen small enough for good approx, further accuracy gain from smaller $\stepsize$ isn't worth the additional computational cost.
-
-\medskip
-In other words, we want the acceptance rate high but not too high.
-\end{frame}
-
-\begin{frame}
-\frametitle{\frametitleText}
-Optimal acceptance rate can be shown to be $\approx 0.651$ \citep{beskos2013optimal_hmc}, albeit for a not-so-realistic class of targets.
-
-\medskip
-In practice, \hmc{} can be quite sensitive to contours and tails of \\ the target, warranting higher acceptance rates like $0.8\,\text{--}\,0.99$.
-
-\medskip
-In Stan, you set the desired acceptance rate via \texttt{adapt\_delta};
-the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rstanarm}.
-
-\medskip
-\textbf{Remark:} 
-$\bmass$ is also a relevant tuning parameter, automatically tuned by Stan to account for variations in parameters' scales.
-
-\end{frame}
-
 
 \section{%
 	\centerline{Practical \titleSmallCap{MCMC}: how to pick an algorithm,} 
@@ -1721,6 +1405,329 @@ The former underestimates $\thinnerspace\operatorname{var}(\randVar)$, esp.\ whe
 \end{align*}}%
 
 Stan uses an improved version by \cite{vehtari2021improved_rhat} based on ``rank-normalization'' and ``folding'' procedures.
+\end{frame}
+
+
+
+\section{%
+	\centerline{Hamiltonian Monte Carlo:} 
+	\centerline{modern general-purpose sampler}%
+}
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
+\begin{frame}
+\frametitle{\frametitleText}
+\parbox[c][2.4\baselineskip]{\textwidth}{%
+	\only<1>{%
+		Originating in comp physics \citep{duane1987hybrid_mc}, \smallCap{hmc} was\\ popularized in stats/\smallCap{ml} through \cite{neal1996bayes_neural_net,neal2011hmc} and others:
+	}%
+	\only<2>{%
+		Has since been adopted by many probabilistic programming\\ languages for its broad applicability and general effectiveness:
+	}%
+}%
+\vspace*{-.7\baselineskip}
+\begin{figure}
+	\centering
+	\hspace*{-.05\linewidth}
+	\only<1>{%
+		\includegraphics[width=\linewidth]{Figure/neal_paper_without_software_logos}
+	}%
+	\only<2>{%
+		\includegraphics[width=\linewidth]{Figure/software_logos_around_neal_paper}
+	}%
+\end{figure}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
+\begin{frame}
+\frametitle{\frametitleText}
+To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{momentum} variable $\bmomentum \negthinnerspace \sim \negthinnerspace \normalDist(\bm{0}, \bmass)$ and targets the joint dist $\density(\bparam, \bmomentum) = \density(\bparam) \negthinspace \times \negthinnerspace \normalDist(\bm{0}, \bmass)$.
+
+We'll focus on the most classical and intuitive case $\bmass = \mass \bm{I}$.
+
+\medskip
+H\smallCap{mc} generates a proposal by simulating Hamiltonian dynamics whose evolution is governed by the differential equation
+\begin{equation*}
+\label{eq:hamilton}
+\setlength{\abovedisplayskip}{.4\baselineskip}%
+\setlength{\belowdisplayskip}{.4\baselineskip}%
+\frac{\diff \bparam}{\diff t}
+	= \mass^{-1} \bmomentum, \ \
+\frac{\diff \bmomentum}{\diff t}
+	= - \nabla \potential(\bparam),
+\end{equation*}
+where $\potential = - \log \pi$ represents the \textit{potential energy} of the system.
+
+\medskip
+In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position} (variable).
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: basic framework}
+\begin{frame}
+\frametitle{\frametitleText}
+
+The equation describes a motion of a particle with mass $\mass$ under the potential energy field $\potential(\bparam)$:
+\begin{itemizedEquation*}
+\hspace*{-1em}
+\begin{aligned}
+\text{``velocity''}
+	&= \frac{\diff \bparam}{\diff t} 
+	= \mass^{-1} \bmomentum
+	\\
+\text{``mass $\times$ acceleration''}
+	&= \frac{\diff \bmomentum}{\diff t} 
+	= - \nabla \potential (\bparam) 
+	= \text{``force''}
+\end{aligned}
+\end{itemizedEquation*}
+
+\medskip
+Trajectory $\bparam(t)$ gets acceleration/``push'' toward lower values of $\potential$ or, equivalently, larger values of $\log \pi = - \potential$.
+
+\medskip
+Useful analogy is:
+
+\centerline{``Frictionless puck sliding over a surface of height $\potential(\bparam)$.''}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+Here's a trajectory $\bparam(t)$ on 2D Gaussian with negative correlation:
+\vspace*{-.2\baselineskip}%
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/exact_trajectory}
+\end{figure}
+\vspace*{-.4\baselineskip}
+
+End point $\big( \bparam_\integTimeScript, - \bmomentum_\integTimeScript )$ for pre-specified $\integTime$ constitutes the proposal.
+
+In practice, the dynamics is usually approximated numerically.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Pseudocode:}\\
+
+Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
+\begin{tightEnumerate}
+	\item Refresh momentum: $\bMomentum \sim \normalDist(\bm{0}, \mass \bm{I})$;
+	\item Propose $(\brandVar^\propMarker, \bMomentum^\propMarker) \approx (\brandVar_\integTimeScript, \negthinnerspace - \bMomentum_\integTimeScript)$ by approximating the dynamics;%
+	\item Accept-reject with prob
+		$\thinnerspace \min \{
+		1, \,
+		\density(\brandVar^\propMarker, \bMomentum^\propMarker) \divby \density(\brandVar, \bMomentum)
+		\}$.
+\end{tightEnumerate}
+
+\medskip
+{\centering
+	\href{https://chi-feng.github.io/mcmc-demo/app.html?algorithm=HamiltonianMC}{%
+		\textcolor{linkColor}{%
+			Visual demo by Chi Feng%
+		}%
+	}
+\par}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: intuition and theory}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\Hmc{} can generate a proposal $\bparam_\integTimeScript$ (and $- \bmomentum_\integTimeScript$) far away from the current state $\bparam_0$ (and $\bmomentum_0$) yet acceptable with high probability.
+
+If the dynamics can be simulated exactly, \hmc{} is rejection-free!
+
+\medskip
+This follows from the fact that \hmc{} proposals are 1) symmetric
+\begin{tightEquation*}
+\propKernel\left(
+	(\bparam_0, \bmomentum_0)
+	\to 
+	(\bparam_\integTimeScript, 
+	- \bmomentum_\integTimeScript)
+\right) = 
+\propKernel\left(
+	(\bparam_\integTimeScript, 
+	- \bmomentum_\integTimeScript)
+	\to
+	(\bparam_0, \bmomentum_0)
+\right)
+\end{tightEquation*}
+and 2) \textit{energy-conserving} under exact simulation
+\begin{tightEquation*}
+\begin{aligned}
+\potential(\bparam_0) + \frac{1}{2 \mass} \bmomentum_0^\transpose \bmomentum_0
+	&= \potential(\bparam_\integTimeScript) + \frac{1}{2 \mass} \bmomentum_\integTimeScript^\transpose \bmomentum_\integTimeScript \\
+\text{(i.e.} - \log \density (\bparam_0, \bmomentum_0)
+	&= - \log \density (\bparam_\integTimeScript, - \bmomentum_\integTimeScript) \text{)}.
+\end{aligned}
+\end{tightEquation*}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-preserving} property and \textit{time-reversibility}:
+\vspace*{-\baselineskip}
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{Figure/time_reversibility_of_hamiltonian_dynamics}
+\end{figure}
+\end{frame}
+
+
+\newcommand{\bposition}{\bparam}
+\newcommand{\stepsize}{\delta t}
+%\renewcommand{\stepsize}{%
+%  \mathchoice
+%    {\scalebox{0.8}{$\Delta$} t}         % displaystyle (equation line)
+%    {\scalebox{0.8}{$\Delta$} t}         % textstyle (inline math)
+%    {\scalebox{0.65}{$\Delta$} t}        % scriptstyle (subscript/superscript)
+%    {\scalebox{0.5}{$\Delta$} t}         % scriptscriptstyle (sub-subscript)
+%}
+\newcommand{\numIntegStep}{L}
+\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: practical details}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\Hmc{} dynamics in general admits no analytical solutions and requires a numerical integration method to approximate it.
+
+\smallskip
+Basic principal behind numerical solution is that
+\begin{equation*}
+\setlength{\abovedisplayskip}{.5\baselineskip}%
+\setlength{\belowdisplayskip}{.5\baselineskip}%
+\begin{aligned}
+\frac{\bposition (t + \stepsize) - \bposition(t)}{\stepsize}
+	&\approx \frac{\diff \bposition}{\diff t}(t) 
+	= - \mass^{-1} \bmomentum(t),\\
+\frac{\bmomentum (t + \stepsize) - \bmomentum(t)}{\stepsize}
+	&\approx \frac{\diff \bmomentum}{\diff t}(t) 
+	= - \nabla \potential(\bposition(t)),
+\end{aligned}
+\end{equation*}
+meaning the evolution from $t$ to $t + \stepsize$ can be approximated as
+\begin{equation*}
+\setlength{\abovedisplayskip}{.5\baselineskip}%
+\begin{aligned}
+\bposition (t + \stepsize)
+	&\approx \bposition(t) - \stepsize \thinnerspace  \mass^{-1} \bmomentum(t),\\
+\bmomentum (t + \stepsize) 
+	&\approx \bmomentum(t) - \stepsize \thinnerspace \nabla \potential(\bposition(t)).
+\end{aligned}
+\end{equation*}
+ 
+\end{frame}
+ 
+ 
+\begin{frame}
+\frametitle{\frametitleText}
+ 
+\textit{Leapfrog} method approximates the evolution by combining \\ $\stepsize/2$ step in $\bmomentum$, $\stepsize$ step in $\bposition$, and $\stepsize/2$ step in $\bmomentum$:
+% aka velocity Verlet
+	\begin{itemizedEquation*}
+	\arraycolsep=2pt
+	\def\arraystretch{1.7}
+	\begin{array}{ccccc}
+	\bmomentum_{t + \stepsize / 2}
+		&=& \bmomentum_t 
+		&-& \displaystyle \frac{\stepsize}{2} \nabla U(\bposition_t) \\
+	\bposition_{t + \stepsize}
+		&=& \bposition_t
+		&+& \stepsize \, \mass^{-1} \bmomentum_{t + \stepsize / 2} \\
+	\bmomentum_{t + \stepsize}
+		&=& \bmomentum_{t + \stepsize / 2}
+		&-& \displaystyle \frac{\stepsize}{2} \nabla U(\bposition_{t + \stepsize}).
+	\end{array}
+	\end{itemizedEquation*}
+	
+\smallskip
+Taking $L = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps of size $\stepsize$ approximates the exact solution $(\bposition_0, \bmomentum_0) \to (\bposition_\integTimeScript, \bmomentum_\integTimeScript)$ up to an $O(\stepsize^2)$ error.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Performance depends crucially on $\stepsize$ and $\integTime$ (or $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$).
+
+\medskip
+Let's first discuss a choice of $\integTime$, which is analogous to \smallCap{rwm}'s $\sigma_{\textrm{prop}}$ in controlling how far proposals are.
+
+\medskip
+But the two differ critically in that \hmc{} proposals can be far away but maintain high acceptance if leapfrog approx is accurate enough.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Think: $\integTime$ determines efficiency of proposals by exact dynamics;\\
+$\stepsize$ is chosen so that the approx one is close enough to the exact.
+\pause
+\smallskip
+\begin{figure}
+\centering
+\invisible<1>{%
+	\only<1-2>{%
+		\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_11_steps}
+	}%
+}%
+\addtocounter{beamerpauses}{1}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_16_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_23_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_32_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_45_steps}
+}%
+\only<+>{%
+	\includegraphics[width=.8\linewidth, trim={.15\linewidth} {.15\linewidth} {.15\linewidth} {.15\linewidth}, clip]{Figure/hmc/leapfrog_trajectory_in_64_steps}
+}%
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textit{No-U-turn} algorithm of \cite{hoffman2014nuts} automates tuning of $\integTime$, leaving $\stepsize$ as the only remaining tuning parameter.
+%\hfill (\citealt{hoffman2014nuts})
+
+\medskip
+Once $\stepsize$ is chosen small enough for good approx, further accuracy gain from smaller $\stepsize$ isn't worth the additional computational cost.
+
+\medskip
+In other words, we want the acceptance rate high but not too high.
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+Optimal acceptance rate can be shown to be $\approx 0.651$ \citep{beskos2013optimal_hmc}, albeit for a not-so-realistic class of targets.
+
+\medskip
+In practice, \hmc{} can be quite sensitive to contours and tails of \\ the target, warranting higher acceptance rates like $0.8\,\text{--}\,0.99$.
+
+\medskip
+In Stan, you set the desired acceptance rate via \texttt{adapt\_delta};
+the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rstanarm}.
+
+\medskip
+\textbf{Remark:} 
+$\bmass$ is also a relevant tuning parameter, automatically tuned by Stan to account for variations in parameters' scales.
+
 \end{frame}
 
 
