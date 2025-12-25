@@ -96,6 +96,7 @@
 \usepackage{subcaption}
 \usepackage{bm} 
 \usepackage{dsfont}
+\usepackage{booktabs}
 \usepackage{soul} % For \st 
 \usepackage{pgfplots}
 %\usepackage[normalem]{ulem}
@@ -228,6 +229,12 @@
 
 %% Utility macros
 \newcommand{\noteBullet}{\hspace*{.75em}\textcolor{themecolor}{$\blacktriangleright$}\ }
+\newcommand{\tightSpacing}[2][.55ex]{%
+  \begingroup
+    \fontdimen2\font=#1
+    #2%
+  \endgroup
+}
 
 %% General math macros
 \newcommand{\spacedColon}{\mkern .5mu : \mkern 1mu}
@@ -316,6 +323,8 @@
 \newcommand{\mcIndex}{k}
 \newcommand{\altMcIndex}{\ell}
 \newcommand{\mcSampleSize}{m}
+
+\newcommand{\bda}{\smallCap{bda}}
 
 \title{\fontdimen2\font=.55ex% Change inter-word space
 	\centerline{Posterior inference via Markov chain Monte Carlo}
@@ -448,8 +457,8 @@ Univariate distribution can be hard enough, multivariate far worse.
 \medskip
 
 \textbf{Example:}\\
-If the inverse \smallCap{cdf} is available, then we can do $\randVar = F^{-1}(U)$ for $U \sim \unifDist(0, 1)$.
-For example, $- \log U \sim \mathrm{Exp}(1)$.
+If the inverse \smallCap{cdf} is available, then we can do $\randVar = F^{-1}(U)$ for $U \sim \unifDist(0, 1)$;
+e.g.\ $- \log (1 - U) \sim \mathrm{Exp}(1)$ b/c $F(\theta) = 1 - e^{-\theta}$.
 \smallskip
 
 But this doesn't work even for a common dist like $\textrm{Gamma}(\alpha, \beta)$, whose (inverse) \smallCap{cdf}  is expensive to evaluate:
@@ -909,10 +918,15 @@ During an initial burn-in/tuning phase of \mcmc{} (to be discarded), update $\si
 \item Calculate the average acceptance prob $\hat{\acceptProb}(\sigma_\mathrm{prop})$ from Step 1;
 \item Increase $\sigma_\mathrm{prop}$ if $\hat{\acceptProb} > \acceptProb_\mathrm{tar}$, decrease it if $\hat{\acceptProb} < \acceptProb_\mathrm{tar}\thinnerspace$; e.g.\ via
 	\begin{itemizedEquation*}
-	\log(\sigma_\mathrm{prop})
-		\gets \log(\sigma_\mathrm{prop}) + \delta (\hat{\acceptProb} - \acceptProb_\mathrm{tar}).
+	\log \sigma_\mathrm{prop}
+		\gets \log \sigma_\mathrm{prop} + \epsilon \thinnerspace (\hat{\acceptProb} - \acceptProb_\mathrm{tar}).
 	\end{itemizedEquation*}
 \end{enumerate}
+
+\medskip
+\textbf{Remark:} 
+One can avoid having to pre-specify the length of tuning phase by instead employing the \textit{diminishing adaptation} technique\\
+{\hfill \citep{andrieu2008adaptive_mcmc}.}
 
 \end{frame}
 
@@ -1082,6 +1096,14 @@ Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
 		\}$.
 \end{tightEnumerate}
 
+\medskip
+{\centering
+	\href{https://chi-feng.github.io/mcmc-demo/app.html?algorithm=HamiltonianMC}{%
+		\textcolor{linkColor}{%
+			Visual demo by Chi Feng%
+		}%
+	}
+\par}
 \end{frame}
 
 
@@ -1135,6 +1157,13 @@ The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume
 
 \newcommand{\bposition}{\bparam}
 \newcommand{\stepsize}{\delta t}
+%\renewcommand{\stepsize}{%
+%  \mathchoice
+%    {\scalebox{0.8}{$\Delta$} t}         % displaystyle (equation line)
+%    {\scalebox{0.8}{$\Delta$} t}         % textstyle (inline math)
+%    {\scalebox{0.65}{$\Delta$} t}        % scriptstyle (subscript/superscript)
+%    {\scalebox{0.5}{$\Delta$} t}         % scriptscriptstyle (sub-subscript)
+%}
 \newcommand{\numIntegStep}{L}
 \renewcommand{\frametitleText}{Hamiltonian Monte Carlo: practical details}
 \begin{frame}
@@ -1271,50 +1300,54 @@ $\bmass$ is also a relevant tuning parameter, automatically tuned by Stan to acc
 \end{frame}
 
 
-\renewcommand{\frametitleText}{Efficiency of Markov chain}
+\section{%
+	\centerline{Practical \titleSmallCap{MCMC}: how to pick an algorithm,} 
+	\centerline{use it effectively, and diagnose its output}%
+}
+
+\renewcommand{\frametitleText}{Efficiency of \titleSmallCap{MCMC} algorithms}
 \begin{frame}
 \frametitle{\frametitleText}
 
-Estimator based on \mcmc{} generally has larger variance due to auto-correlations in the samples:
-\vspace*{-.15\baselineskip}
-\begin{align*}
-&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
-	&\hspace*{1em}= \frac{1}{\mcSampleSize^2} \sum_{\mcIndex = 1}^\mcSampleSize \mathrm{var} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr) \right)
-	+ \frac{1}{\mcSampleSize^2} \sum_{\mcIndex \neq \altMcIndex} \mathrm{cov} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr), g\bigl( \randVar^{(\altMcIndex)} \bigr)  \right)
-\end{align*}
-%
-At stationarity $\randVar^{(1)} \sim \density(\cdot)$, noting
-$\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{d = 1}^\mcSampleSize \sum_{\mcIndex, \altMcIndex \spacedColon \thinnerspace \mcIndex - \altMcIndex \spacedEq d} \thinnerspace$,
-\vspace*{-.3\baselineskip}
-\begin{align*}
-&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
-	&\hspace*{1em}= \frac{1}{\mcSampleSize} \mathrm{var} \!\left( g(\randVar) \right)
-	+ \frac{2}{\mcSampleSize^2} \sum_{d = 1}^\mcSampleSize (m - d) \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right)
-\end{align*}
+Two factors determine efficiency of an \mcmc{} algorithm:\\ 
+the cost of each iteration % (i.e.\ how fast it runs) 
+and the \textit{mixing (rate)} of the chain.
+
+\smallskip
+The former is affected by the implementation details; \\ 
+the latter is a theoretical property of the algorithm.
+
+\smallskip
+``Mixing'' refers to the chain's efficiency relative to i.i.d.\ samples;
+in general, closely (if not exactly) related to its convergence speed. 
+
+\smallskip
+Algorithm performance can be measured by ``how many effectively independent samples it generates within a given amount of time.''
 
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Mixing of Markov chain}
 \begin{frame}
 \frametitle{\frametitleText}
 
 Estimator based on \mcmc{} generally has larger variance due to auto-correlations in the samples:
-\vspace*{-.15\baselineskip}
+\vspace*{-.3\baselineskip}
+{\setlength{\belowdisplayskip}{.4\baselineskip}
 \begin{align*}
-&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
-	&\hspace*{1em}= \frac{1}{\mcSampleSize^2} \sum_{\mcIndex = 1}^\mcSampleSize \mathrm{var} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr) \right)
-	+ \frac{1}{\mcSampleSize^2} \sum_{\mcIndex \neq \altMcIndex} \mathrm{cov} \!\left( g\bigl( \randVar^{(\mcIndex)} \bigr), g\bigl( \randVar^{(\altMcIndex)} \bigr)  \right)
+&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= \frac{1}{\mcSampleSize^2} \sum_{\mcIndex = 1}^\mcSampleSize \mathrm{var} \!\left( g\bigl( \brandVar^{(\mcIndex)} \bigr) \right)
+	+ \frac{1}{\mcSampleSize^2} \sum_{\mcIndex \neq \altMcIndex} \mathrm{cov} \!\left( g\bigl( \brandVar^{(\mcIndex)} \bigr), g\bigl( \brandVar^{(\altMcIndex)} \bigr)  \right).
 \end{align*}
-%
-At stationarity $\randVar^{(1)} \sim \density(\cdot)$, noting
+}%
+At stationarity $\brandVar^{(1)} \sim \density(\cdot)$, noting
 $\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{d = 1}^\mcSampleSize \sum_{\mcIndex, \altMcIndex \spacedColon \thinnerspace \mcIndex - \altMcIndex \spacedEq d} \thinnerspace$,
 \vspace*{-.3\baselineskip}
 \begin{align*}
-&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
-	&\hspace*{1em}= \frac{1}{\mcSampleSize} \mathrm{var} \!\left( g(\randVar) \right)
-	+ \frac{2}{\mcSampleSize^2} \sum_{d = 1}^\mcSampleSize (m - d) \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right).
+&\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1em}= \frac{1}{\mcSampleSize} \mathrm{var} \!\left( g(\brandVar) \right)
+	+ \frac{2}{\mcSampleSize^2} \sum_{d = 1}^\mcSampleSize (m - d) \operatorname{cov} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right).
 \end{align*}
-
 \end{frame}
 
 
@@ -1322,24 +1355,24 @@ $\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{d = 1}^\mcSampleSize \sum_{\mcIndex,
 \frametitle{\frametitleText}
 As $\mcSampleSize \to \infty$, which also guarantees stationarity, we have
 \vspace*{-.15\baselineskip}
+{\setlength{\belowdisplayskip}{.4\baselineskip}
 \begin{align*}
-&\mcSampleSize \operatorname{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \randVar^{(\mcIndex)} \bigr) \right) \\
+&\mcSampleSize \operatorname{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) \right) \\
 	&\hspace*{1em}= 
-	\mathrm{var} \!\left( g(\randVar) \right)
-	+ 2 \sum_{d = 1}^\mcSampleSize \left( 1 - \frac{d}{m} \right) \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right) \\
+	\mathrm{var} \!\left( g(\brandVar) \right)
+	+ 2 \sum_{d = 1}^\mcSampleSize \left( 1 - \frac{d}{m} \right) \operatorname{cov} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right) \\
 	&\hspace*{1em}\to
-		\mathrm{var} \!\left( g(\randVar) \right)
-		+ 2 \sum_{d = 1}^\infty \operatorname{cov} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right). 
+		\mathrm{var} \!\left( g(\brandVar) \right)
+		+ 2 \sum_{d = 1}^\infty \operatorname{cov} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right). 
 \end{align*}
-%
+}%
 Error of the \mcmc{} estimator decays as $\mcSampleSize^{-1/2}$, but is inflated relative to the i.i.d.\ estimator by the factor
 \vspace*{-.5\baselineskip}
 \begin{equation*}
 \left[
-1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right)
+1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
 \right]^{1/2}.
 \end{equation*}
-
 \end{frame}
 
 
@@ -1349,10 +1382,345 @@ Error of the \mcmc{} estimator decays as $\mcSampleSize^{-1/2}$, but is inflated
 \begin{equation*}
 \operatorname{ESS}_g (m) =
 \frac{m}{
-	1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \randVar^{(d + 1)} \bigr), g\bigl( \randVar^{(1)} \bigr)  \right)
+	1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
 }
 \end{equation*}
 b/c the estimator's variance equals that of $\operatorname{ESS}_g (m)$ i.i.d.\ samples.
+
+\medskip
+Common practice is to calculate \smallCap{ess}'s for all params and quantities of interest and make sure they are all above a threshold (e.g.\ 100).
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\mbox{E\smallCap{ss} is also used to quantify the Monte Carlo error in the estimator;}
+the \textit{Markov chain central limit theorem} tells us that, as $\mcSampleSize \to \infty$, 
+\begin{equation*}
+\frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr)
+	\sim \normalDist\left(
+		\expectation \bigl[
+			g\bigl( \brandVar^{(\mcIndex)} \bigr)
+		\bigr],
+		\frac{
+			\operatorname{var}\!\left( g\bigl( \brandVar^{(\mcIndex)} \bigr) \right)
+		}{
+			\operatorname{ESS}_g (m)
+		}
+	\right).
+\end{equation*}
+
+You can also calculate the errors in the quantile estimators (e.g.\ for 2.5 and 97.5 percentiles), but the procedure is a bit more involved.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Example: auto-correlation and mixing of \titleSmallCap{MCMC}}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Let's visually examine how auto-correlation looks like and affects the sampling efficiency in a Markov chain:
+
+\smallskip
+{\centering
+	\href{https://rpubs.com/aki-nishimura/1382691}{%
+		\textcolor{linkColor}{R Markdown illustration}%
+	}
+	\par
+}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Example: mixing of Gibbs sampler}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Example of 2D correlated Gaussian: to be completed.
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Comparing efficiency of \titleSmallCap{MCMC}: example}
+\renewcommand{\frametitleText}{Example: benchmarking cutting-edge \titleSmallCap{MCMC}}
+\begin{frame}
+\frametitle{\frametitleText}
+
+%\textbf{Example {\normalfont (\smallCap{ess} dependence on $g(\bparam)$)}:}
+\textbf{Example:}
+Phylogenetic probit model of \cite{zhang2021phylo_multi_probit} estimates phylogeny-adjusted correlation among biological traits.
+\begin{columns}[T]
+	\begin{column}{.575\linewidth}
+	\includegraphics[width=.95\linewidth]{Figure/phylogeny_adjusted_corr_hdi_90_signif_marked_by_arrow}
+	\vspace*{.03\textheight}
+	\end{column} 
+	\hspace*{-.1\linewidth}
+	\begin{column}{.4\linewidth}
+	\only<+>{%
+		\vspace*{.1\textheight}
+		\includegraphics[width=\linewidth]{Figure/hiv} 
+	}%
+	\only<+>{%
+		\vspace*{.08\textheight}
+		\hspace*{-.1\linewidth}
+		\includegraphics[width=1.1\linewidth]{Figure/max_clade_credibility_tree_colored_by_RC_and_T186X.pdf}
+	}%
+	\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+For the \smallCap{HIV} dataset of 535 virus taxa each with  21 binary traits, \\ the model is parametrized by 
+\begin{tightItemize}
+\item $\mathcal{T}\,$: phylogenetic tree with 535 leaf nodes
+\item $\bm{\Gamma}\,$: trait correlation matrix of size 21$\,\times\,$21 --- represents the phylogeny-adjusted correlation, the main param of interest
+\item $\bm{x}\,$: latent vector for binary traits of dim 535$\,\times\,$21$\,=\,$11,235
+\end{tightItemize}
+
+%We assume $\mathcal{T}$ has been inferred from genetic seq data and is fixed.
+The parameters are informed by genetic sequence data $S$ and\\ the observed traits $\bm{y} \in \mathbb{R}^{535 \times 21}$ w/ $y_{ij} = \indicator\{ x_{ij} > 0\}$.
+% or $y_{ij} = x_{ij}$.
+
+\smallskip
+Inference via Metropolis-within-Gibbs on $\, \mathcal{T},\bm{\Gamma}, \bm{x} \, | \, S, \bm{y} \,$ with \\
+each parameter updated by appropriate Metropolis algorithms.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+Assuming $\mathcal{T}$ has been inferred from genetic seq data and is fixed, 
+\cite{zhang2022laplace_gause_hmc} compares two approaches for $\, \bm{\Gamma}, \bm{x} \, | \,\mathcal{T}, S, \bm{y}$:
+
+\smallskip
+\begin{table}[htbp]
+\centering
+\begin{tabular}{cccc}
+\midrule
+& \multicolumn{3}{c}{Minimum ESS per hour (std.\ dev)} \\[2pt]
+& $\bm{\Gamma}^{-1}$ & $\bm{\Gamma}$ & $\bm{x}$ \\
+\midrule
+Conditional updates
+    & 12.15 (3.82) & 2.37 (0.15) & 1155 (289) \\
+Joint update 
+    & 7.6 (0.59) & 7.47 (1.06) & 5.71 (1.79) \\
+\midrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Burn-in/tuning phase of \titleSmallCap{MCMC}}
+\begin{frame}
+\frametitle{\frametitleText}
+
+Much of the discussion on \mcmc{} is ``at stationarity.'' but you can't start a chain from the stationary (= target) dist in practice.
+
+In practice, the chain needs some time to \textit{converge}; 
+i.e.\ have taken enough steps that the dist of $\brandVar^{(\mcIndex)}$ is close enough to the target.
+
+\vspace*{9pt}
+Technically,
+$\frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) 
+	\to \expectation \! \left[ g\bigl( \brandVar \bigr) \right]$
+regardless of $\brandVar^{(0)}$,\\
+but the pre-convergence \textit{burn-in} part contributes to bias.
+
+So it makes sense to discard samples during the burn-in period.
+
+\vspace*{8pt}
+Burn-in is often combined with the tuning phase, during which algorithm parameters (e.g.\ $\sigma_{\textrm{prop}}$ in \smallCap{rwm}) are adapted.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+How to determine if the chain has converged?\\
+More specifically, how many burn-in iterations to discard?
+
+\medskip
+Let's first try answering this question with tuning put aside.\\
+(And samplers like Gibbs genuinely involves no tuning.)
+% also for adaptive MCMC with dminishing adaptation
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\Mcmc{} run can be thought of as involving the pre-convergence ``optimization'' and post-convergence ``sampling'' phases.
+
+\medskip
+Initial state $\brandVar^{(0)}$ often looks nothing like an actual draw $\brandVar \sim \density(\cdot)$ from the target. 
+And this manifests as $\pi\bigl( \brandVar^{(0)} \bigr) \ll \density(\brandVar)$.
+
+\medskip
+In the optimization phase, the chain drifts (albeit with randomness) towards a region of high posterior density.
+
+\medskip
+So one can roughly determine the convergence by monitoring $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ and checking when it seems to stabilize:
+
+{\centering
+	\href{https://rpubs.com/aki-nishimura/1382691}{%
+		\textcolor{linkColor}{R Markdown illustration}%
+	}
+	\par
+}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Story is a bit different when tuning is involved b/c you have to also discard that part of the chain (unless diminishing adaptation used).
+
+And the tuning generally needs to continue beyond the optimization phase to ensure proper adaptation to the target.
+
+\vspace*{9pt}
+That is, by the time you are done tuning, you should also be done burning in and shouldn't have to discard additional iterations.
+
+\vspace*{9pt}
+
+\tightSpacing{%
+Question then is:~how long to tune?
+Unfortunately, no good guidance%
+}
+other than trial and error---Stan's default is half the total iterations.
+
+Stan refers to the combined burn-in and tuning phase as \textit{warm-up}.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Multiple chains to diagnose convergence/mixing}
+\begin{frame}
+\frametitle{\frametitleText}
+Monitoring of the log density/other key param values isn't fail-proof.
+
+Running multiple chains (four is Stan's default) from different initial states also helps diagnose potential convergence/mixing issues.
+
+\vspace*{10pt}
+Idea: If the chains have all converged and mixing well, they should yield comparable, overlapping posterior approximations.
+
+\vspace*{10pt}
+Potential convergence/mixing issue can then be diagnosed visually or more formally via the \textit{Gelman-Rubin statistic} $\hat{R}$.\\
+{\hfill \citep{gelman1992rhat, vehtari2021improved_rhat}}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Heuristically, $\hat{R}$ is defined for each parameter $\param_j$ or statistic $g(\bparam)$ as
+{\setlength{\abovedisplayskip}{.5\baselineskip}
+\begin{equation*}
+\hat{R} \defeq
+	\frac{
+		\text{weighted ave of the within- and between-chain variances}
+	}{
+		\text{the within-chain variance}
+	}          
+	\geq 1,
+\end{equation*}}%
+where the contribution from the between-chain variance becomes more substantial in the presence of convergence/mixing issues.
+
+\vspace*{9pt}
+$\hat{R} \leq 1.01$ is a recommended threshold in \smallCap{bda} 3rd ed.\ and in Stan.
+
+($\hat{R} \leq 1.1$ was \smallCap{bda} 2nd ed.'s rec but is now considered inadequate.)
+
+\vspace*{10pt}
+{\centering
+	\href{https://rpubs.com/aki-nishimura/1382691}{%
+		\textcolor{linkColor}{R Markdown illustration}%
+	}
+	\par
+}
+\end{frame}
+
+
+\newcommand{\customBar}[1]{\overline{\mkern-2.3mu #1 \mkern-2.6mu}} 
+\newcommand{\chainAve}{\mkern2.3mu \customBar{\randVar}\smash{}^{\mkern2.6mu (\ell)}}
+\newcommand{\overallAve}{\mkern2.3mu \customBar{\randVar} \mkern2.6mu}
+\begin{frame}
+\frametitle{\frametitleText}
+
+To introduce a formal definition of $\hat{R}$, % 
+denote by
+\begin{itemize}
+\item $\randVar^{(\ell, 1)}, \ldots, \randVar^{(\ell, \mcSampleSize)}$ --- the $\ell$th chain samples for $\ell = 1, \ldots, n_\mathrm{grp}$;
+\item $\displaystyle \chainAve = \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize \randVar^{(\ell, \mcIndex)}$ --- the $\ell$th chain average;
+\item $\displaystyle \overallAve = \frac{1}{n_\mathrm{grp}} \sum_{\ell = 1}^{n_\mathrm{grp}} \chainAve$ --- the overall average,
+\end{itemize}
+where $\randVar$ denotes the scalar statistic of interest.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+To help make sense of $\hat{R}$'s definition, we first note the overall variance can be decomposed into the within- and between-chain variances:%
+{\setlength{\abovedisplayskip}{.5\baselineskip}
+\setlength{\belowdisplayskip}{.5\baselineskip}
+\begin{align*}
+&\frac{1}{n_\mathrm{grp} \thinnerspace \mcSampleSize} 
+\sum_{\ell = 1}^{n_\mathrm{grp}} \sum_{\mcIndex = 1}^{\mcSampleSize} \left(
+	\randVar^{(\ell, \mcIndex)} - \overallAve
+\right)^2 \\
+&\hspace*{1em}= 
+	\frac{1}{n_\mathrm{grp} \thinnerspace \mcSampleSize} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \sum_{\mcIndex = 1}^{\mcSampleSize} \left(
+		\randVar^{(\ell, \mcIndex)} - \chainAve
+	\right)^2
+	+
+	\frac{1}{n_\mathrm{grp}} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \left(
+		\chainAve - \overallAve
+	\right)^2.
+\end{align*}}%
+
+The former underestimates $\thinnerspace\operatorname{var}(\randVar)$, esp.\ when each chain is stuck locally and not exploring the global structure of the target.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\vspace*{-.25\baselineskip}
+\cite{gelman1992rhat} defines $\hat{R}$ as
+{\setlength{\abovedisplayskip}{.4\baselineskip}
+\setlength{\belowdisplayskip}{.2\baselineskip}
+\begin{align*}
+\hat{R} 
+&\defeq
+\frac{\displaystyle
+	\frac{1}{n_\mathrm{grp} \thinnerspace \mcSampleSize} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \sum_{\mcIndex = 1}^{\mcSampleSize} \left(
+		\randVar^{(\ell, \mcIndex)} - \chainAve
+	\right)^2
+	+
+	\frac{1}{n_\mathrm{grp} - 1} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \left(
+		\chainAve - \overallAve
+	\right)^2
+}{\displaystyle
+	\frac{\mcSampleSize}{(\mcSampleSize - 1)}
+	\frac{1}{n_\mathrm{grp} \thinnerspace \mcSampleSize} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \sum_{\mcIndex = 1}^{\mcSampleSize} \left(
+		\randVar^{(\ell, \mcIndex)} - \chainAve
+	\right)^2
+} \\
+&\approx 
+\frac{\displaystyle
+	\frac{1}{n_\mathrm{grp} \thinnerspace \mcSampleSize} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \sum_{\mcIndex = 1}^{\mcSampleSize} \left(
+		\randVar^{(\ell, \mcIndex)} - \overallAve
+	\right)^2
+}{\displaystyle
+	\frac{1}{n_\mathrm{grp} \thinnerspace \mcSampleSize} 
+	\sum_{\ell = 1}^{n_\mathrm{grp}} \sum_{\mcIndex = 1}^{\mcSampleSize} \left(
+		\randVar^{(\ell, \mcIndex)} - \chainAve
+	\right)^2
+}.
+\end{align*}}%
+
+Stan uses an improved version by \cite{vehtari2021improved_rhat} based on ``rank-normalization'' and ``folding'' procedures.
 \end{frame}
 
 
