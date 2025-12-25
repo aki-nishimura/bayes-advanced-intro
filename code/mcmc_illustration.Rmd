@@ -59,7 +59,7 @@ rand_walk_metropolis <- function(eval_logp, init, n_iter, prop_sd, seed = NA) {
 
 ```{r iid_gauss, echo=TRUE}
 d <- 16
-target_logp <- function(x) { - 0.5 * sum(x^2) }
+iid_target_logp <- function(x) { - 0.5 * sum(x^2) }
 
 # Pick theoretically optimal (for sufficiently large `d`) proposal sd
 prop_sd <- 2.38 / sqrt(d) 
@@ -67,7 +67,7 @@ prop_sd <- 2.38 / sqrt(d)
 init <- rep(0, d)
 n_iter <- 10^5
 rwm_output <- rand_walk_metropolis(
-  target_logp, init, n_iter, prop_sd, seed = 1918
+  iid_target_logp, init, n_iter, prop_sd, seed = 1918
 )
 ```
 
@@ -114,12 +114,12 @@ cs_target_logp <- function(x) { - 0.5 * t(x) %*% Prec %*% x }
 
 # Approximate, based on the compound symmetry structure, the optimal proposal sd
 smaller_target_sd <- sqrt(min(eigen(Sigma)$values)) # only two unique eigenvalues
-prop_sd <- smaller_target_sd * 2.38 / sqrt(d) 
+cs_prop_sd <- smaller_target_sd * 2.38 / sqrt(d) 
 
 init <- rep(0, d)
 n_iter <- 10^5
 rwm_output <- rand_walk_metropolis(
-  cs_target_logp, init, n_iter, prop_sd, seed=1
+  cs_target_logp, init, n_iter, cs_prop_sd, seed=1
 )
 ```
 
@@ -153,7 +153,7 @@ hist_against_truth(coord_samples, true_density = dnorm)
 
 ```{r}
 rwm_output <- rand_walk_metropolis(
-  cs_target_logp, init, n_iter, prop_sd, seed=615
+  cs_target_logp, init, n_iter, cs_prop_sd, seed=615
 )
 coord_samples <- rwm_output$samples[1, ]
 trace_plot(coord_samples, thin = 100L)
@@ -180,7 +180,7 @@ init[c(1, 2)] <- 3.5
 
 n_iter <- 10^4
 rwm_output <- rand_walk_metropolis(
-  cs_target_logp, init, n_iter, prop_sd, seed=21205
+  cs_target_logp, init, n_iter, cs_prop_sd, seed=21205
 )
 ```
 
@@ -218,4 +218,232 @@ trace_plot(
   rwm_output$logp[200:1200],
   ylab = "Log density"
 )
+```
+
+## Running multiple chains for convergence/mixing diagnostics {#multiple_chains}
+
+```{r, echo=FALSE}
+log_dnorm_mixture <- function(x, mu, sigma, w) {
+  n_comp <- length(mu)
+  stopifnot(abs(sum(w) - 1) < 1e-8)
+  # Use a log-sum-exp trick for numerical stability
+  indiv_logp <- sapply(1:n_comp, function(k) {
+    log(w[k]) + dnorm(x, mean = mu[k], sd = sigma[k], log = TRUE)
+  })
+  max_indiv_logp <- max(indiv_logp)
+  logp <- max_indiv_logp + log(sum(exp(indiv_logp - max_indiv_logp)))
+  return(logp)
+}
+
+bimodal_target_logp <- function(x) {
+  log_dnorm_mixture(x, mu=c(-1, 1), sigma=c(.1, .1), w=c(.5, .5))
+}
+param_range <- c(-1.5, 1.5)
+
+unknown_target <- bimodal_target_logp # To avoid revealing the multi-modality issue
+```
+
+### Let's try sampling from a target of unknown structure
+
+```{r}
+n_iter <- 10^3
+init <- .1
+prop_sd <- .1
+rwm_output <- rand_walk_metropolis(
+  unknown_target, init, n_iter, prop_sd, seed=1876
+)
+samples_1 <- rwm_output$samples
+trace_plot(samples_1, ylim=param_range)
+```
+
+#### Traceplot seems fine? But let's run another chain with different initialization.
+
+```{r}
+init <- -.1
+rwm_output <- rand_walk_metropolis(
+  unknown_target, init, n_iter, prop_sd, seed=1876
+)
+samples_2 <- rwm_output$samples
+trace_plot(samples_2, ylim=param_range)
+```
+
+#### The issue here is multi-modality in the target:
+
+```{r, echo=FALSE}
+true_density <- function(x) {
+  sapply(
+    1:length(x), 
+    function (i) { exp(bimodal_target_logp(x[i])) }
+  )
+}
+hist_against_truth(
+  samples_2, 
+  true_density, xlim = param_range
+)
+```
+
+#### ESS would look fine if the chain is mixing well locally, oblivious to other modes
+
+```{r}
+post_burnin_samples <- samples_1[100:n_iter]
+coda::effectiveSize(post_burnin_samples)[[1]]
+```
+
+#### But $\hat{R}$ can detect the issue
+
+```{r}
+combined_samples <- rbind(samples_1, samples_2)
+c(
+  posterior::rhat_basic(combined_samples), # 2013 ver.
+  posterior::rhat(combined_samples) # 2021 ver.
+) # >= 1.01 indicates a likely convergence/mixing issue
+```
+
+### Let's re-run with larger $\sigma_\mathrm{prop}$ to help jump between the modes
+
+```{r}
+n_iter <- 4000
+prop_sd <- 1
+
+init <- 1
+rwm_output <- rand_walk_metropolis(
+  bimodal_target_logp, init, n_iter, prop_sd, seed=111
+)
+samples_1 <- rwm_output$samples
+
+init <- -1
+rwm_output <- rand_walk_metropolis(
+  bimodal_target_logp, init, n_iter, prop_sd, seed=222
+)
+samples_2 <- rwm_output$samples
+```
+
+#### Better, but 1000 iterations not quite enough
+
+```{r}
+quarter_samples_1 <- samples_1[1:ceiling(n_iter / 4)]
+quarter_samples_2 <- samples_2[1:ceiling(n_iter / 4)]
+
+trace_plot(quarter_samples_1, col = tableau10[1])
+trace_plot(quarter_samples_2, col = tableau10[2], add = TRUE)
+
+combined_quarter_samples <- rbind(quarter_samples_1, quarter_samples_2)
+c(posterior::rhat_basic(combined_quarter_samples),
+  posterior::rhat(combined_quarter_samples))
+```
+
+#### $\hat{R}$ reaches the 1.01 threshold at 4000 iterations (for this run)
+
+```{r}
+trace_plot(samples_1, col = tableau10[1])
+trace_plot(samples_2, col = tableau10[2], add = TRUE)
+
+combined_samples <- rbind(samples_1, samples_2)
+c(posterior::rhat_basic(combined_samples),
+  posterior::rhat(combined_samples))
+```
+
+```{r}
+hist_against_truth(samples_1, true_density)
+```
+
+## Let's try one another, quadrimodal example
+
+```{r}
+mu <- c(-1.5, -.5, .5, 1.5)
+sigma <- c(.1, .04, .1, .1)
+w <- c(.05, .1, .25, .6)
+
+quadrimodal_target_logp <- function(x) {
+  log_dnorm_mixture(x, mu, sigma, w)
+}
+param_range <- c(-2, 2)
+```
+
+```{r}
+prop_sd <- .1
+n_iter <- 10^3
+n_chain <- 4L
+samples_list <- lapply(
+  1:n_chain,
+  function(chain_index) {
+    init <- mu[chain_index]
+    rwm_output <- rand_walk_metropolis(
+      quadrimodal_target_logp, init, n_iter, prop_sd, seed=chain_index
+    )
+    rwm_output$samples
+  }
+)
+```
+
+```{r}
+for (chain_index in 1:n_chain) {
+  trace_plot(
+    samples_list[[chain_index]], 
+    col = tableau10[chain_index], 
+    add = (chain_index > 1),
+    ylim = param_range
+  )
+}
+```
+
+#### Note that simply averaging over the chains yields an incorrect posterior approximation.
+
+```{r}
+true_density <- function(x) {
+  sapply(
+    1:length(x), 
+    function (i) { exp(quadrimodal_target_logp(x[i])) }
+  )
+}
+hist_against_truth(
+  do.call(cbind, samples_list), 
+  true_density, xlim = param_range, breaks = 201
+)
+```
+
+```{r}
+combined_samples <- do.call(rbind, samples_list)
+c(posterior::rhat_basic(combined_samples),
+  posterior::rhat(combined_samples))
+```
+
+## $\hat{R}$ is also about mixing, not just convergence
+
+#### Sample from the compound symmetric target, initializing at stationarity
+
+```{r}
+set.seed(955)
+init_list <- MASS::mvrnorm(n_chain, mu = rep(0, d), Sigma = Sigma)
+
+n_iter <- 10^4
+samples_list <- lapply(
+  1:n_chain,
+  function(chain_index) {
+    init <- init_list[chain_index, ]
+    rwm_output <- rand_walk_metropolis(
+      cs_target_logp, init, n_iter, cs_prop_sd, seed=chain_index
+    )
+    rwm_output$samples
+  }
+)
+```
+
+```{r}
+param_index <- 1L
+for (chain_index in 1:n_chain) {
+  trace_plot(
+    samples_list[[chain_index]][param_index, ], 
+    col = tableau10[chain_index], 
+    add = (chain_index > 1),
+    ylim = c(-3, 3), thin = 10L
+  )
+}
+```
+
+
+```{r}
+combined_samples <- do.call(rbind, samples_list)
+c(posterior::rhat_basic(combined_samples),
+  posterior::rhat(combined_samples))
 ```
