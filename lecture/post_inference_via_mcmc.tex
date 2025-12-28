@@ -323,6 +323,7 @@
 \newcommand{\mcIndex}{k}
 \newcommand{\altMcIndex}{\ell}
 \newcommand{\mcSampleSize}{m}
+\newcommand{\nParam}{d}
 
 \newcommand{\bda}{\smallCap{bda}}
 
@@ -1256,15 +1257,47 @@ So one can roughly determine the convergence by monitoring $\log \density\bigl(\
 
 \begin{frame}
 \frametitle{\frametitleText}
-Story is a bit different when tuning is involved b/c you have to also discard that part of the chain (unless diminishing adaptation used).
+In figuring out when $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ looks stable enough, helpful to think about what its stationary distribution (approximately) is.
+
+\medskip
+If the target is $\normalDist \bigl( \bm{0}, \bm{\Sigma} \bigr)$, then $\operatorname{var}\bigl(\thinnerspace \log \density( \brandVar ) \bigr) = \nParam \divby 2 \thinnerspace$ because
+\begin{tightEquation*}
+- \log \density( \brandVar ) + \operatorname{const}
+	= \textstyle \frac12 \brandVar^\transpose \bm{\Sigma}^{-1} \brandVar
+	\sim \frac12 \chi^2_{\nParam};
+\end{tightEquation*}
+so we expect $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ to fluctuate roughly by $2 \times 1.96 \sqrt{p \divby 2} $.
+
+\medskip
+Above is a good rule of thumb more generally, esp.\ as parametric model posteriors are approx Gaussian under large-sample limits.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textbf{Remark:} 
+Note that $\thinnerspace \expectation\left[ \log \density( \brandVar ) \right] =  \log \density( \bparam_\mathrm{mle} ) - \nParam \divby 2$;
+\smallCap{mle} \textit{isn't the} representative parameter value from a Bayesian perspective. 
+
+\smallskip
+This feature of Bayesian inference also relates to the phenomenon that ``flatter'' optima often generalize better than ``sharper'' ones.\\
+{\hfill \citep{hochreiter1997flat_minima, keskar2017large_batch_training}}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\tightSpacing{Story is a bit more complex when tuning is involved b/c that part of the chain too needs discarding (unless diminishing adaptation used).}
 
 And the tuning generally needs to continue beyond the optimization phase to ensure proper adaptation to the target.
 
 \vspace*{9pt}
 That is, by the time you are done tuning, you should also be done burning in and shouldn't have to discard additional iterations.
+\end{frame}
 
-\vspace*{9pt}
 
+\begin{frame}
+\frametitle{\frametitleText}
 \tightSpacing{%
 Question then is:~how long to tune?
 Unfortunately, no good guidance%
@@ -1272,6 +1305,9 @@ Unfortunately, no good guidance%
 other than trial and error---Stan's default is half the total iterations.
 
 Stan refers to the combined burn-in and tuning phase as \textit{warm-up}.
+
+\vspace*{9pt}
+Trace of $\thinnerspace \log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ remains useful in diagnosing potential issues in the post warm-up samples. 
 \end{frame}
 
 
@@ -1414,12 +1450,60 @@ Stan uses an improved version by \cite{vehtari2021improved_rhat} based on ``rank
 	\centerline{modern general-purpose sampler}%
 }
 
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
+\renewcommand{\frametitleText}{Why Hamiltonian Monte Carlo?}
+\begin{frame}
+\frametitle{\frametitleText}
+Gibbs sampling in general works well for conjugate models and has served as the engine for early software packages like \smallCap{bugs} and \smallCap{jags}.
+
+(\smallCap{bugs} = Bayesian inference Using Gibbs Sampling)\\
+(\smallCap{jags} = Just Another Gibbs Sampler)
+
+\vspace*{9pt}
+%Non-conjugate conditionals can be dealt w/ Metropolis-within-Gibbs steps, but as we've seen, random-walk Metropolis can be inefficient.
+Metropolis is more widely applicable and can help Gibbs deal w/ non-conjugate conditionals, but as we've seen, can be inefficient.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textbf{Question:} 
+Can we design a better proposal mechanism for Metropolis(-Hastings) than the random-walk one?
+
+\medskip
+In designing a proposal, the two (often competing) desiderata are:%
+\begin{tightItemize}
+\item sufficiently large move to explore the space;
+\item sufficiently high acceptance rate to avoid rejections.
+\end{tightItemize}
+
+\medskip
+Turns out, Hamiltonian dynamics can be used generate proposals that are far away from the current state yet acceptable w/ high prob.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Metropolis meets Hamilton: \titleSmallCap{hmc} rises}
+\begin{frame}
+\frametitle{\frametitleText}
+Originated in comp physics literature as \textit{hybrid} Monte Carlo for computer simulation of lattice models in quantum field theory.\\
+{\hfill \citep{duane1987hybrid_mc}}
+% Note: HMC may seem to come from nowhere, so a bit of history to help.
+
+Two dominant simulation approaches then were:
+\begin{tightItemize}
+\item Monte Carlo simulation (i.e.\ Metropolis) w/ ``local'' moves, changing the state of one particle at a time.
+\item molecular dynamics simulation w/ ``global'' moves, numerically solving an \textit{equation of motion} (i.e.\ Hamiltonian dynamics).
+\end{tightItemize}
+
+\medskip
+Hybrid Monte Carlo combined the efficiency of molecular dynamics w/ Metropolis algorithm to exactly sample from the target.
+\end{frame}
+
 \begin{frame}
 \frametitle{\frametitleText}
 \parbox[c][2.4\baselineskip]{\textwidth}{%
 	\only<1>{%
-		Originating in comp physics \citep{duane1987hybrid_mc}, \smallCap{hmc} was\\ popularized in stats/\smallCap{ml} through \cite{neal1996bayes_neural_net,neal2011hmc} and others:
+%		Originating in comp physics \citep{duane1987hybrid_mc}, 
+		H\smallCap{mc} was popularized in stats/\smallCap{ml} via \cite{neal1996bayes_neural_net,neal2011hmc} and others:
 	}%
 	\only<2>{%
 		Has since been adopted by many probabilistic programming\\ languages for its broad applicability and general effectiveness:
@@ -1439,7 +1523,7 @@ Stan uses an improved version by \cite{vehtari2021improved_rhat} based on ``rank
 \end{frame}
 
 
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: its rise to prominence}
+\renewcommand{\frametitleText}{Hamiltonian dynamics as proposal mechanism}
 \begin{frame}
 \frametitle{\frametitleText}
 To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{momentum} variable $\bmomentum \negthinnerspace \sim \negthinnerspace \normalDist(\bm{0}, \bmass)$ and targets the joint dist $\density(\bparam, \bmomentum) = \density(\bparam) \negthinspace \times \negthinnerspace \normalDist(\bm{0}, \bmass)$.
@@ -1465,7 +1549,6 @@ In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position}
 \end{frame}
 
 
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: basic framework}
 \begin{frame}
 \frametitle{\frametitleText}
 
@@ -1527,6 +1610,10 @@ Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
 		\}$.
 \end{tightEnumerate}
 
+\smallskip
+You can also think of \hmc{} as defining a transition kernel in $\bparam$ only
+as the refreshment step makes the previous momentum value irrelevant.
+
 \medskip
 {\centering
 	\href{https://chi-feng.github.io/mcmc-demo/app.html?algorithm=HamiltonianMC}{%
@@ -1538,7 +1625,7 @@ Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
 \end{frame}
 
 
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: intuition and theory}
+\renewcommand{\frametitleText}{Intuition and theory behind \titleSmallCap{hmc} proposals}
 \begin{frame}
 \frametitle{\frametitleText}
 
@@ -1577,7 +1664,7 @@ and 2) \textit{energy-conserving} under exact simulation
 
 \begin{frame}
 \frametitle{\frametitleText}
-The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-preserving} property and \textit{time-reversibility}:
+Symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-preserving} property and \textit{time-reversibility}:
 \vspace*{-\baselineskip}
 \begin{figure}
 \centering
@@ -1596,7 +1683,7 @@ The symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume
 %    {\scalebox{0.5}{$\Delta$} t}         % scriptscriptstyle (sub-subscript)
 %}
 \newcommand{\numIntegStep}{L}
-\renewcommand{\frametitleText}{Hamiltonian Monte Carlo: practical details}
+\renewcommand{\frametitleText}{Practical details: tuning of \titleSmallCap{hmc}}
 \begin{frame}
 \frametitle{\frametitleText}
 
@@ -1652,7 +1739,7 @@ meaning the evolution from $t$ to $t + \stepsize$ can be approximated as
 	\end{itemizedEquation*}
 	
 \smallskip
-Taking $L = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps of size $\stepsize$ approximates the exact solution $(\bposition_0, \bmomentum_0) \to (\bposition_\integTimeScript, \bmomentum_\integTimeScript)$ up to an $O(\stepsize^2)$ error.
+Taking $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps of size $\stepsize$ approximates the exact solution $(\bposition_0, \bmomentum_0) \to (\bposition_\integTimeScript, \bmomentum_\integTimeScript)$ up to an $O(\stepsize^2)$ error.
 \end{frame}
 
 
@@ -1724,10 +1811,94 @@ In practice, \hmc{} can be quite sensitive to contours and tails of \\ the targe
 In Stan, you set the desired acceptance rate via \texttt{adapt\_delta};
 the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rstanarm}.
 
-\medskip
-\textbf{Remark:} 
-$\bmass$ is also a relevant tuning parameter, automatically tuned by Stan to account for variations in parameters' scales.
+%\medskip
+%\textbf{Remark:} 
+%$\bmass$ is also a relevant tuning parameter, automatically tuned by Stan to account for variations in parameters' scales.
+\end{frame}
 
+
+\begin{frame}
+\frametitle{\frametitleText}
+$\bmass$ can be tuned to help \hmc{} handle variations in parameters' scales.
+
+\medskip
+\Hmc{} in general samples more efficient from a target with less variations in the ``widths'' along different directions.
+
+For example, between $(\randVar_1, \randVar_2) \sim \normalDist(0, 10^2) \times \normalDist(0, 10^2)$ and $(\randVar_1, \randVar_2) \sim \normalDist(0, 1) \times \normalDist(0, 100^2)$, the former is easier for \hmc{}.
+
+\vspace*{9pt}
+While Stan automatically tunes $\bmass$, you can help it by manually pre-processing (re-scaling/-parametrizing) the model parameters.
+
+For example in a linear regression model, standardizing the outcome and predictors helps place the coefficients on comparable scales.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\medskip
+\includegraphics[width=\linewidth]{Figure/stan_warmup_epochs}
+%\caption*{\textcolor{themecolor}{Figure:}}
+
+Figure above illustrates Stan's strategy for tuning $\stepsize$ and $\bmass$: % Note: checked last time on Dec 2025
+\begin{tightItemize}
+\item Stage \textrm{I} and \textrm{III} only tune $\stepsize$, which is relatively quick;
+\item Stage \textrm{II} tunes $\bmass$, along with $\stepsize$, over multiple memoryless windows;
+	$\bmass$ from the last window is used in the sampling phase.
+\end{tightItemize}
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Advantage of \titleSmallCap{hmc}: a bit of theoretical analysis}
+\begin{frame}
+\frametitle{\frametitleText}
+``Ok, I see it got nice properties, but does it \textit{actually} work?''\! --- fair Q.
+
+\medskip
+We can quantify relative performance btwn \hmc{} and \smallCap{rwm} on $\density(\bparam) = \prod_{j}^{\nParam} \density(\param_j)$ as $\nParam \to \infty$ (though this admittedly isn't realistic).\\
+{\hfill \citep{creutz1988global_monte_carlo, beskos2013optimal_hmc}}
+
+\medskip
+We'll find that, while each \hmc{} iteration costs more than \smallCap{rwm} one, the gain in mixing is well worth the extra per-iteration cost.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Each iteration costs 
+\vspace*{-.1\baselineskip}%
+\begin{tightItemize}
+\item one log-density evaluation ($\propto \nParam$ for $\density(\bparam) = \prod_{j}^{\nParam} \density(\param_j)$) for \smallCap{rwm};
+\item $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ log-density + grad evaluations for \smallCap{hmc} (w/ $\integTime$ fixed).
+\end{tightItemize}
+
+\vspace*{1.5pt}
+Maintaining a constant acceptance rate (e.g.\ 0.23 or 0.65) requires
+\vspace*{-.1\baselineskip}%
+\begin{tightItemize}
+\item $\sigma_{\mathrm{prop}}^2 \propto \nParam^{-1}$ for \smallCap{rwm}; 
+\item $\stepsize \propto \nParam^{-1/4}$ for \smallCap{hmc}.
+\end{tightItemize}
+
+\vspace*{1.5pt}
+Traveling a unit distance requires
+\vspace*{-.1\baselineskip}%
+\begin{tightItemize}
+\item $\propto \nParam$ iterations, due to its random-walk behavior, for \smallCap{rwm}; 
+\item $\propto \nParam^{1/4}$ numerical integration steps for \smallCap{hmc}.
+\end{tightItemize}
+
+\vspace*{2pt}
+Grand total cost for one \smallCap{ess}: $O(d^2)$ for \smallCap{rwm}; $O(d^{5/4})$ for \hmc{}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Above result pertains to performance in high dimensions, but \\
+\hmc{} also handles correlation in parameters better than \smallCap{rwm}.
+
+(But the theory here remains less complete.)
 \end{frame}
 
 
