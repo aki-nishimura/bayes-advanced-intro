@@ -1,0 +1,101 @@
+\documentclass[18pt]{beamer}
+%% !TeX program = xelatex
+
+\usetheme{metropolis}
+\usefonttheme{professionalfonts}
+\input{standard_preamble.tex}
+
+
+%% Packages
+\usepackage[english]{babel}
+%\usepackage[T1]{fontenc}
+%\setmainfont[BoldFont={Fira Sans}]{Fira Sans Light}
+\usepackage{graphicx}
+\usepackage{mathtools} % For \coloneqq (among others)
+\usepackage{relsize}
+\usepackage{subcaption}
+\usepackage{bm} 
+\usepackage{dsfont}
+\usepackage{booktabs}
+\usepackage{soul} % For \st 
+\usepackage{pgfplots}
+%\usepackage[normalem]{ulem}
+%	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
+%	\newcommand{\coloredUline}{\bgroup\markoverwith{\textcolor{lava}{\rule[-0.5ex]{2pt}{0.6pt}}}\ULon}
+\usepackage{natbib}
+	\bibliographystyle{abbrvnat}
+	\setcitestyle{authoryear, open={(}, close={)}}
+\usepackage{usebib}
+\usepackage{bibentry} % For \nobibliography
+%\nobibliography{references} % To cite inline without creating a bibliography
+\newbibfield{journal}
+\bibinput{references}
+
+
+%% Color definitions
+\definecolor{turquoise}{rgb}{0.19, 0.84, 0.78}
+\definecolor{mediumturquoise}{rgb}{0.28, 0.82, 0.8}
+\definecolor{lava}{rgb}{0.81, 0.06, 0.13}
+\colorlet{highlightedTextColor}{lava}
+
+%% JHU colors
+\definecolor{jhuBlue}{RGB}{0, 45, 114} % "Heritage" blue; https://brand.jhu.edu/color/
+\definecolor{jhuSpiritBlue}{RGB}{114, 172, 229} % lighter blue
+\definecolor{jhuMediumBlue}{RGB}{0, 119, 216}
+\definecolor{jhuHarborBlue}{RGB}{78, 151, 224}
+\colorlet{linkColor}{jhuMediumBlue!50!gray}
+
+%% Set the color theme of the presentation
+\colorlet{themecolor}{jhuBlue}
+\colorlet{bgcolor}{themecolor}
+\colorlet{textcolor}{white}
+\usecolortheme[named=themecolor]{structure}
+%\setbeamercolor{titlelike}{fg=black}
+\setbeamercolor{frametitle}{fg=themecolor, bg=white}
+\setbeamercolor{section in head/foot}{fg=textcolor}
+\setbeamercolor{background canvas}{bg=white}
+%\colorlet{toccolor}{black}
+%\setbeamercolor{section in toc}{fg=toccolor}
+\setbeamercolor{block title}{bg=themecolor!75!gray!25}
+\setbeamercolor{block body}{bg=themecolor!75!gray!5}
+
+%% Other colors
+\colorlet{greyedOutThemecolor}{themecolor!75!gray!25}
+\definecolor{emoji-yellow}{RGB}{255, 222, 52}
+
+
+% Lecture-specific macros
+
+%% For using the same title across multiple slides
+\newcommand{\frametitleText}{This is a frame title} 
+
+
+\title{%
+	\centerline{Bayesian hierarchical modeling}%
+}
+\author{%
+	Aki Nishimura\\
+	Department of Biostatistics%
+}
+%\institute[]{}
+\date{}
+
+\titlegraphic{%
+	\begin{picture}(0,0)
+		% Try coordinate (165, -150) for a one-line title, (165, -160) if two-lines, and (165, -172) if three-lines
+		\put(165, -150){\makebox(0,0)[lb]{\includegraphics[width=.45\textwidth]{jhsph_biostat_logo}}}
+	\end{picture}%
+}
+
+\begin{document}
+\maketitle
+
+\renewcommand{\frametitleText}{Title TBD}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\end{frame}
+
+
+\nobibliography{references} % To cite inline without creating a bibliography
+\end{document}
