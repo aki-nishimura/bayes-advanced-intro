@@ -18,7 +18,17 @@
 \usepackage{dsfont}
 \usepackage{booktabs}
 \usepackage{soul} % For \st 
-\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
+\tikzset{
+  customconst/.style={
+    const,
+    minimum size=17pt,        % Match [latent]; adjust as needed
+    outer sep=0pt,
+    text height=1.6ex,        % Reduce vertical space inside
+    text depth=.25ex
+  }
+}
 %\usepackage[normalem]{ulem}
 %	\renewcommand{\ULthickness}{.6pt} % default is 0.4pt
 %	\newcommand{\coloredUline}{\bgroup\markoverwith{\textcolor{lava}{\rule[-0.5ex]{2pt}{0.6pt}}}\ULon}
@@ -65,6 +75,8 @@
 
 
 % Lecture-specific macros
+\newcommand{\randEff}{u}
+\newcommand{\bindicator}{\scalebox{1.3}[1.1]{$\mathds{1}\mskip-.2\thinmuskip$}}
 
 %% For using the same title across multiple slides
 \newcommand{\frametitleText}{This is a frame title} 
@@ -90,10 +102,406 @@
 \begin{document}
 \maketitle
 
-\renewcommand{\frametitleText}{Title TBD}
+
+\renewcommand{\frametitleText}{Simple example: random means/intercepts model}
 \begin{frame}
 \frametitle{\frametitleText}
+Recall the model from lecture on regularization from Bayes lens:
+\begin{tightEquation*}
+y_i \given \mu_i
+	\sim \normalDist(\mu_i, \phi^{-1}\! = \sigma^2), \ \,
+\mu_i \given \phi_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\phi_{\textrm{grp}}^{-1}\! = \sigma_{\textrm{grp}}^2
+	).
+\end{tightEquation*}
 
+\smallskip
+Here $\mu_i$'s dist is controlled by ``higher-level'' param $(\mu_\mathrm{grp}, \phi_{\mathrm{grp}})$:
+\vspace*{-.4\baselineskip}
+\begin{figure} 
+\begin{tikzpicture}
+  % Define nodes
+  \node[obs] (y) {$y_i\!$};
+  \node[latent, right=1cm of y] (mu) {$\mu_i\!$};
+  \node[const, right=1cm of mu] (phi) {$\, \phi_{\mathrm{grp}} \, $};
+  \coordinate[right=.3cm of mu] (muRight);
+
+  % Connect the nodes
+  \edge {mu} {y} ; %
+  \edge {phi} {mu} ; %
+
+  % Plates
+  \plate [inner sep=.3cm, yshift=.15cm] {caption} {(y)(mu) (muRight)} {$i = 1, \ldots, n\!$} ;
+\end{tikzpicture}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+We saw that this hierarchical structure yields shrinkage estimator:
+\begin{tightEquation*}
+\mu_i \given y_i, \phi_\mathrm{grp} 
+	\sim \normalDist\!\left(
+		\frac{1}{\phi + \phi_\mathrm{grp}} 
+			( \phi \thinnerspace y_i + \phi_\mathrm{grp} \thinnerspace \mu_\mathrm{grp} ), \thinnerspace
+		\frac{1}{\phi + \phi_\mathrm{grp}}
+	\right),
+\end{tightEquation*}
+where plugging in the maximizer $\hat{\phi}_\mathrm{grp}$ of the marginal likelihood
+\begin{tightEquation*}
+\likelihood(\by \given \phi_{\mathrm{grp}})
+	= \int \likelihood(\by \given \bmu, \phi_{\mathrm{grp}}) \thinnerspace \density(\bmu \given \phi_{\mathrm{grp}}) \diff  \bmu
+	\sim \normalDist(\bm{0}, \phi_{\mathrm{mg}}^{-1} \Id )
+\end{tightEquation*}
+for $\phi_{\mathrm{mg}}^{-1} = \phi^{-1} + \phi_{\mathrm{grp}}^{-1}$ yielded a near-frequentist-optimal answer.
+
+\vspace*{9pt}
+Fully Bayesian inference is obtained by placing a prior on $\phi_\mathrm{grp}$ and integrating over $\density( \phi_\mathrm{grp} \given \by )$ (for which you can now utilize \mcmc{}).
+\end{frame}
+
+
+\newcommand{\randomIntModel}{%
+	\begin{alignat*}{2}
+	y_z^\mathrm{zp} \, 
+		&\big| 
+		\, \bm{\mu}^\mathrm{zp}, \hat{\sigma}^\mathrm{zp}_z
+		&&\sim \normalDist(\mu_z^\mathrm{zp}, \thinnerspace 
+		\hat{\sigma}_z^\mathrm{zp}) \\
+	\mu_z^\mathrm{zp} \, 
+		&\big| \, 
+		\bm{\mu}^\mathrm{co}, \sigma^\mathrm{co}
+		&&\sim \normalDist\bigl( 
+		\mu^\mathrm{co}_{c(z)}, \thinnerspace
+		\sigma^{\mathrm{co}}
+		\bigr) \\
+	\mu^\mathrm{co}_{c} \,
+		&\big| \, 
+		\bm{\mu}^\mathrm{st}, \sigma^\mathrm{st}
+		&&\sim \normalDist\bigl( 
+		\mu^\mathrm{st}_{s(c)}, \thinnerspace
+		\sigma^\mathrm{st} 
+		\bigr) \\
+	\mu^\mathrm{st}_{s} \, \thinnerspace
+		&\big| \, \thinnerspace
+		\mu^\mathrm{us}, \sigma^\mathrm{us}
+		&&\sim \normalDist\bigl( 
+		\mu^\mathrm{us}, \thinnerspace
+		\sigma^\mathrm{us}
+		\bigr)
+	\end{alignat*}
+}%
+\begin{frame}
+\frametitle{\frametitleText}
+\vspace*{-.3\baselineskip}
+Model hierarchy can consist of more levels.
+
+As explored later, in the regression context, hierarchical modeling also coincides with \textit{(generalized) linear mixed-effects modeling}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Say we wanna estimate median household incomes $\mu_z^\mathrm{zp}$ at the zip code level (e.g.\ $z = \text{21205}$) across \smallCap{us} from census data $(y_z^\mathrm{zp}, \hat{\sigma}_z^\mathrm{zp})$.
+
+\smallskip
+\tightSpacing{Raw est $\thinnerspace\hat{\mu}_z^\mathrm{zp} = y_z^\mathrm{zp}$ could be noisy for zip codes w/\! small sample sizes,}
+so we might \textit{borrow information} across counties and states via
+{\setlength{\abovedisplayskip}{.15\baselineskip}%
+\setlength{\belowdisplayskip}{.25\baselineskip}%
+\randomIntModel
+}%
+where $c(z)$ maps zip code to county and $s(c)$ county to state; \\
+e.g.\
+$s(c(\text{21205})) = s(\text{Baltimore City}) = \text{Maryland}$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{minipage}[t][.23\paperheight]{\linewidth}
+\vspace*{-2.4\baselineskip}
+{%
+\setlength{\belowdisplayskip}{.55\baselineskip}%
+\randomIntModel
+}%
+\end{minipage}
+\begin{minipage}[t][.4\paperheight]{\linewidth}
+The model can be represented in a \textit{directed acyclic graph (\smallCap{dag})} as:%
+%\vspace*{-.3\baselineskip}
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    % Main row (first level - y and mus)
+    \node[obs] (y) {$y^\mathrm{zp}_z\!$};
+    \node[latent, right=1cm of y] (mu_z) {$\mu^\mathrm{zp}_z\!$};
+    \coordinate[right=.3cm of mu_z] (muZRight);
+
+    \node[latent, right=1.5cm of mu_z] (mu_co) {$\mu^\mathrm{co}_c\!$};
+    \coordinate[right=.3cm of mu_co] (muCoRight);
+
+    \node[latent, right=1.5cm of mu_co] (mu_st) {$\mu^\mathrm{st}_s\!$};
+    \coordinate[right=.3cm of mu_st] (muStRight);
+
+    \node[latent, right=1.5cm of mu_st] (mu_us) {$\mu^\mathrm{us}\!$};
+
+    % Second row (sigmas - same vertical height, outside plates)
+    % Place them above their associated mus, but shifted upwards
+    \node[customconst, above=1cm of mu_z] (sigma_zp) {$\hat{\sigma}^\mathrm{zp}_z\!$};
+    \node[latent, above=1cm of mu_co] (sigma_co) {$\sigma^\mathrm{co}\!$};
+    \node[latent, above=1cm of mu_st] (sigma_st) {$\sigma^\mathrm{st}\!$};
+    \node[latent, above=1cm of mu_us] (sigma_us) {$\sigma^\mathrm{us}\!$};
+
+    % -- Edges --
+    \edge {mu_z} {y};
+    \edge {sigma_zp} {y};
+    \edge {mu_co} {mu_z};
+    \edge {sigma_co} {mu_z};
+    \edge {mu_st} {mu_co};
+    \edge {sigma_st} {mu_co};
+    \edge {mu_us} {mu_st};
+    \edge {sigma_us} {mu_st};
+
+    % Plates
+    \plate [inner sep=.25cm, yshift=.15cm] {platezip} {(y)(mu_z)(muZRight)} {zip codes in $c$};
+    \plate [inner sep=.35cm, yshift=.115cm, xshift=-.01cm] {plateco} {(y)(mu_z)(muZRight)(mu_co)(muCoRight)} {counties in $s$\!};
+    \plate [inner sep=.45cm, yshift=.1cm, xshift=-.02cm] {platest} {(y)(mu_z)(muZRight)(mu_co)(muCoRight)(mu_st)(muStRight)} {states\!\!};
+\end{tikzpicture}
+\end{figure}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{minipage}[t][.23\paperheight]{\linewidth}
+\vspace*{-2.4\baselineskip}
+{%
+\setlength{\belowdisplayskip}{.55\baselineskip}%
+\randomIntModel
+}%
+\end{minipage}
+\begin{minipage}[t][.4\paperheight]{\linewidth}
+\fontdimen2\font=2.75pt
+Random effects
+$\,\bm{\mu}^\mathrm{zp} \!\in \mathbb{R}^{41,552}$, % Number of zip codes as of late 2025
+$\bm{\mu}^\mathrm{co} \!\in \mathbb{R}^{3,244}$, % including county equivalents
+$\bm{\mu}^\mathrm{st} \!\in \mathbb{R}^{50}$ 
+have underlying distributions centered at the county, state, and national averages. 
+
+\vspace*{4pt}
+User-specified prior on $\mu^\mathrm{us}, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}$ completes the model with
+\begin{tightEquation*}
+\begin{aligned}
+&\hspace*{-1.5em}
+\density\bigl( 
+	\bm{\mu}^\mathrm{zp}, \bm{\mu}^\mathrm{co}, \bm{\mu}^\mathrm{st}, 
+	\mu^\mathrm{us}, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}
+	\, \big| \,
+	\by^\mathrm{zp}, \hat{\sigma}^\mathrm{zp}_z
+\bigr) \\
+&\propto 
+\likelihood\bigl(
+	\by^\mathrm{zp} \, 
+		\big| 
+		\, \bm{\mu}^\mathrm{zp}, \hat{\sigma}^\mathrm{zp}_z
+\bigr) \\
+&\hspace*{2.5em}
+\density\bigl( 
+	\bm{\mu}^\mathrm{zp} \, 
+		\big| \, 
+		\bm{\mu}^\mathrm{co}, \sigma^\mathrm{co}
+\bigr)
+\density\bigl( 
+	\bm{\mu}^\mathrm{co} \,
+		\big| \, 
+		\bm{\mu}^\mathrm{st}, \sigma^\mathrm{st}
+\bigr)
+\density\bigl( 
+	\bm{\mu}^\mathrm{st} \, \thinnerspace
+		\big| \, \thinnerspace
+		\mu^\mathrm{us}, \sigma^\mathrm{us}
+\bigr)\\
+&\hspace*{2.5em}
+\density\bigl( 
+	\mu^\mathrm{us}, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}
+\bigr).
+\end{aligned}
+\end{tightEquation*}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{minipage}[t][.23\paperheight]{\linewidth}
+\vspace*{-2.4\baselineskip}
+{%
+\setlength{\belowdisplayskip}{.55\baselineskip}%
+\randomIntModel
+}%
+\end{minipage}
+\begin{minipage}[t][.4\paperheight]{\linewidth}
+\vspace*{-.125\baselineskip}
+\fontdimen2\font=2.75pt
+Can be viewed as a way to induce structured correlation among $\thinnerspace y_z^\mathrm{zp}$.
+
+\smallskip
+Marginalizing over $\bigl( \bm{\mu}^\mathrm{zp}, \bm{\mu}^\mathrm{co}, \bm{\mu}^\mathrm{st} \bigr)$, the model can be expressed as
+\begin{tightEquation*}
+\begin{aligned}
+&y_z^\mathrm{zp} 
+	\, \big| \,
+	\mu^\mathrm{us}, \hat{\sigma}^\mathrm{zp}_z, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}
+	\\
+&\hspace*{1em}\sim 
+	\normalDist\Bigl(
+		\mu^\mathrm{us}, \thinnerspace
+		\operatorname{var} =
+		\bigl( \hat{\sigma}^\mathrm{zp}_z \bigr)^2
+		+ \bigl( \sigma^\mathrm{co} \bigr)^2
+		+ \bigl( \sigma^\mathrm{st} \bigr)^2
+		+ \bigl( \sigma^\mathrm{us} \bigr)^2
+	\Bigr),\\
+&\!\covariance \Bigl( 
+	y_z^\mathrm{zp}, 
+	y_{z'}^\mathrm{zp}
+	\,  \big| \, \thinnerspace
+	\mu^\mathrm{us}, \hat{\sigma}^\mathrm{zp}_z, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}, z \neq z'
+\Bigr) \\
+&\hspace*{1em}=
+	\bigl( \sigma^\mathrm{co} \bigr)^2 \indicator_{ \{ c(z) = c(z') \} }
+	+ \bigl( \sigma^\mathrm{st} \bigr)^2 \indicator_{ \{ s(c(z)) = s(c(z')) \} }
+	+ \bigl( \sigma^\mathrm{us} \bigr)^2.
+\end{aligned}
+\end{tightEquation*}
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{minipage}[t][.23\paperheight]{\linewidth}
+	\vspace*{-2.4\baselineskip}
+	{%
+		\setlength{\belowdisplayskip}{.55\baselineskip}%
+		\randomIntModel
+	}%
+\end{minipage}
+\begin{minipage}[t][.4\paperheight]{\linewidth}
+\vspace*{-.125\baselineskip}
+\fontdimen2\font=2.75pt
+Can be viewed as a way to induce structured correlation among $\thinnerspace y_z^\mathrm{zp}$.
+\smallskip
+
+The marginal model can also be expressed as
+\begin{tightEquation*}
+\begin{aligned}
+\by_z^\mathrm{zp} 
+\, \big| \,
+\mu^\mathrm{us}, \hat{\sigma}^\mathrm{zp}_z, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}
+&\sim 
+\normalDist\Bigl( \thinnerspace
+	\mu^\mathrm{us} \bm{1}, \,
+	\bSigma\bigl(\hat{\sigma}^\mathrm{zp}_z, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us} \bigr)
+\Bigr),\\
+\Sigma_{z z'}\bigl(\hat{\sigma}^\mathrm{zp}_z, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us} \bigr)
+	&= \bigl( \hat{\sigma}^\mathrm{zp} \bigr)^2 \indicator_{ \{ z = z' \} } \\
+	&+\bigl( \sigma^\mathrm{co} \bigr)^2 \indicator_{ \{ c(z) = c(z') \} } \\
+	&+ \bigl( \sigma^\mathrm{st} \bigr)^2 \indicator_{ \{ s(c(z)) = s(c(z')) \} } 
+		+ \bigl( \sigma^\mathrm{us} \bigr)^2.
+\end{aligned}
+\end{tightEquation*}
+\end{minipage}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hierarchical model meets mixed-effect model}
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{minipage}[t][.23\paperheight]{\linewidth}
+\vspace*{-2.4\baselineskip}
+{%
+	\setlength{\belowdisplayskip}{.55\baselineskip}%
+	\randomIntModel
+}%
+\end{minipage}
+\begin{minipage}[t][.4\paperheight]{\linewidth}
+\vspace*{-.125\baselineskip}
+\fontdimen2\font=2.75pt
+Can be written in the language of mixed-effect modeling as
+\begin{tightEquation*}
+y_z^\mathrm{zp} 
+	= \mu^\mathrm{us}
+	+ \randEff^\mathrm{st}_{s(c(z))} 
+	+ \randEff^\mathrm{co}_{c(z)}
+	+ \hat{\sigma}^\mathrm{zp}_z \epsilon_z
+\end{tightEquation*}
+where
+$\,\randEff^\mathrm{st}_s \sim \normalDist(0, \sigma^\mathrm{st})$,
+$\randEff^\mathrm{co}_c \sim \normalDist(0, \sigma^\mathrm{co})$,
+and
+$\, \epsilon_z \sim \normalDist(0, 1)$.
+\end{minipage}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Note that the mixed-effect model can also be written as
+\begin{tightEquation*}
+\begin{aligned}
+y_z^\mathrm{zp} 
+	&= \mu^\mathrm{us}
+	+ \sum_{s'} \indicator_{ \{ s(c(z)) = s' \} } \randEff^\mathrm{st}_{s'} 
+	+ \sum_{c'} \indicator_{ \{ c(z) = c' \} } \randEff^\mathrm{co}_{c'} 
+	+ \hat{\sigma}^\mathrm{zp}_z \epsilon_z \\
+	&= \mu^\mathrm{us} 
+	+ \bindicator^\mathrm{st}_z \bm{\randEff}^\mathrm{st}
+	+ \bindicator^\mathrm{co}_z \bm{\randEff}^\mathrm{co}
+	+ \hat{\sigma}^\mathrm{zp}_z \epsilon_z.
+\end{aligned}
+\end{tightEquation*}
+
+So the model in matrix form is given as:
+\begin{tightEquation*}
+\by_z^\mathrm{zp} 
+	= \bm{1} \thinnerspace \mu^\mathrm{us}
+	+ \bindicator^\mathrm{st} \bm{\randEff}^\mathrm{st}
+	+ \bindicator^\mathrm{co} \bm{\randEff}^\mathrm{co}
+	+ \bm{\epsilon}^\mathrm{zp}
+\end{tightEquation*}
+where 
+$\thinnerspace \bm{\randEff}^\mathrm{st} \negthinnerspace 
+	\sim \normalDist(\bm{0}, \sigma^\mathrm{st} \Id)$,
+$\bm{\randEff}^\mathrm{co} \negthinnerspace 
+	\sim \normalDist(\bm{0}, \sigma^\mathrm{co} \Id)$,
+and
+$\thinnerspace \bm{\epsilon}^\mathrm{zp} \negthinnerspace 
+	\sim \normalDist(\bm{0}, \hat{\bSigma}^\mathrm{zp})$;
+$\thinnerspace \bindicator^\mathrm{st} \!\in \mathbb{R}^{41,552 \times 50}$ and $\bindicator^\mathrm{co} \!\in \mathbb{R}^{41,552  \times 3,244} \thinnerspace$ are binary design matrices.
+
+\smallskip
+The hierarchical mean model is thus a special case of:
+\begin{tightEquation*}
+``\by
+	= \bX \bbeta
+	+ \bm{Z} \bm{\randEff} 
+	+ \bm{\epsilon}."
+\end{tightEquation*}
+\end{frame}
+
+
+\section*{%
+	\centerline{Linear mixed effect model:}
+	\centerline{Bayes and frequentist perspectives}%
+}%
+
+\renewcommand{\frametitleText}{TBD}
+\begin{frame}
+\frametitle{\frametitleText}
 \end{frame}
 
 
