@@ -76,7 +76,13 @@
 
 % Lecture-specific macros
 \newcommand{\randEff}{u}
+\newcommand{\RandEffVar}{\bm{D}}
+\newcommand{\bZ}{\bm{Z}}
 \newcommand{\bindicator}{\scalebox{1.3}[1.1]{$\mathds{1}\mskip-.2\thinmuskip$}}
+\newcommand{\smallcapSubscr}[1]{{\scriptsize \text{\tiny \rmfamily #1}}}
+\newcommand{\lse}[1]{\widehat{#1}_{\scriptsize \text{\tiny \rmfamily LS}}} % Least-sq estimator
+\newcommand{\blup}[1]{\widehat{#1}_{\scriptsize \text{\tiny \rmfamily BLUP}}}
+\newcommand{\remlSubscr}{{\scriptsize \text{\tiny \rmfamily RL}}}
 
 %% For using the same title across multiple slides
 \newcommand{\frametitleText}{This is a frame title} 
@@ -467,7 +473,7 @@ y_z^\mathrm{zp}
 
 So the model in matrix form is given as:
 \begin{tightEquation*}
-\by_z^\mathrm{zp} 
+\by^\mathrm{zp} 
 	= \bm{1} \thinnerspace \mu^\mathrm{us}
 	+ \bindicator^\mathrm{st} \bm{\randEff}^\mathrm{st}
 	+ \bindicator^\mathrm{co} \bm{\randEff}^\mathrm{co}
@@ -496,13 +502,461 @@ The hierarchical mean model is thus a special case of:
 
 \section*{%
 	\centerline{Linear mixed effect model:}
-	\centerline{Bayes and frequentist perspectives}%
+	\centerline{frequentist and Bayes perspectives}%
 }%
 
-\renewcommand{\frametitleText}{TBD}
+\renewcommand{\frametitleText}{Classical perspective on linear mixed effect model}
 \begin{frame}
 \frametitle{\frametitleText}
+Linear mixed effect model (\smallCap{lmm}) assumes a model
+\begin{tightEquation*}
+\by
+	= \bX \bbeta
+	+ \bZ \bm{\randEff} 
+	+ \bm{\epsilon}, 
+\end{tightEquation*}
+where $\bbeta$ is a \textit{fixed} effect, $\thinnestspace \bm{\randEff} \sim \normalDist(\bm{0}, \RandEffVar)$ is a \textit{random} effect, and $\bm{\epsilon} \sim \normalDist(\bm{0}, \bm{R})$ is an error term.
+
+\medskip
+Random effects are called as such b/c their values are assumed to be drawn from some distribution, rather than unknown-but-fixed values.
 \end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+% TODO: check terminology
+The matrix $\bZ$ often represents group effects through a structure
+\begin{tightEquation*}
+\bZ = \begin{bmatrix}
+	1 & 0 & 0 & \ldots & 0 \\
+	1 & 0 & 0 & \ldots & 0 \\
+	1 & 0 & 0 & \ldots & 0 \\
+	0 & 1 & 0 & \ldots & 0 \\
+	0 & 1 & 0 & \ldots & 0 \\
+	0 & 0 & 1 & \ldots & 0 \\
+	\vdots & & & \ddots &  
+\end{bmatrix}.
+\end{tightEquation*}
+
+The variance $\RandEffVar$ is often block-diagonal w/ values $\thinnerspace \sigma_{\mathrm{rnd}, 1}^2, \thinnerspace \ldots, \sigma_{\mathrm{rnd}, J}^2$.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Hierarchical perspective}
+\begin{frame}
+\frametitle{\frametitleText}
+In hierarchical modeling language, \smallCap{lmm} can be expressed as
+\begin{tightEquation*}
+\begin{aligned}
+\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\bbeta, \bm{\randEff}, \bm{R}
+	&\sim \normalDist\bigl(
+		\bX \bbeta + \bZ \bm{\randEff}, 
+		\bm{R} 
+	\bigr), \\
+\bm{\randEff}
+	\, \thinnerspace | \,  \thinnerspace 
+	\RandEffVar
+	&\sim \normalDist\bigl(
+		\bm{0}, \RandEffVar
+	\bigr),
+\end{aligned}
+\end{tightEquation*}
+where we've abbreviated explicit conditioning on observed $\bX$ and $\bZ$.
+
+\medskip
+Note that 
+$\thinnerspace \bZ \bm{\randEff} 
+	\, \thinnerspace | \, 
+	\RandEffVar
+	\sim \normalDist\bigl(
+		\bm{0}, \bZ \RandEffVar \bZ^\transpose
+	\bigr) \thinnerspace$
+and hence
+\begin{tightEquation*}
+\bZ \bm{\randEff} + \epsilon
+	\, \thinnerspace | \, 
+	\RandEffVar, \bm{R}
+	\sim \normalDist\bigl(
+		\bm{0}, 
+		\bZ \RandEffVar \bZ^\transpose + \bm{R}
+	\bigr).
+\end{tightEquation*}
+
+So, after integrating out $\bm{\randEff}$, \smallCap{lmm} is given in its marginal form as
+\begin{tightEquation*}
+\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\bbeta, \RandEffVar, \bm{R}
+	\sim \normalDist\bigl(
+		\bX \bbeta, \thinnerspace
+		\bm{V} \defeq \bZ \RandEffVar \bZ^\transpose + \bm{R}
+	\bigr).
+%	\ \text{ for } \
+%	\bm{V} 
+\end{tightEquation*}
+or simply 
+$\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\bbeta, \bm{V}
+	\sim \normalDist\bigl(
+		\bX \bbeta, \thinnerspace
+		\bm{V}
+	\bigr)$
+in terms of $\bm{V} \defeq \bZ \RandEffVar \bZ^\transpose + \bm{R}$.
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Frequentist estimation frameworks}
+\begin{frame}
+\frametitle{\frametitleText}
+The (marginal) \smallCap{lmm} likelihood is thus given by, up to additive const, 
+\begin{tightEquation*}
+\log \likelihood (
+	\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\bbeta, \bm{V}
+) 
+	= -  \frac12 \log | \bm{V} |
+	- \frac12 (\by - \bX \bbeta)^\transpose \bm{V}^{-1} (\by - \bX \bbeta).
+\end{tightEquation*}
+
+\smallskip
+If $\bm{V}$ were known, 
+%we can obtain the \smallCap{MLE} of $\bbeta$ as 
+we can estimate $\bbeta$ by maximizing the above via
+\begin{tightEquation*}
+\lse{\bbeta}
+	= (\bX^\transpose \bm{V}^{-1} \bX)^{-1} \bX^\transpose \bm{V}^{-1} \by,
+\end{tightEquation*}
+and quantify uncertainty as, noting that $\variance\bigl( \by \, | \, \widehat{\bbeta}, \bm{V} \bigr) = \bm{V}$,
+\begin{tightEquation*}
+\variance( \lse{\bbeta} \given \bm{V} )
+	= (\bX^\transpose \bm{V}^{-1} \bX)^{-1}.	
+\end{tightEquation*}
+
+Given this, we could estimate $\bm{V}$ by maximizing 
+$\thinnerspace \log \likelihood (
+	\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\lse{\bbeta}, \bm{V}
+)$,
+and then estimate $\bbeta$ by plugging in $\mle{\bm{V}}$ to the formula for $\lse{\bbeta}$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+The above maximum likelihood approach turns out sub-optimal as it doesn't account for the degrees of freedom spent on estimating $\bbeta$. 
+
+\smallskip
+In particular, $\mle{\bm{V}}$ (and hence $\variance( \lse{\bbeta} \given \mle{\bm{V}} )$) underestimates the true variance as a consequence of ignoring uncertainty in $\lse{\bbeta}$.
+
+\smallskip
+This variance underestimation could also have downstream impacts, e.g. on the best linear unbiased prediction of the random effect $\bm{\randEff}$ via%
+\begin{tightEquation*}
+\blup{\bm{\randEff}}
+	= \bm{D} \bZ^\transpose \bm{V}^{-1} (\by - \bX \lse{\bbeta}).
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Alternative that avoids the variance underestimation is the \textit{restricted maximum likelihood} (\smallCap{reml}), maximizing the \textit{restricted likelihood}
+\begin{tightEquation*}
+\begin{aligned}
+\log \likelihood_\remlSubscr(
+	\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\bm{V}
+) 
+	= &- \frac12 \log | \bX^\transpose \bm{V}^{-1} \bX | \\
+	&\hspace*{1em}-  \frac12 \log | \bm{V} |
+	- \frac12 (\by - \bX \lse{\bbeta})^\transpose \bm{V}^{-1} (\by - \bX \lse{\bbeta}) \\
+	= &- \frac12 \log | \bX^\transpose \bm{V}^{-1} \bX | 
+	+ \log \likelihood (
+		\by 
+		\, \thinnerspace | \,  \thinnerspace 
+		\lse{\bbeta}, \bm{V}
+	).
+\end{aligned}
+\end{tightEquation*}
+
+\medskip
+As we show now, it turns out \smallCap{reml} admits a Bayesian interpretation, which provides an insight as to why it might be preferable to \smallCap{ml}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textbf{Remark:}\\
+Above expression for \smallCap{reml} is equivalent to a more classical one  in terms of \textit{error contrasts}, part of the data unexplained by fixed effects.
+
+(More precisely, error contrasts are $\thinnerspace \sampleSize - \nPred \thinnerspace$ linearly independent components of
+the residual $\thinnerspace \by - \bX \widehat{\bbeta}_\mathrm{ols}$ for $\thinnerspace \widehat{\bbeta}_\mathrm{ols} = (\bX^\transpose \bX)^{-1} \bX^\transpose \by$.)
+
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Bayesian interpretation of \titleSmallCap{reml}: Intuition}
+\begin{frame}
+\frametitle{\frametitleText}
+So, the \smallCap{mle} underetimates $\bm{V}$ due to ignoring uncertainty in $\lse{\bbeta}$.\\
+How would a Bayesian deal with such issues? Integrate out $\bbeta$!
+
+\smallskip
+In other words, rather than considering 
+$\likelihood(
+	\by \given \widehat{\bbeta}, \bm{V}
+)$
+conditional on $\widehat{\bbeta}$, we should marginalize (i.e.\ average the likelihood) over unkonwn $\bbeta$:%
+\begin{tightEquation*}
+\likelihood(
+	\by \given \bm{V}
+)	
+	= \int 
+		\likelihood(\by \given \bbeta, \bm{V}) \density(\bbeta) 
+	\diff \bbeta.
+\end{tightEquation*}
+
+The marginal likelihood requires a specification of the prior $\density(\bbeta)$; \\
+to avoid a subjective choice, let's consider using a flat prior $\density(\bbeta) \propto 1$.
+
+\smallskip
+More precisely, we will show that
+\begin{tightEquation*}
+\likelihood_\remlSubscr(
+	\by \given \bm{V}
+)	
+	= (2 \pi)^{\frac{\nPred}{2}} \! 
+	\int 
+		\likelihood(\by \given \bbeta, \bm{V})
+	\diff \bbeta.
+\end{tightEquation*}
+\end{frame}
+
+
+\newcommand{\densityWidth}{w}
+\begin{frame}
+\frametitle{\frametitleText}
+
+\textbf{Note:} For the purpose of estimating $\bm{V}$, the use of the flat prior can be justified as a limit under $\thinnerspace \bbeta \sim \unifDist(-\densityWidth/2, \densityWidth/2)$ as $\densityWidth \to \infty$.
+
+\smallskip
+While the marginal likelihood itself doesn't make sense b/c
+\begin{tightEquation*}
+\likelihood(
+	\by \given \bm{V}, \densityWidth
+)	
+	= \frac{1}{\densityWidth^\nPred}
+	\int_{[-\densityWidth/2, \densityWidth/2]^\nPred} 
+		\likelihood(\by \given \bbeta, \bm{V}) 
+	\diff \bbeta
+	\to 0,
+\end{tightEquation*}
+the ratio of the marginal likelihoods does still make sense:
+\begin{tightEquation*}
+\frac{
+	\likelihood(
+		\by \given \bm{V}
+	)	
+}{
+	\likelihood(
+		\by \given \bm{V}'
+	)	
+}
+	= \lim_{\densityWidth \to \infty}
+		\frac{
+			\likelihood(
+				\by \given \bm{V}, \densityWidth
+			)	
+		}{
+			\likelihood(
+				\by \given \bm{V}', \densityWidth
+			)	
+		}.
+\end{tightEquation*}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Bayesian interpretation of \titleSmallCap{reml}: Derivation}
+\begin{frame}
+\frametitle{\frametitleText}
+Showing 
+$\thinnerspace
+\likelihood_\remlSubscr(
+	\by \given \bm{V}
+)	
+	= (2 \pi)^{\frac{\nPred}{2}} \! 
+	\int 
+		\likelihood(\by \given \bbeta, \bm{V})
+	\diff \bbeta
+\thinnerspace$
+amounts to showing
+\begin{tightEquation*}
+\begin{aligned}
+&\frac{1}{(2 \pi)^{\frac{\nPred}{2}} | \bX^\transpose \bm{V}^{-1} \bX |^{\frac12}}
+%\frac{1}{| \bm{V} |^{1/2}}
+\exp \!\left(
+	- \frac12 (\by - \bX \lse{\bbeta})^\transpose \bm{V}^{-1} (\by - \bX \lse{\bbeta})
+\right) \\
+&\hspace{1.5em}= \int 
+%		\frac{1}{| \bm{V} |^{1/2}}
+		\exp \!\left(
+			- \frac12 (\by - \bX \bbeta)^\transpose \bm{V}^{-1} (\by - \bX \bbeta)
+		\right)
+	\diff \bbeta.
+\end{aligned}
+\end{tightEquation*}
+
+\medskip
+To establish the above equality, let $\thinnerspace \| \bm{v} \|_{\bm{V}^{-1}}^2 \defeq \bm{v}^\transpose \bm{V}^{-1} \bm{v} \thinnerspace$ and\\ note that ``completing the square''/``Pythagorian theorem'' tells us 
+\begin{equation*}
+\setlength{\abovedisplayskip}{.45\baselineskip}
+\setlength{\belowdisplayskip}{.5\baselineskip}
+\big\| \by - \bX \bbeta \big\|_{\bm{V}^{-1}}^2
+	= \big\| \by - \bX \lse{\bbeta} \big\|_{\bm{V}^{-1}}^2
+	+ \big\| \bX \lse{\bbeta} - \bX \bbeta \big\|_{\bm{V}^{-1}}^2,
+\end{equation*}
+where $\thinnerspace \lse{\bbeta} = (\bX^\transpose \bm{V}^{-1} \bX)^{-1} \bX^\transpose \bm{V}^{-1} \by = \argmin_{\bbeta} \big\| \by - \bX \bbeta \big\|_{\bm{V}^{-1}}^2$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+\vspace*{-.2\baselineskip}
+This means that
+\begin{tightEquation*}
+\begin{aligned}
+&\exp \!\left(
+	- \frac12 \big\| \by - \bX \bbeta \big\|_{\bm{V}^{-1}}^2
+\right) \\
+	&= \exp \!\left(
+		- \frac12 \big\| \by - \bX \lse{\bbeta} \big\|_{\bm{V}^{-1}}^2
+	\right)
+	\exp \!\left(
+		- \frac12 \big\| \bX \lse{\bbeta} - \bX \bbeta \big\|_{\bm{V}^{-1}}^2
+	\right).
+\end{aligned}
+\end{tightEquation*}
+
+\vspace*{-.2\baselineskip}
+Noting
+$\thinnerspace \big\| \bX \lse{\bbeta} - \bX \bbeta \big\|_{\bm{V}^{-1}}^2  \negthinnerspace = (\lse{\bbeta} - \bbeta)^\transpose \bX^\transpose \bm{V}^{-1} \bX (\lse{\bbeta} - \bbeta) \thinnerspace$
+and%
+\begin{tightEquation*}
+\setlength{\belowdisplayskip}{0\baselineskip}
+\begin{aligned}
+&\int 
+	\exp \!\left(
+		- \frac12 (\lse{\bbeta} - \bbeta)^\transpose \bX^\transpose \bm{V}^{-1} \bX (\lse{\bbeta} - \bbeta)
+	\right)
+\diff \bbeta \\
+	&\hspace*{2em}= (2 \pi)^{\frac{\nPred}{2}} | \bX^\transpose \bm{V}^{-1} \bX |^{-\frac12},
+\end{aligned}
+\end{tightEquation*}
+we can conclude
+\begin{tightEquation*}
+\begin{aligned}
+&\int 
+	\exp \!\left(
+		- \frac12 \big\| \by - \bX \bbeta \big\|_{\bm{V}^{-1}}^2
+	\right) 
+\diff \bbeta \\
+	&\hspace*{2em}= \exp \!\left(
+		- \frac12 \big\| \by - \bX \lse{\bbeta} \big\|_{\bm{V}^{-1}}^2
+	\right)
+	(2 \pi)^{\frac{\nPred}{2}} | \bX^\transpose \bm{V}^{-1} \bX |^{-\frac12}.
+\end{aligned}
+\end{tightEquation*}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Bayesian interpretation of \titleSmallCap{reml}: Takeaway}
+\begin{frame}
+\frametitle{\frametitleText}
+R\smallCap{eml} can be interpreted as maximization of the marginal likelihood 
+$\likelihood(
+	\by \given \bm{V}
+)	
+	= 
+	\int 
+		\likelihood(\by \given \bbeta, \bm{V})
+	\diff \bbeta \thinnerspace$
+under the flat prior $\thinnerspace \density(\bbeta) \propto 1$.
+
+%From this perspective, it is unsurprising that the resulting estimator of $\bm{V}$ avoids the underestimation caused when maximizing $\likelihood(\by \given \lse{\bbeta}, \bm{V})$.
+
+\medskip
+Yet another example of Bayesian thinking yielding a procedure with provable frequentist properties;
+implications for (non-)Bayesians are:%
+\vspace{-.3\baselineskip}%
+\begin{itemize}
+\addtolength\itemsep{.08\baselineskip}
+\item When faced with complex and/or limited data, consider full Bayes, w/ confidence, for practical (not philosophical) reasons.
+\item When Bayes makes less sense, whether for computational or political reasons, it might still help you devise a useful procedure.\\[3pt]
+	\mbox{(e.g.\ Classical \smallCap{reml} derivations are rather involved and opaque.)}
+\end{itemize}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Bayesian estimation framework}
+\begin{frame}
+\frametitle{\frametitleText}
+Bayesian inference of \smallCap{lmm} is straightforward.
+
+\smallskip
+The hierarchical model
+\begin{tightEquation*}
+\begin{aligned}
+\by 
+	\, \thinnerspace | \,  \thinnerspace 
+	\bbeta, \bm{\randEff}, \bm{R}
+	&\sim \normalDist\bigl(
+		\bX \bbeta + \bZ \bm{\randEff}, 
+		\bm{R} 
+	\bigr), \\
+\bm{\randEff}
+	\, \thinnerspace | \,  \thinnerspace 
+	\RandEffVar
+	&\sim \normalDist\bigl(
+		\bm{0}, \RandEffVar
+	\bigr)
+\end{aligned}
+\end{tightEquation*}
+dictates the likelihood 
+$\thinnerspace 
+\likelihood(\by, \bm{\randEff} \given \bbeta, \bm{\RandEffVar}, \bm{R}) 
+	= \likelihood(\by \given \bbeta, \bm{\randEff}, \bm{R}) 
+		\likelihood(\bm{\randEff} \given \bm{\RandEffVar}) $; 
+you only need to specify a prior on 
+$\thinnerspace \bbeta, \bm{\RandEffVar}, \bm{R} \thinnerspace$ 
+and apply Bayes' rule.
+
+\smallskip
+And the posterior 
+$\thinnerspace
+\density(
+	\bbeta, \bm{\randEff}, \bm{\RandEffVar}, \bm{R}
+	\given 
+	\by
+) \propto 
+	\likelihood(\by, \bm{\randEff} \given \bbeta, \bm{\RandEffVar}, \bm{R})
+	\density(\bbeta, \bm{\RandEffVar}, \bm{R})$
+\tightSpacing[.48ex]{gives all you need for point estimation, uncertainty quantification, etc.}
+
+\smallskip
+Prior specification, especially for $\bm{\RandEffVar}$ and $\bm{R}$, warrants some thoughts;
+we'll discuss key considerations and provide practical guidance.
+\end{frame}
+
+
+\section*{%
+	\centerline{Bayesian inference of mixed effect models}%
+}%
+
 
 
 \nobibliography{references} % To cite inline without creating a bibliography
