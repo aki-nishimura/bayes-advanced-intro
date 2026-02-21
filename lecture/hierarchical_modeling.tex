@@ -176,13 +176,14 @@ Let's consider a slightly more general random intercept model.
 We start by reinterpreting the previous one as a group-mean model where each of the groups $\thinnerspace j = 1, \ldots, J \thinnestspace$ has one member:
 \begin{tightEquation*}
 y_j \given \mu_j
-	\sim \normalDist(\mu_j, \phi^{-1}), \ \,
-\mu_j \given \phi_{\textrm{grp}} 
+	\sim \normalDist(\mu_j, \sigma^2), \ \,
+\mu_j \given \sigma_{\textrm{grp}} 
 	\sim \normalDist( 
 		\mu_\mathrm{grp}, \thinnerspace 
-		\phi_{\textrm{grp}}^{-1}
-	).
+		\sigma_{\textrm{grp}}^2
+	),
 \end{tightEquation*}
+now parametrized in terms of the variance $\sigma^2$ and $\sigma_{\textrm{grp}}^2$.
 \end{frame}
 
 
@@ -191,11 +192,11 @@ y_j \given \mu_j
 Let's now imagine the $j$th group having $i = 1, \ldots, n_j$ members:
 \begin{tightEquation*}
 y_{\highlight{i}j} \given \mu_j
-	\sim \normalDist(\mu_j, \phi^{-1}), \ \,
-\mu_j \given \phi_{\textrm{grp}} 
+	\sim \normalDist(\mu_j, \sigma^2), \ \,
+\mu_j \given \sigma_{\textrm{grp}} 
 	\sim \normalDist( 
 		\mu_\mathrm{grp}, \thinnerspace 
-		\phi_{\textrm{grp}}^{-1}
+		\sigma_{\textrm{grp}}^2
 	),
 \end{tightEquation*}
 or equivalently in a regression model language,
@@ -204,11 +205,11 @@ y_{ij}
 	= \mu_\mathrm{grp} + \randEff_{j} + \epsilon_{ij}, \ \,
 \randEff_{j} 
 	\sim \normalDist( 
-		0, \phi_{\textrm{grp}}^{-1}
+		0, \sigma_{\textrm{grp}}^2
 	), \ \,
 \epsilon_{ij}
 	\sim \normalDist( 
-		0, \phi^{-1}
+		0, \sigma^2 
 	).
 \end{tightEquation*}
 
@@ -216,7 +217,7 @@ y_{ij}
 The group-mean model can also be written in a ``tall'' format as
 \begin{tightEquation*}
 y_{i} \given \bm{\mu} % \mu_1, \ldots, \mu_J
-	\sim \normalDist(\mu_{j(i)}, \phi^{-1})
+	\sim \normalDist(\mu_{j(i)}, \sigma^2)
 	\ \text{ for } \
 	\textstyle i = 1, \ldots, \sum_{j = 1}^J n_j,
 \end{tightEquation*}
@@ -229,11 +230,11 @@ Or as a regression model, with a $\bigl( \sum_{j = 1}^J n_j \bigr)$-by-$J$ binar
 	+ \bm{\epsilon}, \ \,
 	\bm{\randEff} 
 		\sim \normalDist( 
-			0, \phi_{\textrm{grp}}^{-1} \bm{I}
+			0, \sigma_{\textrm{grp}}^2 \bm{I}
 		), \ \,
 	\bm{\epsilon}
 		\sim \normalDist( 
-			0, \phi^{-1} \bm{I}
+			0, \sigma^2 \bm{I}
 		).
 \end{tightEquation*}
 \end{frame}
