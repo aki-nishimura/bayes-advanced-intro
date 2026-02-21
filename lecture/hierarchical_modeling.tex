@@ -169,6 +169,76 @@ Fully Bayesian inference is obtained by placing a prior on $\phi_\mathrm{grp}$ a
 \end{frame}
 
 
+\begin{frame}
+\frametitle{\frametitleText}
+Let's consider a slightly more general random intercept model.
+
+We start by reinterpreting the previous one as a group-mean model where each of the groups $\thinnerspace j = 1, \ldots, J \thinnestspace$ has one member:
+\begin{tightEquation*}
+y_j \given \mu_j
+	\sim \normalDist(\mu_j, \phi^{-1}), \ \,
+\mu_j \given \phi_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\phi_{\textrm{grp}}^{-1}
+	).
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Let's now imagine the $j$th group having $i = 1, \ldots, n_j$ members:
+\begin{tightEquation*}
+y_{\highlight{i}j} \given \mu_j
+	\sim \normalDist(\mu_j, \phi^{-1}), \ \,
+\mu_j \given \phi_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\phi_{\textrm{grp}}^{-1}
+	),
+\end{tightEquation*}
+or equivalently in a regression model language,
+\begin{tightEquation*}
+y_{ij} 
+	= \mu_\mathrm{grp} + \randEff_{j} + \epsilon_{ij}, \ \,
+\randEff_{j} 
+	\sim \normalDist( 
+		0, \phi_{\textrm{grp}}^{-1}
+	), \ \,
+\epsilon_{ij}
+	\sim \normalDist( 
+		0, \phi^{-1}
+	).
+\end{tightEquation*}
+
+\smallskip
+The group-mean model can also be written in a ``tall'' format as
+\begin{tightEquation*}
+y_{i} \given \bm{\mu} % \mu_1, \ldots, \mu_J
+	\sim \normalDist(\mu_{j(i)}, \phi^{-1})
+	\ \text{ for } \
+	\textstyle i = 1, \ldots, \sum_{j = 1}^J n_j,
+\end{tightEquation*}
+where $j(i)$ indicates the membership of the $i$th observation $y_i$.\\
+Or as a regression model, with a $\bigl( \sum_{j = 1}^J n_j \bigr)$-by-$J$ binary matrix $\indicator$,
+\begin{tightEquation*}
+\by 
+	= \bm{1} \mu_\mathrm{grp} 
+	+ \indicator \bm{\randEff}
+	+ \bm{\epsilon}, \ \,
+	\bm{\randEff} 
+		\sim \normalDist( 
+			0, \phi_{\textrm{grp}}^{-1} \bm{I}
+		), \ \,
+	\bm{\epsilon}
+		\sim \normalDist( 
+			0, \phi^{-1} \bm{I}
+		).
+\end{tightEquation*}
+\end{frame}
+
+
 \newcommand{\randomIntModel}{%
 	\begin{alignat*}{2}
 	y_z^\mathrm{zp} \, 
@@ -201,7 +271,6 @@ Fully Bayesian inference is obtained by placing a prior on $\phi_\mathrm{grp}$ a
 }%
 \begin{frame}
 \frametitle{\frametitleText}
-\vspace*{-.3\baselineskip}
 Model hierarchy can consist of more levels.
 
 As explored later, in the regression context, hierarchical modeling also coincides with \textit{(generalized) linear mixed-effects modeling}.
