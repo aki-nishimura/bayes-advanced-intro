@@ -1027,7 +1027,129 @@ we'll discuss key considerations and provide practical guidance.
 	\centerline{Bayesian inference of mixed effect models}%
 }%
 
+\begin{frame}
+\frametitle{\frametitleText}
+As pointed out previously, the only additional piece needed for Bayesian inference of \smallCap{lmm} is the prior specification on $\thinnerspace \bbeta, \bm{\RandEffVar}, \bm{R}$. 
 
+And existing software packages like \texttt{brms} (Bayesian regression models using Stan) make the posterior computation straightforward. 
+
+\medskip
+To identify a reasonable choice of prior, let's study how a choice of prior affect resulting posterior under a simple special case of \smallCap{lmm}.
+\end{frame}
+
+\renewcommand{\frametitleText}{Prior on hierarchical variance parameters}
+\begin{frame}
+\frametitle{\frametitleText}
+Recall the random group-mean model:
+\begin{tightEquation*}
+y_{ij} \given \mu_j
+	\sim \normalDist(\mu_j, \sigma^2), \ \,
+\mu_j \given \sigma_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\sigma_{\textrm{grp}}^2
+	),
+\end{tightEquation*}
+for $\thinnerspace i = 1, \ldots, \sampleSize_j \thinnestspace$ and $\thinnerspace j = 1, \ldots, J$. 
+
+\medskip
+Consider two seemingly reasonable ``uninformative'' priors on $\sigma_{\textrm{grp}}$:
+\begin{tightEnumerate}
+\item $ \density( \sigma_{\textrm{grp}} ) \propto 1 \thinnerspace$;
+\item $ \density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}}$, which is the Jeffrey's/reference prior for scale families and is equivalent to $\thinnerspace \density( \log \sigma_{\textrm{grp}} ) \propto 1 \thinnerspace$ on $\thinnerspace (-\infty, \infty)$.
+\end{tightEnumerate}
+
+As it turns out, both choices are problematic.
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+To analyze the posterior behavior, let's calculate the marginal likelihood of $\by$ given $\sigma_\mathrm{grp}$
+%
+--- to this end, note that
+\begin{tightEquation*}
+\setlength{\abovedisplayskip}{.15\baselineskip}%
+\setlength{\belowdisplayskip}{.25\baselineskip}%
+\prod_{i,j} 
+	\normalDist\!\left( 
+		y_{ij} \given \mu_j, \sigma_j^2
+	\right)
+	\propto \prod_{j} 
+		\normalDist\!\left( 
+			\bar{y}_{j} \given \mu_j, \sigma^2 / n_j
+		\right)
+	\ \text{ for } \
+	\bar{y}_{j}  = n_j^{-1} \sum_{i = 1}^{n_j} y_{ij},
+\end{tightEquation*}
+because
+$\thinnerspace
+\sum_{i,j} ( y_{ij} - \mu_j )^2
+	= \sum_{i,j} ( y_{ij} - \bar{y}_{j} )^2
+	+ \sum_{j} n_j ( \bar{y}_{j} - \mu_j )^2
+$.
+
+\bigskip
+i.e., for the purpose of estimating $\sigma_\mathrm{grp}$, the model is equivalent to
+\begin{tightEquation*}
+\bar{y}_{j} \given \mu_j
+	\sim \normalDist(\mu_j, \sigma^2 / n_j), \ \,
+\mu_j \given \sigma_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\sigma_{\textrm{grp}}^2
+	).
+\end{tightEquation*}
+Marginalizing over $\mu_j$'s, therefore, we obtain 
+\begin{tightEquation*}
+\bar{y}_{j} \given \sigma_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\sigma^2 / n_j + \sigma_{\textrm{grp}}^2
+	).
+\end{tightEquation*}
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+Under the flat prior $\thinnerspace \density(\sigma_\mathrm{grp}) \propto 1$, the posterior is
+\begin{tightEquation*}
+\density( \sigma_\mathrm{grp} \given \by )
+	\propto 
+	\prod_{j = 1}^J \frac{1}{( \sigma^2 / n_j + \sigma_\mathrm{grp}^2 )^{1/2}}
+		\exp \left(
+			- \frac12 \frac{
+				(\bar{y}_{j} - \mu_j)^2
+			}{
+				\sigma^2 / n_j + \sigma_\mathrm{grp}^2
+			}
+		\right).
+\end{tightEquation*}
+
+As $\sigma_\mathrm{grp} \to \infty$, we have
+%For $\thinnerspace \sigma_\mathrm{grp} \gg \sigma^2 / n_j$, we have
+\begin{tightEquation*}
+\density( \sigma_\mathrm{grp} \given \by )
+	\sim \prod_{j = 1}^J \frac{1}{( \sigma_\mathrm{grp}^2 )^{1/2}}
+	\sim \frac{1}{\sigma_\mathrm{grp}^{J}}.
+\end{tightEquation*}
+
+The posterior is improper ($\int_0^\infty \density( \sigma_\mathrm{grp} \given \by ) \diff \sigma_\mathrm{grp} = \infty$) unless $J \geq 3$.
+
+\medskip
+This makes an intuitive sense as we need $J \geq 2$ to estimate variance among $\mu_j$'s. 
+And, as $\mu_j$'s are only indirectly observed, we need $J > 2$.
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+Another feature of the marginal likelihood is that
+$\thinnestspace \likelihood( \by \given \sigma_\mathrm{grp} = 0) > 0$;
+i.e.\ it can't eliminate the possibility of $\sigma_\mathrm{grp} = 0$.
+
+Under the prior 
+$\density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}} $,
+the posterior is always improper.
+\end{frame}
 
 \nobibliography{references} % To cite inline without creating a bibliography
 \end{document}
