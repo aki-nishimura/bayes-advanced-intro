@@ -1,17 +1,5 @@
 library(ggplot2)
-
-tableau10 <- c(
-  "#4E79A7", # blue
-  "#F28E2B", # orange
-  "#E15759", # red
-  "#76B7B2", # teal
-  "#59A14F", # green
-  "#EDC948", # yellow
-  "#B07AA1", # purple
-  "#FF9DA7", # pink
-  "#9C755F", # brown
-  "#BAB0AB"  # gray
-)
+source("colors.R")
 
 trace_plot <- function(samples, param_index = 1, thin = 1L, add = F, ...) {
   plot_args <- list(...)
