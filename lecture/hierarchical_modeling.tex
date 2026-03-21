@@ -295,6 +295,44 @@ $s(c(\text{21205})) = s(\text{Baltimore City}) = \text{Maryland}$.
 \end{frame}
 
 
+\newcommand{\zipcodeLevelModelDAG}{%
+	\begin{tikzpicture}
+	    % Main row (first level - y and mus)
+	    \node[obs] (y) {$y^\mathrm{zp}_z\!$};
+	    \node[latent, right=1cm of y] (mu_z) {$\mu^\mathrm{zp}_z\!$};
+	    \coordinate[right=.3cm of mu_z] (muZRight);
+	
+	    \node[latent, right=1.5cm of mu_z] (mu_co) {$\mu^\mathrm{co}_c\!$};
+	    \coordinate[right=.3cm of mu_co] (muCoRight);
+	
+	    \node[latent, right=1.5cm of mu_co] (mu_st) {$\mu^\mathrm{st}_s\!$};
+	    \coordinate[right=.3cm of mu_st] (muStRight);
+	
+	    \node[latent, right=1.5cm of mu_st] (mu_us) {$\mu^\mathrm{us}\!$};
+	
+	    % Second row (sigmas - same vertical height, outside plates)
+	    % Place them above their associated mus, but shifted upwards
+	    \node[customconst, above=1cm of mu_z] (sigma_zp) {$\hat{\sigma}^\mathrm{zp}_z\!$};
+	    \node[latent, above=1cm of mu_co] (sigma_co) {$\sigma^\mathrm{co}\!$};
+	    \node[latent, above=1cm of mu_st] (sigma_st) {$\sigma^\mathrm{st}\!$};
+	    \node[latent, above=1cm of mu_us] (sigma_us) {$\sigma^\mathrm{us}\!$};
+	
+	    % -- Edges --
+	    \edge {mu_z} {y};
+	    \edge {sigma_zp} {y};
+	    \edge {mu_co} {mu_z};
+	    \edge {sigma_co} {mu_z};
+	    \edge {mu_st} {mu_co};
+	    \edge {sigma_st} {mu_co};
+	    \edge {mu_us} {mu_st};
+	    \edge {sigma_us} {mu_st};
+	
+	    % Plates
+	    \plate [inner sep=.25cm, yshift=.15cm] {platezip} {(y)(mu_z)(muZRight)} {zip codes in $c$};
+	    \plate [inner sep=.35cm, yshift=.115cm, xshift=-.01cm] {plateco} {(y)(mu_z)(muZRight)(mu_co)(muCoRight)} {counties in $s$\!};
+	    \plate [inner sep=.45cm, yshift=.1cm, xshift=-.02cm] {platest} {(y)(mu_z)(muZRight)(mu_co)(muCoRight)(mu_st)(muStRight)} {states\!\!};
+	\end{tikzpicture}%
+}
 \begin{frame}
 \frametitle{\frametitleText}
 \begin{minipage}[t][.23\paperheight]{\linewidth}
@@ -309,42 +347,7 @@ The model can be represented in a \textit{directed acyclic graph (\smallCap{dag}
 %\vspace*{-.3\baselineskip}
 \begin{figure}
 \centering
-\begin{tikzpicture}
-    % Main row (first level - y and mus)
-    \node[obs] (y) {$y^\mathrm{zp}_z\!$};
-    \node[latent, right=1cm of y] (mu_z) {$\mu^\mathrm{zp}_z\!$};
-    \coordinate[right=.3cm of mu_z] (muZRight);
-
-    \node[latent, right=1.5cm of mu_z] (mu_co) {$\mu^\mathrm{co}_c\!$};
-    \coordinate[right=.3cm of mu_co] (muCoRight);
-
-    \node[latent, right=1.5cm of mu_co] (mu_st) {$\mu^\mathrm{st}_s\!$};
-    \coordinate[right=.3cm of mu_st] (muStRight);
-
-    \node[latent, right=1.5cm of mu_st] (mu_us) {$\mu^\mathrm{us}\!$};
-
-    % Second row (sigmas - same vertical height, outside plates)
-    % Place them above their associated mus, but shifted upwards
-    \node[customconst, above=1cm of mu_z] (sigma_zp) {$\hat{\sigma}^\mathrm{zp}_z\!$};
-    \node[latent, above=1cm of mu_co] (sigma_co) {$\sigma^\mathrm{co}\!$};
-    \node[latent, above=1cm of mu_st] (sigma_st) {$\sigma^\mathrm{st}\!$};
-    \node[latent, above=1cm of mu_us] (sigma_us) {$\sigma^\mathrm{us}\!$};
-
-    % -- Edges --
-    \edge {mu_z} {y};
-    \edge {sigma_zp} {y};
-    \edge {mu_co} {mu_z};
-    \edge {sigma_co} {mu_z};
-    \edge {mu_st} {mu_co};
-    \edge {sigma_st} {mu_co};
-    \edge {mu_us} {mu_st};
-    \edge {sigma_us} {mu_st};
-
-    % Plates
-    \plate [inner sep=.25cm, yshift=.15cm] {platezip} {(y)(mu_z)(muZRight)} {zip codes in $c$};
-    \plate [inner sep=.35cm, yshift=.115cm, xshift=-.01cm] {plateco} {(y)(mu_z)(muZRight)(mu_co)(muCoRight)} {counties in $s$\!};
-    \plate [inner sep=.45cm, yshift=.1cm, xshift=-.02cm] {platest} {(y)(mu_z)(muZRight)(mu_co)(muCoRight)(mu_st)(muStRight)} {states\!\!};
-\end{tikzpicture}
+\zipcodeLevelModelDAG
 \end{figure}
 \end{minipage}
 \end{frame}
@@ -781,7 +784,7 @@ In other words, rather than considering
 $\likelihood(
 	\by \given \widehat{\bbeta}, \bm{V}
 )$
-conditional on $\widehat{\bbeta}$, we should marginalize (i.e.\ average the likelihood) over unkonwn $\bbeta$:%
+conditional on $\widehat{\bbeta}$, we should marginalize (i.e.\ average the likelihood) over unknown $\bbeta$:%
 \begin{tightEquation*}
 \likelihood(
 	\by \given \bm{V}
@@ -1018,7 +1021,7 @@ $\thinnerspace
 \tightSpacing[.48ex]{gives all you need for point estimation, uncertainty quantification, etc.}
 
 \smallskip
-Prior specification, especially for $\bm{\RandEffVar}$ and $\bm{R}$, warrants some thoughts;
+Prior specification, especially for $\bm{\RandEffVar}$, warrants some thoughts;\\
 we'll discuss key considerations and provide practical guidance.
 \end{frame}
 
@@ -1034,10 +1037,16 @@ As pointed out previously, the only additional piece needed for Bayesian inferen
 And existing software packages like \texttt{brms} (Bayesian regression models using Stan) make the posterior computation straightforward. 
 
 \medskip
-To identify a reasonable choice of prior, let's study how a choice of prior affect resulting posterior under a simple special case of \smallCap{lmm}.
+Inference on $\bbeta$ generally isn't sensitive to a choice of prior, so weak/uninformative priors are fine, including the flat prior $\density(\bbeta) \propto 1$.
+
+Residual cov $\bm{R}$ is often modeled as diagonal or $\sigma_\mathrm{res}^2 \Id$, the idea being that correlation in $\by$ has been captured by the random effect term $\bZ \bm{\randEff}$.
+
+\medskip
+The remaining question is how to choose a prior for $\bm{\RandEffVar}$;
+let's start by studying how it affects the posterior behavior in a simple case of \smallCap{lmm}.
 \end{frame}
 
-\renewcommand{\frametitleText}{Prior on hierarchical variance parameters}
+\renewcommand{\frametitleText}{Prior on hierarchical variances: case study}
 \begin{frame}
 \frametitle{\frametitleText}
 Recall the random group-mean model:
@@ -1145,13 +1154,134 @@ And, as $\mu_j$'s are only indirectly observed, we need $J > 2$.
 
 \begin{frame}
 \frametitle{\frametitleText}
-Another feature of the marginal likelihood is that
-$\thinnestspace \likelihood( \by \given \sigma_\mathrm{grp} = 0) > 0$;
-i.e.\ it can't eliminate the possibility of $\sigma_\mathrm{grp} = 0$.
+Another feature of the marginal likelihood 
+\begin{tightEquation*}
+\bar{y}_{j} \given \sigma_{\textrm{grp}} 
+	\sim \normalDist( 
+		\mu_\mathrm{grp}, \thinnerspace 
+		\sigma^2 / n_j + \sigma_{\textrm{grp}}^2
+	)
+\end{tightEquation*}
+is
+$\thinnerspace \likelihood( \by \given \sigma_\mathrm{grp} = 0) > 0$;
+i.e.\ can't eliminate the possibility of $\sigma_\mathrm{grp} = 0$.
 
+\medskip
 Under the prior 
 $\density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}} $,
-the posterior is always improper.
+the posterior is always improper!
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+Shortcoming of the priors $\thinnerspace \density( \sigma_{\textrm{grp}} ) \propto 1 \thinnerspace$ and $\thinnerspace \density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}}$ reflects that $\sigma_{\textrm{grp}}$ is only weakly identifiable from data, esp.\ when $J$ is small.
+
+Also reflects how ``uninformative'' priors are unexpectedly informative --- they tend to place a lot of prior prob on unrealistic param values.
+
+\medskip
+To see the issue, note how $\density( \sigma_\mathrm{grp} ) \propto 1$ places ``infinitely more prior belief'' on $\sigma_\mathrm{grp} > r$ than  $\sigma_\mathrm{grp} \leq r$ regardless of how large $r$ is b/c
+\begin{tightEquation*}
+\int_0^r \density( \sigma_\mathrm{grp} ) \diff \sigma_\mathrm{grp} < \infty
+	\ \ \text{ while } \
+	\int_r^\infty \density( \sigma_\mathrm{grp} ) \diff \sigma_\mathrm{grp} = \infty.
+\end{tightEquation*}
+
+Similarly, $\density( \sigma_\mathrm{grp} ) \propto 1 / \sigma_\mathrm{grp}$ places infinitely more prior belief on 
+%$\sigma_\mathrm{grp} < r^{-1}$ and $\sigma_\mathrm{grp} > r$ than on $r^{-1} \leq \sigma_\mathrm{grp} \leq r$.
+$\sigma_\mathrm{grp} \in [0, r^{-1}) \cup (r, \infty) \thinnerspace$ than on $\thinnerspace \sigma_\mathrm{grp} \in [r^{-1}, r]$.
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+\textbf{Example:}
+Behavior of $\density( \sigma_\mathrm{grp} \given \by )$ under $\density( \sigma_\mathrm{grp} ) \propto 1$ with the \smallCap{sat} score data from a coaching program experiment \citep{gelman2006prior_for_variance}:
+% Actually, it is unnecessary to assume each y_{ij} to have the same \sigma; each can have its own \sigma_{ij} and the group-level likelihood has the same form.
+\vspace*{-.3\baselineskip}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccc}
+\hline
+School &
+\begin{tabular}[c]{@{}c@{}}
+Trtment effect est.\\[-5pt]
+$\bar{y}_j$
+\end{tabular} &
+\begin{tabular}[c]{@{}c@{}}
+Std error est.\\[-3pt]
+$\sigma^2 / n_j$
+\end{tabular}\\
+\hline
+\noalign{\vskip 2pt}
+A & 28  & 15 \\
+B & 8   & 10 \\
+C & \textminus 3  & 16 \\
+D & 7   & 11 \\
+E & \textminus 1  & 9  \\
+F & 1   & 11 \\
+G & 18  & 10 \\
+H & 12  & 18 \\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{Figure/group_var_posterior_with_8_schools}
+\caption*{\textcolor{themecolor}{\bfseries Figure:}
+	$\density( \sigma_\mathrm{grp} \given \by )$ based on full data from all the 8 schools.
+}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{Figure/group_var_posterior_with_3_schools}
+\caption*{\textcolor{themecolor}{\bfseries Figure:}
+	$\density( \sigma_\mathrm{grp} \given \by )$ based on data from the first 3 schools (A, B, and C).
+}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+Heavy-tailed distributions might look fine visually, but don't be fooled by appearance --- it can have real negative impacts on inference:
+\vspace*{-1.7\baselineskip}
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{Figure/gaussian_cauchy_comparison_plot}
+\end{figure}
+\end{frame}
+
+
+\renewcommand{\frametitleText}{Prior on hierarchical variances: takeaway}
+\begin{frame}
+\frametitle{\frametitleText}
+\begin{figure} 
+\begin{tikzpicture}
+  % Define nodes
+  \node[obs] (y) {$y_{ij}\!$};
+  \node[latent, right=1cm of y] (mu) {$\mu_j\!$};
+  \node[const, right=1cm of mu] (phi) {$\, \phi_{\mathrm{grp}} \, $};
+  \coordinate[right=.3cm of mu] (muRight);
+
+  % Connect the nodes
+  \edge {mu} {y} ; %
+  \edge {phi} {mu} ; %
+
+  % Plates
+  \plate [inner sep=.3cm, yshift=.15cm] {caption} {(y)(mu) (muRight)} {$i = 1, \ldots, n_j\!$} ;
+\end{tikzpicture}
+\begin{figure}
+\centering
+\zipcodeLevelModelDAG
+\end{figure}
+\end{figure}
 \end{frame}
 
 \nobibliography{references} % To cite inline without creating a bibliography
