@@ -1066,20 +1066,23 @@ As it turns out, both choices are problematic.
 \frametitle{\frametitleText}
 To analyze the posterior behavior, let's calculate the marginal likelihood of $\by$ given $\sigma_\mathrm{grp}$
 %
---- to this end, note that
+--- note that, for $\thinnerspace \bar{y}_{j}  = n_j^{-1} \sum_{i = 1}^{n_j} y_{ij}$,
 \begin{tightEquation*}
-\setlength{\abovedisplayskip}{.15\baselineskip}%
-\setlength{\belowdisplayskip}{.25\baselineskip}%
+\setlength{\abovedisplayskip}{.4\baselineskip}%
+\setlength{\belowdisplayskip}{.2\baselineskip}%
 \prod_{i,j} 
 	\normalDist\!\left( 
-		y_{ij} \given \mu_j, \sigma_j^2
+		y_{ij} \given \mu_j, \sigma^2
 	\right)
-	\propto \prod_{j} 
+\propto 
+	\prod_{i,j} 
+		\normalDist\!\left( 
+			y_{ij} \given \bar{y}_{j}, \sigma^2
+		\right)
+	\prod_{j} 
 		\normalDist\!\left( 
 			\bar{y}_{j} \given \mu_j, \sigma^2 / n_j
 		\right)
-	\ \text{ for } \
-	\bar{y}_{j}  = n_j^{-1} \sum_{i = 1}^{n_j} y_{ij},
 \end{tightEquation*}
 because
 $\thinnerspace
@@ -1089,7 +1092,7 @@ $\thinnerspace
 $.
 
 \bigskip
-i.e., for the purpose of estimating $\sigma_\mathrm{grp}$, the model is equivalent to
+For the purpose of estimating $\sigma_\mathrm{grp}$, the model is thus equivalent to
 \begin{tightEquation*}
 \bar{y}_{j} \given \mu_j
 	\sim \normalDist(\mu_j, \sigma^2 / n_j), \ \,
