@@ -583,13 +583,13 @@ The corresponding post mean coincides with the freq estimator based on continuit
 The prior $\propto p^{-1/2} (1 - p)^{-1/2}$ may not be the most obvious choice.
 \onslide<2->{But the more obvious ``flat'' prior has its own problems.}
 
-\vspace{.15\baselineskip}
+\vspace{.2\baselineskip}
 \begin{minipage}{.48\linewidth}
 	\begin{figure}
 		\begin{tikzpicture}
 		\begin{axis}[
-			width=0.575\paperheight,
-			height=0.575\paperheight,
+			width=0.5\paperheight,
+			height=0.5\paperheight,
 		    axis lines = left,
 		    xmin=0,
 		    xmax=1,
@@ -622,8 +622,8 @@ The prior $\propto p^{-1/2} (1 - p)^{-1/2}$ may not be the most obvious choice.
 	\begin{figure}
 		\begin{tikzpicture}
 		\begin{axis}[
-			width=0.575\paperheight,
-			height=0.575\paperheight,
+			width=0.5\paperheight,
+			height=0.5\paperheight,
 		    axis lines = left,
 		    xmin=0,
 		    xmax=1,
@@ -650,9 +650,9 @@ The prior $\propto p^{-1/2} (1 - p)^{-1/2}$ may not be the most obvious choice.
 	\end{figure}
 \end{minipage}
 }%
-\vspace{.15\baselineskip}
+
 \onslide<3>{%
-At the least, Bayesian inference has an explicit, clear interpretation in terms of the prior.
+At the least, compared to ad hoc ``correction,'' Bayes provides an estimator with explicit and clear interpretation of the prior's role.
 }
 \end{frame}
 
@@ -1266,7 +1266,7 @@ The corresponding posterior is
 \begin{narrowItemize}[<+->]
 \item Flat prior in $\mathbb{R}^\nPred$ is even ``more improper/diffuse'' than in $\mathbb{R}$ because prior uncertainties in the parameters add up.
 \item More generally, using improper or proper-but-diffuse priors is a risky business in high-dimensional (i.e.\ large $\nPred$) applications.
-\item Requirement $n > \nPred$ is intuitive enough here but it's less obvious in more complex models (where Bayes really shines).
+%\item Requirement $n > \nPred$ is intuitive enough here but it's less obvious in more complex models (where Bayes really shines).
 \end{narrowItemize}
 \end{frame}
 
@@ -1326,7 +1326,7 @@ If we were to do without conjugacy, we might choose a prior like
 
 \pause
 \smallskip
-Gamma prior on $\phi$ is less flexibility but, based the interpretation of $\nu_0$ as the prior degrees of freedom,
+Gamma prior on $\phi$ is less flexible but, based the interpretation of $\nu_0$ as the prior degrees of freedom,
 	% Note: In particular, the right exponential tail necessarily penalizes larger $\phi$ and the left polynomial tail cannot aggressively penalize small $\phi$.
 \begin{tightEquation*}
 \phi \sim \gammaDist(\nu_0 / 2, \nu_0 / 2)
