@@ -1,4 +1,5 @@
 \documentclass[18pt]{beamer}
+%\includeonlyframes{working} % Uncomment and use `\begin{frame}[label=working]` for compiling only a subset of slides for speed
 
 \usetheme{metropolis}
 \usefonttheme{professionalfonts}
@@ -502,19 +503,47 @@ As a more pragmatic alternative to constructing a scientifically informed prior,
 \vspace*{-.1\baselineskip}
 
 \pause
+\begin{minipage}[t][.35\paperheight]{\textwidth}
 For example, we can 
-\vspace*{-.1\baselineskip}
-\begin{narrowItemize}
+\begin{itemize}
+\addtolength\itemsep{-.1\baselineskip}
 \item Fix the prior sample size to be $1$, and
 \item Use a reported background rate of Guillain-Barré ($\approx 1$ per million over 4-weeks) as the prior mean.
-\end{narrowItemize}
-\vspace*{-.4\baselineskip}
+\end{itemize}
 \pause
 In other words, solve $(a + b) = 1$ and $a \divby (a + b) = 10^{-6}$ for $a$ and $b$. % which gives $a = 10^{-6}$ and $b = 1 - a$.
+\end{minipage}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Example: estimating incidence proportion}
+
+\vspace*{-.3\baselineskip}
+As a more pragmatic alternative to constructing a scientifically informed prior, we can consider specifying it in terms of: 
+\vspace*{-.1\baselineskip}
+\begin{narrowItemize}
+\item Prior mean $a \divby (a + b)$,
+\item Prior sample size $a + b$, and/or
+\item Prior credible intervals.
+\end{narrowItemize}
+\vspace*{-.1\baselineskip}
+
+
+\begin{minipage}[t][.35\paperheight]{\textwidth}
+Or, we can choose $a$ and $b$ so that the prior 95\% CI spans the background rate and highest vaccine-induced rate ever reported.
+\medskip % Not sure why the inter-line spacing gets weird inside a minipage
 
 \pause
-\smallskip
-Or, we can choose $a$ and $b$ so that the prior 95\% CI spans the background rate and highest vaccine-induced rate ever reported.%
+In other words, specify a reasonable lower bound $\ell$ and upper bound $u$ on the parameter's range, and solve for $a$ and $b$ such that
+\begin{tightEquation*}
+\int_0^\ell \density(p \given a, b) \diff x 
+	= 0.025
+	\ \text{ and } \,
+\int_u^1 \density(p \given a, b) \diff x 
+	= 0.975.
+\end{tightEquation*}
+\end{minipage}
 
 \end{frame}
 
