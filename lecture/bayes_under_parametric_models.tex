@@ -298,6 +298,7 @@
 
 %\section{Bayesian estimation of incidence proportion}
 
+
 \begin{frame}<handout:0> % Exclude from handout b/c the `only` overlay specificaitons mess up the slide
 \frametitle{Example: estimating incidence proportion}
 \vspace{-.3\baselineskip}
@@ -404,9 +405,9 @@ Potential fix is continuity correction, which yields $\widehat{p} = 0.5 \divby (
 \end{frame}
 
 
+\newcommand{\frametitleText}{Bayesian estimation of incidence proportion}
 \begin{frame}
-\frametitle{Example: estimating incidence proportion}
-
+\frametitle{\frametitleText}
 Let's try Bayesian analysis of the binomial model with likelihood
 \begin{tightEquation*}
 \likelihood(\by \given p) 
@@ -448,8 +449,7 @@ where $a + b$ can be interpreted as \textit{prior sample size}.
 \end{frame}
 
 \begin{frame}
-\frametitle{Example: estimating incidence proportion}
-
+\frametitle{\frametitleText}
 Posterior provides much more information than a point estimate. 
 
 \pause
@@ -468,9 +468,10 @@ as well as a post predictive dist on future data $\by_{\textrm{new}}$ via relati
 \textbf{Note:} Bayesian credible intervals, philosophically speaking, have completely different interpretations from frequentist conf intervals.
 \end{frame}
 
-\begin{frame}
-\frametitle{Example: estimating incidence proportion}
 
+\renewcommand{\frametitleText}{Choosing a prior on incidence proportion}
+\begin{frame}
+\frametitle{\frametitleText}
 The remaining question is: how do we choose the prior?
 
 \pause
@@ -489,9 +490,10 @@ To properly construct such an informed prior, we have to:
 \end{narrowItemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Example: estimating incidence proportion}
 
+\renewcommand{\frametitleText}{Choosing a informed-but-pragramtic prior on prop}
+\begin{frame}
+\frametitle{\frametitleText}
 \vspace*{-.3\baselineskip}
 As a more pragmatic alternative to constructing a scientifically informed prior, we can consider specifying it in terms of: 
 \vspace*{-.1\baselineskip}
@@ -516,9 +518,9 @@ In other words, solve $(a + b) = 1$ and $a \divby (a + b) = 10^{-6}$ for $a$ and
 
 \end{frame}
 
-\begin{frame}
-\frametitle{Example: estimating incidence proportion}
 
+\begin{frame}
+\frametitle{\frametitleText}
 \vspace*{-.3\baselineskip}
 As a more pragmatic alternative to constructing a scientifically informed prior, we can consider specifying it in terms of: 
 \vspace*{-.1\baselineskip}
@@ -548,8 +550,9 @@ In other words, specify a reasonable lower bound $\ell$ and upper bound $u$ on t
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Choosing a prior on prop: ``objective'' approach}
 \begin{frame}
-\frametitle{Example: estimating incidence proportion}
+\frametitle{\frametitleText}
 
 It's also possible to avoid relying on existing evidence by using an \textit{objective prior};
 e.g.\ $\betaDist(1/2, 1/2)$ for the binomial model:%
@@ -572,9 +575,9 @@ The corresponding post mean coincides with the freq estimator based on continuit
 \end{tightEquation*}
 \end{frame}
 
-\begin{frame}
-\frametitle{Example: estimating incidence proportion}
 
+\begin{frame}
+\frametitle{\frametitleText}
 The prior $\propto p^{-1/2} (1 - p)^{-1/2}$ may not be the most obvious choice.
 \onslide<2->{But the more obvious ``flat'' prior has its own problems.}
 
@@ -688,34 +691,41 @@ For simplicity, let's first consider $\sigma$ to be fixed.
 Also, for convenience, we parametrize in terms of \textit{precision} $\phi = \sigma^{-2}$.
 \end{frame}
 
+
 \newcommand{\priorPrec}{\phi_0}
 \newcommand{\postPrec}{\phi_{\textrm{post}}}
+\renewcommand{\frametitleText}{Univariate case: mean unknown}
 \begin{frame}
-\frametitle{Univariate case}
+\frametitle{\frametitleText}
 Convenient prior on $\mu$ is Gaussian:\ under the prior $\mu \sim \normalDist(\mu_0, \priorPrec^{-1})$,%
 \begin{tightEquation*}
 \begin{aligned}
+\hspace*{.75em}
 \density(\mu \given \bm{y}, \phi)
 	&\propto \likelihood(\bm{y} \given \mu, \phi ) \density(\mu) \\
 	\pause
 %	&\propto \exp\!\left( - \frac{\phi}{2} \sum_i (y_i - \mu)^2\right)
 %		\exp\!\left( - \frac{\priorPrec}{2} (\mu - \mu_0)^2 \right) \\
-	&\propto \phi^{n / 2} \exp\!\left( - \frac12 \left[
+	&\propto \phi^{n / 2} 
+		\exp\!\left( - \frac12 \left[
 			\phi \sum_i (y_i - \mu)^2
 			+ \priorPrec (\mu - \mu_0)^2
 		\right] \right) \\
 	\pause
-	&\propto \exp\!\left( - \frac12 \left[
+	&\propto 
+		\exp\!\left( - \frac12 \left[
 			\phi \left( n \mu^2 - 2 \mu {\textstyle \sum_i} y_i \right)
 			+ \priorPrec (\mu^2 - 2 \mu \mu_0)
 		\right] \right) \\
 	\pause
-	&= \exp\!\left( - \frac12 \left[
+	&= 
+		\exp\!\left( - \frac12 \left[
 			(n \phi + \priorPrec) \mu^2 
 			- 2 \mu \big( \phi {\textstyle \sum_i} y_i + \priorPrec \mu_0 \big)
 		\right] \right) \\
 	\pause
-	&= \exp\!\left( - \frac12 \left[
+	&= 
+		\exp\!\left( - \frac12 \left[
 			\postPrec \left(
 				\mu^2 - 2 \mu \mu_{\textrm{post}} 
 			\right) 
@@ -734,7 +744,7 @@ $
 \end{frame}
 
 \begin{frame}
-\frametitle{Univariate case}
+\frametitle{\frametitleText}
 Note that, as in the beta-binomial case, the posterior mean is a weighted average of prior mean and {\small MLE}:
 \begin{tightEquation*}
 \mu_{\textrm{post}} = \frac{1}{n \phi + \priorPrec} \left( n \phi \mle{\mu} + \priorPrec \mu_0 \right)
@@ -775,8 +785,9 @@ Conjugate priors lead to (semi) analytically tractable posteriors and%
 
 \end{frame}
 
+\renewcommand{\frametitleText}{Univariate case: unknown variance}
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 \pause
 Easy enough to infer by examining the likehood
 \begin{tightEquation*}
@@ -804,7 +815,7 @@ The corresponding posterior is
 \end{frame}
 
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 For interpretability, more helpful to parametrize the prior as 
 \begin{tightEquation*}
 \phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right),
@@ -833,7 +844,7 @@ In particular, $\nu_0$ can be interpreted as a prior degrees of freedom.
 \end{frame}
 
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 Objective prior $\density(\phi) \propto 1 / \phi$ coincides with the limit $\nu_0 \to 0$ and yields the posterior
 \begin{tightEquation*}
 \phi \given \bm{y}, \mu 
@@ -856,18 +867,20 @@ Posterior becomes dominated by likelihood as prior becomes more diffuse, so the 
 it's also worth noting the posterior mean differs from the mode
 \begin{tightEquation*}
 {\textstyle \argmax_{\phi}} \density\!\left( \phi \given \bm{y}, \mu \right)
-	= \max\!\left\{
-		0, \, \frac{n - 2}{\textstyle \sum_i (y_i - \mu)^2}
-	\right\}.
+	= \left( \frac{\textstyle \sum_i (y_i - \mu)^2}{n - 2} \right)^{-1}
+	\! \text{ for }  n \geq 3 
+	\, \text{ (and $= 0$ o.w.)}
 \end{tightEquation*}
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Univariate case: mean and variance unknown}
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 We now turn to the problem of estimating $\mu$ and $\phi$ simultaneously.
 
 \pause
+\smallskip
 Most obvious choice is to assume $\mu$ and $\phi$ are a priori independent:
 \begin{tightEquation*}
 \density(\mu, \phi) = 
@@ -877,18 +890,21 @@ Most obvious choice is to assume $\mu$ and $\phi$ are a priori independent:
 \end{tightEquation*}
 
 \pause
+\vspace*{-.3\baselineskip}
 This prior, however, is only conditionally conjugate; i.e.\ 
 while $\mu \given \bm{y}, \phi$ and $\phi \given \bm{y}, \mu$ belong to the original families, $\mu, \phi \given \bm{y}$ does not.
 
 \pause
+\vspace*{.3\baselineskip}
 \textbf{Note:} The independent prior is otherwise a perfectly good choice!
 
+\vspace*{-.1\baselineskip}
 Fully conjugate priors are worthy additions to your toolbox when they exist, but there is no reason to be religious about them.
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 To identify a conjugate prior, we let $\bar{y} = n^{-1} \sum_i y_i$ and observe 
 \begin{tightEquation*}
 \begin{aligned}
@@ -912,7 +928,7 @@ After staring at the last expression long enough, you'd realize that
 \begin{tightEquation*}
 \likelihood(\bm{y} \given \mu, \phi )
 	\propto 
-		\gammaDist\!\left( \phi \, \middle| \,  \frac{n + 1}{2}, \, \frac{\sum_i (y_i - \bar{y})^2}{2} \right)  
+		\gammaDist\!\left( \phi \, \middle| \,  \frac{n}{2} + 1, \, \frac{\sum_i (y_i - \bar{y})^2}{2} \right)  
 		\normalDist\!\left( \mu \, \middle| \, \bar{y}, \, \frac{1}{n \phi} \right).
 \end{tightEquation*}
 % Note: the "-1" in $n - 1$ comes from the need for $\phi^{n/2}$ for the Gaussian density.
@@ -920,7 +936,7 @@ After staring at the last expression long enough, you'd realize that
 
 
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 It's now easy enough to guess the following prior as conjugate:
 \begin{tightEquation*}
 \phi \sim \gammaDist\!\left( \frac{\nu_0}{2}, \thinnerspace \frac{\nu_0 \varphi_0^{-1}}{2} \right), \
@@ -958,13 +974,13 @@ $\, b_{\textrm{post}} = {\displaystyle \frac12} \left(
 
 
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 The posterior estimates mostly have the same structure as before, but let's take a look at
 \begin{equation*}
 \expectation[ \phi \given \bm{y} ]
 	= \frac{1}{\nu_0 + n} \left(
 		\nu_0 \varphi_0^{-1} 
-		+ \textstyle \sum_i (y_i - \bar{y})^2
+		+ n \thinnerspace \frac{ \textstyle \sum_i (y_i - \bar{y})^2 }{ n }
 		+ \frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2
 	\right).
 \end{equation*}
@@ -985,12 +1001,12 @@ But note also this ``bias'' diminishes as $n \to \infty$ since $\frac{\kappa_0 n
 
 
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
-The prior has a feature that the apriori (conditional) variance $\variance(\mu \given \phi) = 1 / \kappa_0 \phi$ depends on the noise variance $1 / \phi$.
+\frametitle{\frametitleText}
+The prior has a feature that the apriori (conditional) variance of mean $\variance(\mu \given \phi) = 1 / \kappa_0 \phi$ depends on the noise variance $1 / \phi$.
 
 \pause
 \smallskip
-The prior thus has the behavior ``smaller the $\phi$ and noisier the $y_i$'s, less informative the prior on $\mu \given \phi$.''
+The prior thus has the behavior ``larger the $\phi^{-1}$ and noisier the $y_i$'s, less informative the prior on $\mu \given \phi$.''
 
 \pause
 \smallskip
@@ -998,8 +1014,9 @@ This may not be an accurate reflection of the prior knowledge, but is a reasonab
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Univariate case: objective Bayeian analysis}
 \begin{frame}
-\frametitle{Univariate case with unknown variance}
+\frametitle{\frametitleText}
 Identifying an appropriate objective prior isn't always straight- forward in multi-parameter settings, but the established one here is:
 \begin{tightEquation*}
 \density(\mu, \phi) \propto 1 / \phi.
