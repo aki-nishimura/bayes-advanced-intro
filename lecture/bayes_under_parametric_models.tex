@@ -228,6 +228,7 @@
 \newcommand{\yesnumber}{\addtocounter{equation}{1}\tag{\theequation}}
 \newcommand{\thinnerspace}{\mskip.5\thinmuskip}
 \newcommand{\thinnestspace}{\mskip.25\thinmuskip}
+\newcommand{\negthinnerspace}{\mskip-.5\thinmuskip}
 \newcommand{\spaceBeforePartial}{\mskip\thinmuskip}
 \newcommand{\scriptsumi}{{\scriptsize \sum_i}} % Suscript needs to be within bracket, hence the hard coding
 
@@ -1179,8 +1180,31 @@ In other words, the posterior conditional for $\bbeta$ is:
 for $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$ and $\bPhi_{\textrm{post}} = \phi \thinnerspace \bXGramMat + \bPhi_0$.
 
 \pause
-\medskip
-We similarly obtain the posterior conditional for $\phi$:
+\smallskip
+Note the posterior mean is again a weighted average:
+\begin{tightEquation*}
+\setlength{\abovedisplayskip}{.3\baselineskip}
+\bmu_{\textrm{post}} 
+	= \bPhi_{\textrm{post}}^{-1} \left( 
+		\phi \thinnerspace \bXGramMat \thinnerspace \mle{\bbeta} + \bPhi_0 \bmu_0 
+	\right)
+	\text{ for } \thinnerspace
+	\mle{\bbeta} = (\bXGramMat)^{-1} \bX^\transpose \bm{y}.
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Posterior under (conditionally) conjuage priors}
+
+Similarly, since the likelihood can be expressed as
+\begin{tightEquation*}
+\likelihood(\bm{y} \given \bX, \bbeta, \phi)
+	\propto \phi^{n / 2} \exp\!\left(
+		- \frac{\phi}{2} \left\| \bm{y} - \bX \bbeta \right\|^2 
+	\right),
+\end{tightEquation*}
+we obtain the posterior conditional for $\phi$ as:
 \begin{tightEquation*}
 \phi \given \bm{y}, \bX, \bbeta 
 	\sim \gammaDist\!\left( 
@@ -1189,6 +1213,20 @@ We similarly obtain the posterior conditional for $\phi$:
 \end{tightEquation*}
 
 \pause
+\smallskip
+And, yet again, the posterior mean is a weighted average:
+\begin{tightEquation*}
+\setlength{\abovedisplayskip}{.25\baselineskip}
+\expectation\bigl[ \phi \given \bm{y}, \bX, \bbeta \bigr]^{-1}
+	= \frac{ \nu_0 \varphi_0^{-1} + n \thinnerspace \mle{\sigma}^2 }{ \nu_0 + n }
+	\ \text{ where } \, 
+	\mle{\sigma}^2 = \frac{ \| \bm{y} - \bX \bbeta \|^2 }{n}.
+\end{tightEquation*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Posterior under (conditionally) conjuage priors}
 As in the univariate case, we could also consider a conjugate prior
 \begin{tightEquation*}
 \bbeta \given \phi \sim \normalDist(\bmu_0, (\kappa_0 \phi)^{-1} \bm{I})
