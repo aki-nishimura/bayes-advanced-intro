@@ -100,31 +100,33 @@ if (save_to_pdf) {
   par(mar = c(4.1, 5.1, 2.1, 2.1)) # bottom, left, top, right
 }
 
-x <- seq(-10, 10, length.out = 1001)
-y_gaussian <- dnorm(x)
-y_cauchy   <- dcauchy(x, scale = argmin_scale)
+x <- seq(0, 8, length.out = 1001)
+gaussian_density <- 2 * dnorm(x)
+cauchy_density   <- 2 * dcauchy(x, scale = argmin_scale)
 
 gaussian_color <- jhu_color$heritageBlue
 cauchy_color <- jhu_color$redOrange
 
 density_lwd <- 1.5
 plot(
-  x, y_cauchy, 
+  x, cauchy_density, 
   type = "l", 
   lwd = density_lwd,
   col = cauchy_color, 
-  xlab = expression(x), ylab = "Density",
+  ylim = c(0, 1.1 * max(cauchy_density)),
+  xaxs = "i", yaxs = "i",
+  xlab = "Parameter value", ylab = "Density",
   frame = FALSE,
   cex.main = 1.4,
   cex.lab = 1.5,  
   cex.axis = 1.3
 )
-lines(x, y_gaussian, col = gaussian_color, lwd = density_lwd)
+lines(x, gaussian_density, col = gaussian_color, lwd = density_lwd)
 legend(
-  "topright", 
-  legend = c("Gaussian", paste0("Cauchy\n(scale = ", round(argmin_scale, 2), ")")),
+  x = 2.2, y = 0.95, 
+  legend = c("Half Gaussian", paste0("Half Cauchy (scale = ", round(argmin_scale, 2), ")")),
   col = c(gaussian_color, cauchy_color), 
-  lwd = 2,
+  lwd = density_lwd,
   bty = "n",
   cex = 1.3
 )
