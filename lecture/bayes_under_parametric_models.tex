@@ -268,6 +268,7 @@
 \newcommand{\by}{\bm{y}}
 \newcommand{\bx}{\bm{x}}
 \newcommand{\bX}{\bm{X}}
+\newcommand{\bXGramMat}{\bX^\transpose \mskip-.7\thinmuskip \bX}
 \newcommand{\bmu}{\bm{\mu}}
 \newcommand{\bbeta}{\bm{\beta}}
 \newcommand{\btheta}{\bm{\theta}}
@@ -1079,7 +1080,7 @@ The linear model has the likelihood
 	\right) \\
 	&\propto \phi^{n / 2} \exp\!\left(
 		- \frac{1}{2} \left( 
-			\phi \thinnerspace \bbeta^\transpose \bX^\transpose \bX \bbeta
+			\phi \thinnerspace \bbeta^\transpose \bXGramMat \bbeta
 			- 2 \thinnerspace \phi \thinnerspace \bbeta^\transpose \bX^\transpose \bm{y}
 		\right) 
 	\right).
@@ -1091,8 +1092,8 @@ As a function of $\bbeta$, the likelihood looks like a Gaussian density
 \begin{tightEquation*}
 \normalDist\!\left( 
 	\thinnerspace \bbeta \, \thinnerspace \middle| \thinnerspace
-	\left( \bX^\transpose \bX \right)^{-1} \bX^\transpose \bm{y},
-	\left( \phi \thinnerspace \bX^\transpose \bX \right)^{-1} 
+	\left( \bXGramMat \right)^{-1} \bX^\transpose \bm{y},
+	\left( \phi \thinnerspace \bXGramMat \right)^{-1} 
 \right).
 \end{tightEquation*}
 
@@ -1142,7 +1143,7 @@ So we have
 	&\propto \likelihood(\bm{y} \given \bbeta, \bX, \phi) \thinnerspace \density(\bbeta) \\
 	&\propto \exp\!\left(
 		- \frac{1}{2} \left( 
-			\phi \thinnerspace \bbeta^\transpose \bX^\transpose \bX \bbeta
+			\phi \thinnerspace \bbeta^\transpose \bXGramMat \bbeta
 			- 2 \thinnerspace \phi \thinnerspace \bbeta^\transpose \bX^\transpose \bm{y}
 		\right)
 	\right) \\
@@ -1160,7 +1161,7 @@ So we have
 	\right),
 \end{aligned}
 \end{tightEquation*}
-where $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$ and $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$.
+where $\bPhi_{\textrm{post}} = \phi \thinnerspace \bXGramMat + \bPhi_0$ and $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$.
 \end{frame}
 
 
@@ -1175,7 +1176,7 @@ In other words, the posterior conditional for $\bbeta$ is:
 		 \bPhi_{\textrm{post}}
 	\right)
 \end{tightEquation*}
-for $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$ and $\bPhi_{\textrm{post}} = \phi \thinnerspace \bX^\transpose \bX + \bPhi_0$.
+for $\bmu_{\textrm{post}} = \bPhi_{\textrm{post}}^{-1} \left( \phi \thinnerspace \bX^\transpose \bm{y} + \bPhi_0 \bmu_0 \right)$ and $\bPhi_{\textrm{post}} = \phi \thinnerspace \bXGramMat + \bPhi_0$.
 
 \pause
 \medskip
@@ -1211,14 +1212,14 @@ The corresponding posterior is
 \begin{gathered}
 \bbeta \given \bm{y}, \bX, \phi
 	\sim \normalDist\!\left(
-		 \left(  \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \bm{y}, \,
-		\left( \phi \bX^\transpose \bX \right)^{-1}
+		 \left(  \bXGramMat \right)^{-1} \! \bX^\transpose \bm{y}, \,
+		\left( \phi \bXGramMat \right)^{-1}
 	\right), \\
 \phi \given \bm{y}, \bX
 	\sim \gammaDist\!\left( 
 		\frac{n - \nPred}{2}, \thinnerspace \frac{\| \bm{y} - \bX \mle{\bbeta} \|^2}{2} 
 	\right). 
-	% Note: $\mle{\bbeta} = \left( \bX^\transpose \bX \right)^{-1} \! \bX^\transpose \bm{y}$
+	% Note: $\mle{\bbeta} = \left( \bXGramMat \right)^{-1} \! \bX^\transpose \bm{y}$
 \end{gathered}
 \end{tightEquation*}
 
