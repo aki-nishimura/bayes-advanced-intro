@@ -256,7 +256,7 @@
 \newcommand{\betaDist}{\mathrm{Beta}}
 \newcommand{\gammaDist}{\mathrm{Gamma}}
 \newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
-\newcommand{\map}[1]{\widehat{#1}_{\textrm{map}}}
+\newcommand{\map}[1]{\widehat{#1}_{\scriptscriptstyle \mathrm{MAP}}}
 \newcommand{\empiricalVar}{\widehat{\variance}}
 \newcommand{\kldivergence}{D_{\mathrm{KL}}}
 \newcommand{\truthSub}{\mathrm{tru}}
@@ -1374,6 +1374,14 @@ Centering variables interacts with the inference as well; e.g.\ had we decided t
 
 
 \begin{frame}
+\frametitle{Informal objective-ish prior in linear regression}
+\textbf{Note:}\\
+Don't like the use of empirical quantities in the prior? 
+Guess what, you often implicitly commit the same crime in frequentist methods.
+\end{frame}
+
+
+\begin{frame}
 \frametitle{Homework: Gaussian likelihood models}
 %First problem is optional for those who have taken ``Advanced Methods in Biostatistics'' and the second optional for the rest.
 \textbf{Note:} Problem 1 and 2(b) are optional.
@@ -1429,7 +1437,7 @@ If we were to fit the regression model to the original variables $\by$ and $\bX$
 
 \begin{frame}
 \frametitle{Posteriors' asymptotic behavior}
-We've seen examples in which posteriors yield comparable/ identical inferences as established frequentist procedures.
+We've seen examples in which posteriors yield comparable, or even identical, inferences as established frequentist procedures.
 
 \pause
 In fact, under regular parametric models, Bayesian inference is \textit{guaranteed} to coincide with a frequentist one asymptotically.
@@ -1451,9 +1459,11 @@ Here we will study some asymptotic behaviors of posteriors.
 \frametitle{Measuring ``distance'' between prob densities}
 \textit{Kullback–Leibler divergence} measure how far away a probability density $p(\cdot)$ is from the reference $q(\cdot)$ and is defined as
 \begin{tightEquation*}
+\setlength{\abovedisplayskip}{.3\baselineskip}
+\setlength{\belowdisplayskip}{.3\baselineskip}
 \kldivergence( p \| q)
-	\defeq - \int \log\!\left( \frac{q(x)}{p(x)} \right) p(x) \diff x
-	= \expectation_{X \thinnestspace \sim \, p(\cdot)}\!\left[ \thinnerspace \log\!\left( \frac{q(X)}{p(X)} \right) \right].
+	\defeq - \! \int \log\!\left( \frac{q(x)}{p(x)} \right) p(x) \diff x
+	= \expectation_{X \thinnestspace \sim \, p(\cdot)}\!\left[ \thinnerspace - \! \log\!\left( \frac{q(X)}{p(X)} \right) \right].
 \end{tightEquation*}
 \pause%
 \noteBullet To see relevance, think $p(\cdot) = \likelihood(\thinnerspace \cdot \given \btheta)$ and $q(\cdot) = \likelihood(\thinnerspace \cdot \given \btheta_\truthSub)$.
@@ -1470,10 +1480,12 @@ In particular, the KL divergence has the property
 
 \pause
 \textit{Proof:} 
-Jensen's inequality says $f(\expectation[X]) \leq \expectation[f(X)]$ for convex $f$, with the equality only if $f(x) = x$ on the support of $\density_X(\cdot)$. Hence,
+Jensen's ineq.\ says $f(\expectation[g(X)]) \leq \expectation[f(g(X))]$ for convex $f$, with the equality only if $f(x) = x$ on the support of $\density_X(\cdot)$.
+\pause%
+Hence,
 \begin{tightEquation*}
-0 = - \log\!\left( \int q(x) \diff x \right) \pause
-	= - \log\!\left( \int \frac{q(x)}{p(x)} p(x) \diff x \right) \pause
+0 = - \log\!\left( \int q(x) \diff x \right)
+	= - \log\!\left( \int \frac{q(x)}{p(x)} p(x) \diff x \right)
 	\leq \kldivergence(p \| q).
 \end{tightEquation*}
 \end{frame}
@@ -1628,7 +1640,7 @@ Observe that
 \end{aligned}
 \end{tightEquation*}
 \pause%
-Since the posterior concentrates around $\samplesizeDependentMap \approx \theta_\truthSub$, the terms $\big( \theta - \samplesizeDependentMap \big)^3 \frac{\diff^3}{\diff \theta^3} ...$ becomes immaterial relative to $n \big( \theta - \samplesizeDependentMap \big)^2$. 
+Since the posterior concentrates around $\samplesizeDependentMap \approx \theta_\truthSub$, the terms $\big( \theta - \samplesizeDependentMap \big)^3 \frac{\diff^3}{\diff \theta^3} ...$ becomes immaterial relative to $\big( \theta - \samplesizeDependentMap \big)^2 \frac{\diff^2}{\diff \theta^2} ...$. 
 \hfill \qedsymbol
 \end{frame}
 
@@ -1742,9 +1754,9 @@ The answer, turns out, is not so much ``mean vs.\ mode'' but the Bayes estimator
 To be more precise, the mean is based on the posterior marginal
 \begin{tightEquation*}
 \density(\phi \given \by)
-	= \int \density(\phi \given \bmu, \by) \thinnerspace \density(\bmu \given \by) \diff \bmu
+	= \int \density(\phi \given \bmu, \by) \thinnerspace \density(\bmu \given \by) \diff \bmu,
 \end{tightEquation*}
-which \textit{integrates out} $\bmu$, whose uncertainty remains as $n \to \infty$.
+which \textit{integrates out} $\bmu$, uncertainty in which remains as $n \to \infty$.
 
 \pause%
 \smallskip
