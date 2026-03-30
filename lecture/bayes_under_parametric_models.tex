@@ -1683,6 +1683,39 @@ Would the posterior look Gaussian?
 
 \begin{frame}
 \frametitle{``Counterexample'' to the asymptotic theory}
+In deriving the posterior, note the likelihood can be expressed as
+\begin{tightEquation*}
+\setlength{\abovedisplayskip}{.4\baselineskip}
+\begin{aligned}
+&L( y_{i1}, y_{i2} \given \mu_i, \phi ) \\
+&\hspace*{1em}\propto
+	\phi^{\frac12}
+	\exp\!\left(
+		- \frac{\phi}{2} \Bigl( 
+			( y_{i1} -  \mu_i )^2 +
+			( y_{i2} -  \mu_i )^2 
+		\Bigr)
+	\right) \\
+&\hspace*{1em}\propto
+	\phi^{\frac12}
+	\exp\!\left(
+		- \frac{\phi}{2} \!\left( \frac{y_{i1} - y_{i2}}{2} \right)^2 
+	\right)
+	\exp\!\left(
+		- \frac{\phi}{2} \!\left( \mu_i - \frac{y_{i1} + y_{i2}}{2} \right)^2 
+	\right)
+\end{aligned}
+\end{tightEquation*}
+since
+$\displaystyle 
+	\sum_{j = 1}^2 (y_{ij} - \mu_i)^2 
+	= \sum_{j = 1}^2 (y_{ij} - \bar{\mu}_{i})^2 + 2 (\bar{\mu}_{i} - \mu_i)^2$ \\[-6pt]
+\hfill for \, $\displaystyle \bar{\mu}_{i} = \frac{y_{i1} + y_{i2}}{2}$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{``Counterexample'' to the asymptotic theory}
 For simplicity, let's just assume the objective prior $\density(\bmu, \phi) \propto 1 / \phi$ \\
 (so, in particular, $\phi_{\textrm{grp}} = \infty$), ignoring the shrinkage  aspect.
 
@@ -1727,6 +1760,23 @@ We already see the asymtotic theory breaking down, but let's nonetheless ask the
 \pause%
 \smallskip
 That in particular would imply its mean and mode to be similar.
+
+\pause
+\smallskip
+TODO: derive MLE and, from it, MAP from it.
+%But plugging in the mode $\bar{\mu}_i$ and maximizing 
+%\begin{tightEquation*}
+%\setlength{\abovedisplayskip}{.35\baselineskip}
+%\begin{aligned}
+%&\prod_i L( y_{i1}, y_{i2} \given \bar{\mu}_i, \phi ) \\
+%&\hspace*{1em}\propto
+%	\phi^{n / 2}
+%		\exp\!\left(
+%			- \frac{\phi}{2}
+%				\sum_i \!\left( \frac{y_{i1} - y_{i2}}{2} \right)^2 
+%		\right)
+%\end{aligned}
+%\end{tightEquation*}
 
 \pause%
 \smallskip
