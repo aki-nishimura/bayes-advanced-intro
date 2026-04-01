@@ -979,7 +979,7 @@ $\, b_{\textrm{post}} = {\displaystyle \frac12} \left(
 \frametitle{\frametitleText}
 The posterior estimates mostly have the same structure as before, but let's take a look at
 \begin{equation*}
-\expectation[ \phi \given \bm{y} ]
+\expectation[ \phi \given \bm{y} ]^{-1}
 	= \frac{1}{\nu_0 + n} \left(
 		\nu_0 \varphi_0^{-1} 
 		+ n \thinnerspace \frac{ \textstyle \sum_i (y_i - \bar{y})^2 }{ n }
@@ -988,11 +988,11 @@ The posterior estimates mostly have the same structure as before, but let's take
 \end{equation*}
 
 \pause
-The $\frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2$ part shows one way in which $\mu$ and $\phi$ interact:
+The $\frac{\kappa_0 n}{\kappa_0 + n} (\mu_0 - \bar{y} )^2$ part shows one way in which $\mu$ and $\phi^{-1}$ interact:
 \begin{tightEquation*}
 \text{%
 	discrepancy between $\mu_0$ and $\bar{y}$ % Note: $\mu_0$ = prior guess and $\bar{y}$ = empirical mean 
-	$\, \Rightarrow \,$ inflated estimate of $\phi$.
+	$\, \Rightarrow \,$ inflated estimate of $\phi^{-1}$.
 }%
 \end{tightEquation*}
 
