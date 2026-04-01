@@ -260,7 +260,8 @@
 \newcommand{\betaDist}{\mathrm{Beta}}
 \newcommand{\gammaDist}{\mathrm{Gamma}}
 \newcommand{\mle}[1]{\widehat{#1}_{\textrm{mle}}}
-\newcommand{\map}[1]{\widehat{#1}_{\textrm{map}}}
+\newcommand{\map}[1]{\widehat{#1}_{\scriptscriptstyle \mathrm{MAP}}}
+\newcommand{\js}[1]{\widehat{#1}_{\scriptscriptstyle \mathrm{JS}}}
 \newcommand{\empiricalVar}{\widehat{\variance}}
 \newcommand{\kldivergence}{D_{\mathrm{KL}}}
 \newcommand{\truthSub}{\mathrm{tru}}
@@ -356,7 +357,7 @@ and constructs an estimator that \textit{always} beats $\mle{\bmu} = \by$ in {\s
 \begin{theorem}\upshape
 The {\small MLE} is \textit{inadmissible} in $n > 2$, with the James-Stein estimator 
 \begin{tightEquation*}
-\widehat{\bmu}_{\mathrm{JS}}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \by
+\js{\bmu}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \by
 \end{tightEquation*}
 having a lower {\small MSE} than $\mle{\bmu} = \by$ for \textit{any} underlying $\bmu_\truthSub$.
 \end{theorem}
@@ -366,7 +367,7 @@ JS estimator is an example of \textit{shrinkage estimators}, taking a form $\wid
 
 \pause%
 \smallskip
-Technically, ``shrinkage'' in $\widehat{\bmu}_{\mathrm{JS}}$ is only true with high probability: 
+Technically, ``shrinkage'' in $\js{\bmu}$ is only true with high probability: 
 $\expectation \thinnerspace \| \by \|^2 
 %	= \expectation\!\left[ \expectation[\| \by \|^2 \given \bmu] \right] 
 	= \| \bmu \|^2  + n \sigma^2$,
@@ -374,9 +375,9 @@ so we expect $(n - 2) \sigma^2 / \| \by \|^2 < 1$.
 
 \pause%
 \smallskip
-Better yet, the following modification improves on $\widehat{\bmu}_{\mathrm{JS}}$:
+Better yet, the following modification improves on $\js{\bmu}$:
 \begin{tightEquation*}
-\widehat{\bmu}_{\mathrm{B}}(\by) = \left[ 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right]^+ \! \by.
+\widehat{\bmu}_{\scriptscriptstyle \mathrm{B}}(\by) = \left[ 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right]^+ \! \by.
 	% Note: Subscript "B" for Baranchik (1970), "A family of minimax estimators of the mean of a multivariate normal distribution."
 \end{tightEquation*}
 \end{frame}
@@ -435,11 +436,11 @@ What we've derived, essentially, is \textit{Stein's unbiased risk estimator}:
 \vspace*{-.7\baselineskip}
 
 \pause%
-We now calculate \textsc{SURE} for $\, \widehat{\bmu}_{\mathrm{JS}}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \! \by$.
+We now calculate \textsc{SURE} for $\, \js{\bmu}(\by) = \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) \! \by$.
 \pause% 
 Note
 \begin{equation*} \defineTightSpacing%
-\| \by - \widehat{\bmu}_{\mathrm{JS}} \|^2 
+\| \by - \js{\bmu} \|^2 
 	= \left\| \frac{(n - 2) \sigma^2}{\| \by \|^2} \by \thinnerspace \right\|^2 
 	= \frac{(n - 2)^2 \sigma^4}{\| \by \|^2},
 %+ 2 \sigma^2 \thinnerspace {\textstyle \sum_i} \frac{\partial \widehat{\mu}_i}{\partial y_i}.
@@ -447,7 +448,7 @@ Note
 \pause%
 and
 \begin{equation*} \defineTightSpacing%
-\frac{\partial \widehat{\mu}_{\mathrm{JS}, i}}{\partial y_i}
+\frac{\partial \widehat{\mu}_{{\scriptscriptstyle \mathrm{JS}}, i}}{\partial y_i}
 	= \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) - (n - 2) \sigma^2 y_i \thinnerspace \frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2}.
 \end{equation*}
 
@@ -455,7 +456,7 @@ and
 \smallskip
 Since $\frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2 y_i}{\| \by \|^4}$ and $\sum_i  y_i \thinnerspace \frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2}{\| \by \|^2}$ , we have
 \begin{equation*} \defineTightSpacing%
-{\textstyle \sum_i} \frac{\partial \widehat{\mu}_{\mathrm{JS}, i}}{\partial y_i}
+{\textstyle \sum_i} \frac{\partial \widehat{\mu}_{{\scriptscriptstyle \mathrm{JS}}, i}}{\partial y_i}
 	= n \left( 1 - \frac{(n - 2) \sigma^2}{\| \by \|^2} \right) + \frac{2 (n - 2) \sigma^2}{\| \by \|^2} % 2 (n - 2) \sigma^2\frac{\!\!1}{\| \by \|^2}
 	= n - \frac{(n - 2)^2 \sigma^2}{\| \by \|^2}.
 \end{equation*}
@@ -464,10 +465,10 @@ Since $\frac{\partial}{\partial y_i} \frac{\!\!1}{\| \by \|^2} = - \frac{\!\!2 y
 
 \begin{frame}
 \frametitle{M{\normalsize SE} of Gaussian mean estimator}
-So \textsc{SURE} for $\widehat{\bmu}_{\mathrm{JS}}$ is given by
+So \textsc{SURE} for $\js{\bmu}$ is given by
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
-\widehat{\operatorname{MSE}}_{\mathrm{JS}}
+\js{\operatorname{MSE}}
 	&= - n \sigma^2 
 		+ \frac{(n - 2)^2 \sigma^4}{\| \by \|^2}
 		+ 2 n \sigma^2 
@@ -480,7 +481,7 @@ So \textsc{SURE} for $\widehat{\bmu}_{\mathrm{JS}}$ is given by
 
 Taking expectations, we obtain
 \begin{equation*} \defineTightSpacing%
-\expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 
+\expectation \| \js{\bmu} - \bmu \|^2 
 	= n \sigma^2  - (n - 2)^2 \sigma^4 \thinnerspace \expectation\!\left[ \frac{\!\!1}{\| \by \|^2} \right] 
 %	\leq n \sigma^2
 	\leq \expectation \| \by - \bmu \|^2.
@@ -497,10 +498,10 @@ For large $n$, we have
 \end{equation*}
 
 \pause%
-Using this, we can study the asymptotic behavior of $\widehat{\bmu}_{\mathrm{JS}}$'s \textsc{MSE}:
+Using this, we can study the asymptotic behavior of $\js{\bmu}$'s \textsc{MSE}:
 \begin{equation*} \defineTightSpacing%
 \begin{aligned}
-\expectation \| \widehat{\bmu}_{\mathrm{JS}} - \bmu \|^2 
+\expectation \| \js{\bmu} - \bmu \|^2 
 	&= n \sigma^2  - (n - 2)^2 \sigma^4 \thinnerspace \expectation\!\left[ \frac{\!\!1}{\| \by \|^2} \right] \\
 	\pause%
 	&= n \sigma^2 \left(
@@ -682,7 +683,7 @@ The marginal maximum likelihood leads to the estimator
 	= \left( 1 - \frac{\sigma^2}{\sigma^2 + \widehat{\sigma}^2_{\mathrm{grp}}} \right) \by
 	= \left( 1 - \frac{n \sigma^2}{\| \by \|^2} \right) \by,
 \end{equation*}
-which also dominates $\mle{\bmu}$ in {\small MSE} if not quite as much as $\widehat{\bmu}_{\mathrm{JS}}$.
+which also dominates $\mle{\bmu}$ in {\small MSE} if not quite as much as $\js{\bmu}$.
 \end{frame}
 
 
