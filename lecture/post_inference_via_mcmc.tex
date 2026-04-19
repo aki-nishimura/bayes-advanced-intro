@@ -327,6 +327,7 @@
 \newcommand{\altMcIndex}{\ell}
 \newcommand{\mcSampleSize}{m}
 \newcommand{\nParam}{d}
+\newcommand{\lag}{h}
 
 \newcommand{\bda}{\smallCap{bda}}
 
@@ -1044,7 +1045,7 @@ Recall that Gibbs sampler repeats the following for $\mcIndex = 1, \ldots, \mcSa
 Any of the conditional updates $ \bm{\randVar}^\nextMarker_j \sim \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ can be replaced by a Metropolis step if $\density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ is difficult to directly sample from:
 {\addtolength{\leftmargini}{.5\labelsep} 
 \begin{tightItemize}
-\item[(a)] Set up the problem with $\density_j( \placeholder ) = \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ as the target, the yet-to-be-updated $\bm{\randVar}_j \defeq \allowbreak \bm{\randVar}^\nextMarker_j \left( = \bm{\randVar}^{(k - 1)}_j \right)$ as the current state;
+\item[(a)] Set up the problem with $\density_j( \placeholder ) = \density( \placeholder \given \bm{\randVar}^\nextMarker_{-j} )$ as the target, the $\bm{\randVar}_j \defeq \bm{\randVar}^{(k - 1)}_j$ as the current state;
 	\pause%
 \item[(b)] Make a proposal $\bm{\randVar}^\propMarker_j \sim \propKernel(\placeholder \given \bm{\randVar}_j )$ and accept-reject it 
 with prob
@@ -1077,14 +1078,17 @@ Two factors determine efficiency of an \mcmc{} algorithm:\\
 the cost of each iteration % (i.e.\ how fast it runs) 
 and the \textit{mixing (rate)} of the chain.
 
+\pause
 \smallskip
 The former is affected by the implementation details; \\ 
 the latter is a theoretical property of the algorithm.
 
+\pause
 \smallskip
 ``Mixing'' refers to the chain's efficiency relative to i.i.d.\ samples;
 in general, closely (if not exactly) related to its convergence speed. 
 
+\pause
 \smallskip
 Algorithm performance can be measured by ``how many effectively independent samples it generates within a given amount of time.''
 
@@ -1092,6 +1096,17 @@ Algorithm performance can be measured by ``how many effectively independent samp
 
 
 \renewcommand{\frametitleText}{Mixing of Markov chain}
+\begin{frame}
+\frametitle{\frametitleText}
+Recall that, with i.i.d.\ Monte Carlo,
+%$\randVar^{(1)}, \randVar^{(2)}, \ldots \sim \density(\cdot)$ 
+the error decays as $\mcSampleSize^{-1/2}$ b/c 
+$$\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\left( \bm{\randVar}^{(\mcIndex)} \right) \right)
+	= \frac{1}{\mcSampleSize} 
+	\mathrm{var} \! \left( g \!\left( \bm{\randVar} \right) \right).$$
+\end{frame}
+
+
 \begin{frame}
 \frametitle{\frametitleText}
 
@@ -1104,37 +1119,64 @@ Estimator based on \mcmc{} generally has larger variance due to auto-correlation
 	+ \frac{1}{\mcSampleSize^2} \sum_{\mcIndex \neq \altMcIndex} \mathrm{cov} \!\left( g\bigl( \brandVar^{(\mcIndex)} \bigr), g\bigl( \brandVar^{(\altMcIndex)} \bigr)  \right).
 \end{align*}
 }%
+\pause%
 At stationarity $\brandVar^{(1)} \sim \density(\cdot)$, noting
-$\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{d = 1}^\mcSampleSize \sum_{\mcIndex, \altMcIndex \spacedColon \thinnerspace \mcIndex - \altMcIndex \spacedEq d} \thinnerspace$,
+$\sum_{\mcIndex \neq \altMcIndex} = 2 \sum_{\lag = 1}^\mcSampleSize \sum_{\mcIndex, \altMcIndex \spacedColon \thinnerspace \mcIndex - \altMcIndex \spacedEq \lag} \thinnerspace$,
 \vspace*{-.3\baselineskip}
 \begin{align*}
 &\mathrm{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) \right) \\
 	&\hspace*{1em}= \frac{1}{\mcSampleSize} \mathrm{var} \!\left( g(\brandVar) \right)
-	+ \frac{2}{\mcSampleSize^2} \sum_{d = 1}^\mcSampleSize (m - d) \operatorname{cov} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right).
+	+ \frac{2}{\mcSampleSize^2} \sum_{\lag = 1}^\mcSampleSize (\mcSampleSize - \lag) \operatorname{cov} \!\left( g\bigl( \brandVar^{(\lag + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right).
 \end{align*}
 \end{frame}
 
 
 \begin{frame}
 \frametitle{\frametitleText}
-As $\mcSampleSize \to \infty$, which also guarantees stationarity, we have
+%As $\mcSampleSize \to \infty$, which also guarantees stationarity, 
+So we see that
 \vspace*{-.15\baselineskip}
 {\setlength{\belowdisplayskip}{.4\baselineskip}
 \begin{align*}
 &\mcSampleSize \operatorname{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) \right) \\
 	&\hspace*{1em}= 
 	\mathrm{var} \!\left( g(\brandVar) \right)
-	+ 2 \sum_{d = 1}^\mcSampleSize \left( 1 - \frac{d}{m} \right) \operatorname{cov} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right) \\
+	+ 2 \sum_{\lag = 1}^\mcSampleSize \left( 1 - \frac{\lag}{\mcSampleSize} \right) \operatorname{cov} \!\left( g\bigl( \brandVar^{(\lag + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right) \\
 	&\hspace*{1em}\to
 		\mathrm{var} \!\left( g(\brandVar) \right)
-		+ 2 \sum_{d = 1}^\infty \operatorname{cov} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right). 
+		+ 2 \sum_{\lag = 1}^\infty \operatorname{cov} \!\left( g\bigl( \brandVar^{(\lag + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
+		\ \text{ as } \mcSampleSize \to \infty.
 \end{align*}
 }%
-Error of the \mcmc{} estimator decays as $\mcSampleSize^{-1/2}$, but is inflated relative to the i.i.d.\ estimator by the factor
+
+%Note the limit $\mcSampleSize \to \infty$ also guarantees stationarity; 
+%i.e.\ $\brandVar^{(\mcIndex)}$ is effectively at stationarity for large $\mcIndex$, regardless of initialization.%
+Note that the above formula holds regardless of initialization b/c $\mcSampleSize \to \infty$ also guarantees eventual stationarity.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+
+We have essentially shown that, for large enough $\mcSampleSize$, 
+\begin{tightEquation*}
+\begin{aligned}
+&\operatorname{var} \!\left( \frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) \right) \\
+	&\hspace*{1.5em}\approx 
+	\frac{1}{\mcSampleSize} \left[
+		\mathrm{var} \!\left( g(\brandVar) \right)
+			+ 2 \sum_{\lag = 1}^\infty \operatorname{cov} \!\left( g\bigl( \brandVar^{(\lag + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr) \right)
+	\right].
+\end{aligned}
+\end{tightEquation*}
+
+\pause
+In other words, error of an \mcmc{} estimator decays as $\mcSampleSize^{-1/2}$, but is inflated relative to the i.i.d.\ estimator by the factor
 \vspace*{-.5\baselineskip}
 \begin{equation*}
 \left[
-1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
+1 + 2 \sum_{\lag = 1}^\infty \operatorname{cor} \!\left( g\bigl( \brandVar^{(\lag + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
 \right]^{1/2}.
 \end{equation*}
 \end{frame}
@@ -1144,13 +1186,14 @@ Error of the \mcmc{} estimator decays as $\mcSampleSize^{-1/2}$, but is inflated
 \frametitle{\frametitleText}
 \textit{Effective sample size} of $\mcSampleSize$ draws from \mcmc{} is defined as
 \begin{equation*}
-\operatorname{ESS}_g (m) =
-\frac{m}{
-	1 + 2 \sum_{d = 1}^\infty \operatorname{cor} \!\left( g\bigl( \brandVar^{(d + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
+\operatorname{ESS}_g (\mcSampleSize) =
+\frac{\mcSampleSize}{
+	1 + 2 \sum_{\lag = 1}^\infty \operatorname{cor} \!\left( g\bigl( \brandVar^{(\lag + 1)} \bigr), g\bigl( \brandVar^{(1)} \bigr)  \right)
 }
 \end{equation*}
-b/c the estimator's variance equals that of $\operatorname{ESS}_g (m)$ i.i.d.\ samples.
+b/c the estimator's variance equals that of $\operatorname{ESS}_g (\mcSampleSize)$ i.i.d.\ samples.
 
+\pause
 \medskip
 Common practice is to calculate \smallCap{ess}'s for all params and quantities of interest and make sure they are all above a threshold (e.g.\ 100).
 \end{frame}
@@ -1169,11 +1212,12 @@ the \textit{Markov chain central limit theorem} tells us that, as $\mcSampleSize
 		\frac{
 			\operatorname{var}\!\left( g\bigl( \brandVar^{(\mcIndex)} \bigr) \right)
 		}{
-			\operatorname{ESS}_g (m)
+			\operatorname{ESS}_g (\mcSampleSize)
 		}
 	\right).
 \end{equation*}
 
+\pause
 You can also calculate the errors in the quantile estimators (e.g.\ for 2.5 and 97.5 percentiles), but the procedure is a bit more involved.
 \end{frame}
 
@@ -1246,6 +1290,7 @@ For the \smallCap{HIV} dataset of 535 virus taxa each with  21 binary traits, \\
 The parameters are informed by genetic sequence data $S$ and\\ the observed traits $\bm{y} \in \mathbb{R}^{535 \times 21}$ w/ $y_{ij} = \indicator\{ x_{ij} > 0\}$.
 % or $y_{ij} = x_{ij}$.
 
+\pause
 \smallskip
 Inference via Metropolis-within-Gibbs on $\, \mathcal{T},\bm{\Gamma}, \bm{x} \, | \, S, \bm{y} \,$ with \\
 each parameter updated by appropriate Metropolis algorithms.
@@ -1258,6 +1303,7 @@ each parameter updated by appropriate Metropolis algorithms.
 Assuming $\mathcal{T}$ has been inferred from genetic seq data and is fixed, 
 \cite{zhang2022laplace_gause_hmc} compares two approaches for $\, \bm{\Gamma}, \bm{x} \, | \,\mathcal{T}, S, \bm{y}$:
 
+\pause
 \smallskip
 \begin{table}[htbp]
 \centering
@@ -1285,6 +1331,7 @@ Much of the discussion on \mcmc{} is ``at stationarity.'' but you can't start a 
 In practice, the chain needs some time to \textit{converge}; 
 i.e.\ have taken enough steps that the dist of $\brandVar^{(\mcIndex)}$ is close enough to the target.
 
+\pause
 \vspace*{9pt}
 Technically,
 $\frac{1}{\mcSampleSize} \sum_{\mcIndex = 1}^\mcSampleSize g\bigl( \brandVar^{(\mcIndex)} \bigr) 
@@ -1294,6 +1341,7 @@ but the pre-convergence \textit{burn-in} part contributes to bias.
 
 So it makes sense to discard samples during the burn-in period.
 
+\pause
 \vspace*{8pt}
 Burn-in is often combined with the tuning phase, during which algorithm parameters (e.g.\ $\sigma_{\textrm{prop}}$ in \smallCap{rwm}) are adapted.
 \end{frame}
@@ -1304,8 +1352,9 @@ Burn-in is often combined with the tuning phase, during which algorithm paramete
 How to determine if the chain has converged?\\
 More specifically, how many burn-in iterations to discard?
 
+\pause
 \medskip
-Let's first try answering this question with tuning put aside.\\
+Let's first try answering this question with tuning set aside.\\
 (And samplers like Gibbs genuinely involves no tuning.)
 % also for adaptive MCMC with dminishing adaptation
 \end{frame}
@@ -1315,13 +1364,16 @@ Let's first try answering this question with tuning put aside.\\
 \frametitle{\frametitleText}
 \Mcmc{} run can be thought of as involving the pre-convergence ``optimization'' and post-convergence ``sampling'' phases.
 
+\pause
 \medskip
 Initial state $\brandVar^{(0)}$ often looks nothing like an actual draw $\brandVar \sim \density(\cdot)$ from the target. 
 And this manifests as $\pi\bigl( \brandVar^{(0)} \bigr) \ll \density(\brandVar)$.
 
+\pause
 \medskip
 In the optimization phase, the chain drifts (albeit with randomness) towards a region of high posterior density.
 
+\pause
 \medskip
 So one can roughly determine the convergence by monitoring $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ and checking when it seems to stabilize:
 
@@ -1338,6 +1390,7 @@ So one can roughly determine the convergence by monitoring $\log \density\bigl(\
 \frametitle{\frametitleText}
 In figuring out when $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ looks stable enough, helpful to think about what its stationary distribution (approximately) is.
 
+\pause
 \medskip
 If the target is $\normalDist \bigl( \bm{0}, \bm{\Sigma} \bigr)$, then $\operatorname{var}\bigl(\thinnerspace \log \density( \brandVar ) \bigr) = \nParam \divby 2 \thinnerspace$ because
 \begin{tightEquation*}
@@ -1345,8 +1398,9 @@ If the target is $\normalDist \bigl( \bm{0}, \bm{\Sigma} \bigr)$, then $\operato
 	= \textstyle \frac12 \brandVar^\transpose \bm{\Sigma}^{-1} \brandVar
 	\sim \frac12 \chi^2_{\nParam};
 \end{tightEquation*}
-so we expect $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ to fluctuate roughly by $2 \times 1.96 \sqrt{p \divby 2} $.
+so we expect $\log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ to fluctuate roughly by $2 \times 1.96 \sqrt{\nParam \divby 2} $.
 
+\pause
 \medskip
 Above is a good rule of thumb more generally, esp.\ as parametric model posteriors are approx Gaussian under large-sample limits.
 \end{frame}
@@ -1358,6 +1412,7 @@ Above is a good rule of thumb more generally, esp.\ as parametric model posterio
 Note that $\thinnerspace \expectation\left[ \log \density( \brandVar ) \right] =  \log \density( \bparam_\mathrm{mle} ) - \nParam \divby 2$;
 \smallCap{mle} \textit{isn't the} representative parameter value from a Bayesian perspective. 
 
+\pause
 \smallskip
 This feature of Bayesian inference also relates to the phenomenon that ``flatter'' optima often generalize better than ``sharper'' ones.\\
 {\hfill \citep{hochreiter1997flat_minima, keskar2017large_batch_training}}
@@ -1366,24 +1421,23 @@ This feature of Bayesian inference also relates to the phenomenon that ``flatter
 
 \begin{frame}
 \frametitle{\frametitleText}
-\tightSpacing{Story is a bit more complex when tuning is involved b/c that part of the chain too needs discarding (unless diminishing adaptation used).}
+When tuning is involved, that part of the chain too needs discarding (unless diminishing adaptation used).
 
-And the tuning generally needs to continue beyond the optimization phase to ensure proper adaptation to the target.
+In fact, the tuning generally needs to continue beyond the optimization phase to ensure proper adaptation to the target.
 
 \vspace*{9pt}
-That is, by the time you are done tuning, you should also be done burning in and shouldn't have to discard additional iterations.
+This means, by the time you are done tuning, you should also be done burning in and shouldn't have to discard additional iterations.
 \end{frame}
 
 
 \begin{frame}
 \frametitle{\frametitleText}
-\tightSpacing{%
+%\tightSpacing{%
 Question then is:~how long to tune?
-Unfortunately, no good guidance%
-}
-other than trial and error---Stan's default is half the total iterations.
+No clear-cut guidance, unfortunately; heuristics or trial-and-errors often required.
 
-Stan refers to the combined burn-in and tuning phase as \textit{warm-up}.
+\pause
+Stan's default is to use half the total iterations as the \textit{warm-up}, the combined burn-in and tuning phase.
 
 \vspace*{9pt}
 Trace of $\thinnerspace \log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ remains useful in diagnosing potential issues in the post warm-up samples. 
@@ -1393,13 +1447,17 @@ Trace of $\thinnerspace \log \density\bigl(\brandVar^{(\mcIndex)} \bigr)$ remain
 \renewcommand{\frametitleText}{Multiple chains to diagnose convergence/mixing}
 \begin{frame}
 \frametitle{\frametitleText}
-Monitoring of the log density/other key param values isn't fail-proof.
+Monitoring of log density/other key param values isn't fail-proof.
 
+\tightSpacing{%
 Running multiple chains (four is Stan's default) from different initial states also helps diagnose potential convergence/mixing issues.
+}
 
+\pause
 \vspace*{10pt}
 Idea: If the chains have all converged and mixing well, they should yield comparable, overlapping posterior approximations.
 
+\pause
 \vspace*{10pt}
 Potential convergence/mixing issue can then be diagnosed visually or more formally via the \textit{Gelman-Rubin statistic} $\hat{R}$.\\
 {\hfill \citep{gelman1992rhat, vehtari2021improved_rhat}}
@@ -1421,6 +1479,7 @@ Heuristically, $\hat{R}$ is defined for each parameter $\param_j$ or statistic $
 \end{equation*}}%
 where the contribution from the between-chain variance becomes more substantial in the presence of convergence/mixing issues.
 
+\pause
 \vspace*{9pt}
 $\hat{R} \leq 1.01$ is a recommended threshold in \smallCap{bda} 3rd ed.\ and in Stan.
 
@@ -1455,7 +1514,9 @@ where $\randVar$ denotes the scalar statistic of interest.
 
 \begin{frame}
 \frametitle{\frametitleText}
+\tightSpacing{%
 To help make sense of $\hat{R}$'s definition, we first note the overall variance can be decomposed into the within- and between-chain variances:%
+}%
 {\setlength{\abovedisplayskip}{.5\baselineskip}
 \setlength{\belowdisplayskip}{.5\baselineskip}
 \begin{align*}
@@ -1519,6 +1580,7 @@ The former underestimates $\thinnerspace\operatorname{var}(\randVar)$, esp.\ whe
 }.
 \end{align*}}%
 
+\pause
 Stan uses an improved version by \cite{vehtari2021improved_rhat} based on ``rank-normalization'' and ``folding'' procedures.
 \end{frame}
 
@@ -1968,7 +2030,7 @@ Traveling a unit distance requires
 \end{tightItemize}
 
 \vspace*{2pt}
-Grand total cost for one \smallCap{ess}: $O(d^2)$ for \smallCap{rwm}; $O(d^{5/4})$ for \hmc{}.
+Grand total cost for one \smallCap{ess}: $O(\nParam^2)$ for \smallCap{rwm}; $O(\nParam^{5/4})$ for \hmc{}.
 \end{frame}
 
 
