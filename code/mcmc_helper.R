@@ -1,7 +1,7 @@
 library(ggplot2)
 source("colors.R")
 
-trace_plot <- function(samples, param_index = 1, thin = 1L, add = F, ...) {
+trace_plot <- function(samples, param_index = 1, thin = 1L, add = F, iter_range = NULL, ...) {
   plot_args <- list(...)
   if (!("ylab" %in% names(plot_args))) { 
     plot_args$ylab <- "Parameter value" 
@@ -13,8 +13,11 @@ trace_plot <- function(samples, param_index = 1, thin = 1L, add = F, ...) {
   if(is.null(dim(samples))) {
     samples <- matrix(samples, nrow = 1)
   }
-  n_iter <- dim(samples)[2]
-  sub_indices <- seq(1, n_iter, by = thin)
+  if (is.null(iter_range)) {
+    sub_indices <- seq(1, dim(samples)[2], by = thin)
+  } else {
+    sub_indices <- seq(iter_range[1], iter_range[2], by = thin)
+  }
   y <- as.vector(samples[param_index, sub_indices])
   plot_args <- c(
     plot_args,

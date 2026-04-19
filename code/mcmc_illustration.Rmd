@@ -215,7 +215,8 @@ plot_trajectory(rwm_output$samples, index, n_iter_to_plot, target_density)
 
 ```{r}
 trace_plot(
-  rwm_output$logp[200:1200],
+  rwm_output$logp,
+  iter_range = c(200, 1200),
   ylab = "Log density"
 )
 ```
