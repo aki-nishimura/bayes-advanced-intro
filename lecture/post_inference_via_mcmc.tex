@@ -1830,7 +1830,7 @@ Symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-pre
 %    {\scalebox{0.5}{$\Delta$} t}         % scriptscriptstyle (sub-subscript)
 %}
 \newcommand{\numIntegStep}{L}
-\renewcommand{\frametitleText}{Practical details: tuning of \titleSmallCap{hmc}}
+\renewcommand{\frametitleText}{Practical details: numerically solving dynamics}
 \begin{frame}
 \frametitle{\frametitleText}
 
@@ -1890,6 +1890,7 @@ Taking $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps o
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Practical details: tuning of \titleSmallCap{hmc}}
 \begin{frame}
 \frametitle{\frametitleText}
 Performance depends crucially on $\stepsize$ and $\integTime$ (or $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$).
@@ -1935,6 +1936,7 @@ $\stepsize$ is chosen so that the approx one is close enough to the exact.
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Practical details: tuning of \titleSmallCap{hmc} stepsize}
 \begin{frame}
 \frametitle{\frametitleText}
 \textit{No-U-turn} algorithm of \cite{hoffman2014nuts} automates tuning of $\integTime$, leaving $\stepsize$ as the only remaining tuning parameter.
@@ -1964,6 +1966,7 @@ the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rst
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Practical details: tuning of \titleSmallCap{hmc} mass matrix}
 \begin{frame}
 \frametitle{\frametitleText}
 \tightSpacing{%
@@ -1984,6 +1987,7 @@ For example in a linear regression model, standardizing the outcome and predicto
 \end{frame}
 
 
+\renewcommand{\frametitleText}{Practical details: tuning stepsize \& mass matrix}
 \begin{frame}
 \frametitle{\frametitleText}
 \medskip
