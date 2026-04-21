@@ -231,10 +231,12 @@
 %% Utility macros
 \newcommand{\noteBullet}{\hspace*{.75em}\textcolor{themecolor}{$\blacktriangleright$}\ }
 \newcommand{\tightSpacing}[2][.55ex]{%
-  \begingroup
+  \begingroup%
+    \dimen0=\fontdimen2\font
     \fontdimen2\font=#1
     #2%
-  \endgroup
+    \fontdimen2\font=\dimen0
+  \endgroup%
 }
 
 %% General math macros
