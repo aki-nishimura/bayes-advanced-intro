@@ -1601,6 +1601,7 @@ Gibbs sampling in general works well for conjugate models and has served as the 
 (\smallCap{bugs} = Bayesian inference Using Gibbs Sampling)\\
 (\smallCap{jags} = Just Another Gibbs Sampler)
 
+\pause
 \vspace*{9pt}
 %Non-conjugate conditionals can be dealt w/ Metropolis-within-Gibbs steps, but as we've seen, random-walk Metropolis can be inefficient.
 Metropolis is more widely applicable and can help Gibbs deal w/ non-conjugate conditionals, but as we've seen, can be inefficient.
@@ -1612,6 +1613,7 @@ Metropolis is more widely applicable and can help Gibbs deal w/ non-conjugate co
 \textbf{Question:} 
 Can we design a better proposal mechanism for Metropolis(-Hastings) than the random-walk one?
 
+\pause
 \medskip
 In designing a proposal, the two (often competing) desiderata are:%
 \begin{tightItemize}
@@ -1619,6 +1621,7 @@ In designing a proposal, the two (often competing) desiderata are:%
 \item sufficiently high acceptance rate to avoid rejections.
 \end{tightItemize}
 
+\pause
 \medskip
 \tightSpacing{%
 Turns out, Hamiltonian dynamics can be used generate proposals that are far away from the current state yet acceptable w/ high prob.
@@ -1633,12 +1636,14 @@ Originated in comp physics literature as \textit{hybrid} Monte Carlo for compute
 {\hfill \citep{duane1987hybrid_mc}}
 % Note: HMC may seem to come from nowhere, so a bit of history to help.
 
+\pause
 Two dominant simulation approaches then were:
 \begin{tightItemize}
 \item Monte Carlo simulation (i.e.\ Metropolis) w/ ``local'' moves, changing the state of one particle at a time.
 \item molecular dynamics simulation w/ ``global'' moves, numerically solving an \textit{equation of motion} (i.e.\ Hamiltonian dynamics).
 \end{tightItemize}
 
+\pause
 \medskip
 Hybrid Monte Carlo combined the efficiency of molecular dynamics w/ Metropolis algorithm to exactly sample from the target.
 \end{frame}
@@ -1675,6 +1680,7 @@ To draw from $\density(\bparam)$, \smallCap{hmc} introduces auxiliary \textit{mo
 
 We'll focus on the most classical and intuitive case $\bmass = \mass \bm{I}$.
 
+\pause%
 \medskip
 H\smallCap{mc} generates a proposal by simulating Hamiltonian dynamics whose evolution is governed by the differential equation
 \begin{equation*}
@@ -1688,6 +1694,7 @@ H\smallCap{mc} generates a proposal by simulating Hamiltonian dynamics whose evo
 \end{equation*}
 where $\potential = - \log \pi$ represents the \textit{potential energy} of the system.
 
+\pause%
 \medskip
 In the \smallCap{hmc} context, $\bparam$ is referred to as the \textit{position} (variable).
 
@@ -1708,13 +1715,15 @@ The equation describes a motion of a particle with mass $\mass$ under the potent
 \text{``mass $\times$ acceleration''}
 	&= \frac{\diff \bmomentum}{\diff t} 
 	= - \nabla \potential (\bparam) 
-	= \text{``force''}
+	= \text{``force''}.
 \end{aligned}
 \end{itemizedEquation*}
 
+\pause%
 \medskip
 Trajectory $\bparam(t)$ gets acceleration/``push'' toward lower values of $\potential$ or, equivalently, larger values of $\log \pi = - \potential$.
 
+\pause%
 \medskip
 Useful analogy is:
 
@@ -1733,6 +1742,7 @@ Here's a trajectory $\bparam(t)$ on 2D Gaussian with negative correlation:
 \end{figure}
 \vspace*{-.4\baselineskip}
 
+\pause%
 End point $\big( \bparam_\integTimeScript, - \bmomentum_\integTimeScript )$ for pre-specified $\integTime$ constitutes the proposal.
 
 In practice, the dynamics is usually approximated numerically.
@@ -1755,6 +1765,7 @@ Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
 		\}$.
 \end{tightEnumerate}
 
+\pause%
 \smallskip
 \tightSpacing{%
 You can also think of \hmc{} as defining a transition kernel in $\bparam$ only
@@ -1780,6 +1791,7 @@ as the refreshment step makes the previous momentum value irrelevant.
 
 If the dynamics can be simulated exactly, \hmc{} is rejection-free!
 
+\pause%
 \medskip
 This follows from the fact that \hmc{} proposals are 1) symmetric
 \begin{tightEquation*}
@@ -1812,6 +1824,7 @@ and 2) \textit{energy-conserving} under exact simulation
 \begin{frame}
 \frametitle{\frametitleText}
 Symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-preserving} property and \textit{time-reversibility}:
+% Note: Illustrative examples could be the China-Denmark pair (similar population density) and the Tokyo-Montana pair (similar land mass)
 \vspace*{-\baselineskip}
 \begin{figure}
 \centering
@@ -1836,6 +1849,7 @@ Symmetry of \hmc{} proposals stems from Hamiltonian dynamics' \textit{volume-pre
 
 \Hmc{} dynamics in general admits no analytical solutions and requires a numerical integration method to approximate it.
 
+\pause%
 \smallskip
 Basic principal behind numerical solution is that
 \begin{equation*}
@@ -1850,6 +1864,7 @@ Basic principal behind numerical solution is that
 	= - \nabla \potential(\bposition(t)),
 \end{aligned}
 \end{equation*}
+\pause%
 meaning the evolution from $t$ to $t + \stepsize$ can be approximated as
 \begin{equation*}
 \setlength{\abovedisplayskip}{.5\baselineskip}%
@@ -1885,6 +1900,7 @@ meaning the evolution from $t$ to $t + \stepsize$ can be approximated as
 	\end{array}
 	\end{itemizedEquation*}
 	
+\pause%
 \smallskip
 Taking $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps of size $\stepsize$ approximates the exact solution $(\bposition_0, \bmomentum_0) \to (\bposition_\integTimeScript, \bmomentum_\integTimeScript)$ up to an $O(\stepsize^2)$ error.
 \end{frame}
@@ -1895,9 +1911,11 @@ Taking $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ leapfrog steps o
 \frametitle{\frametitleText}
 Performance depends crucially on $\stepsize$ and $\integTime$ (or $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$).
 
+\pause%
 \medskip
 Let's first discuss a choice of $\integTime$, which is analogous to \smallCap{rwm}'s $\sigma_{\textrm{prop}}$ in controlling how far proposals are.
 
+\pause%
 \medskip
 But the two differ critically in that \hmc{} proposals can be far away but maintain high acceptance if leapfrog approx is accurate enough.
 \end{frame}
@@ -1942,9 +1960,13 @@ $\stepsize$ is chosen so that the approx one is close enough to the exact.
 \textit{No-U-turn} algorithm of \cite{hoffman2014nuts} automates tuning of $\integTime$, leaving $\stepsize$ as the only remaining tuning parameter.
 %\hfill (\citealt{hoffman2014nuts})
 
+\pause%
 \medskip
 Once $\stepsize$ is chosen small enough for good approx, further accuracy gain from smaller $\stepsize$ isn't worth the additional computational cost.
 
+(Think: with smaller $\stepsize$, you are generating qualitatively similar proposals, but just are spending more computational effort.)
+
+\pause%
 \medskip
 In other words, we want the acceptance rate high but not too high.
 \end{frame}
@@ -1953,9 +1975,11 @@ In other words, we want the acceptance rate high but not too high.
 \frametitle{\frametitleText}
 Optimal acceptance rate can be shown to be $\approx 0.651$ \citep{beskos2013optimal_hmc}, albeit for a not-so-realistic class of targets.
 
+\pause%
 \medskip
 In practice, \hmc{} can be quite sensitive to contours and tails of \\ the target, warranting higher acceptance rates like $0.8\,\text{--}\,0.99$.
 
+\pause%
 \medskip
 In Stan, you set the desired acceptance rate via \texttt{adapt\_delta};
 the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rstanarm}.
@@ -1973,11 +1997,13 @@ the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rst
 $\bmass$ can be tuned to help \hmc{} handle variations in parameters' scales.
 }%
 
+\pause%
 \medskip
 \Hmc{} in general samples more efficient from a target with less variations in the ``widths'' along different directions.
 
 For example, between $(\randVar_1, \randVar_2) \sim \normalDist(0, 10^2) \times \normalDist(0, 10^2)$ and $(\randVar_1, \randVar_2) \sim \normalDist(0, 1) \times \normalDist(0, 100^2)$, the former is easier for \hmc{}.
 
+\pause%
 \vspace*{9pt}
 While Stan automatically tunes $\bmass$, you can help it by manually pre-processing (re-scaling/-parametrizing) the model parameters.
 
@@ -1995,6 +2021,7 @@ For example in a linear regression model, standardizing the outcome and predicto
 %\caption*{\textcolor{themecolor}{Figure:}}
 
 Figure above illustrates Stan's strategy for tuning $\stepsize$ and $\bmass$: % Note: checked last time on Dec 2025
+\pause%
 \begin{tightItemize}
 \item Stage \textrm{I} and \textrm{III} only tune $\stepsize$, which is relatively quick;
 \item \tightSpacing{%
@@ -2009,12 +2036,15 @@ Figure above illustrates Stan's strategy for tuning $\stepsize$ and $\bmass$: % 
 \renewcommand{\frametitleText}{Advantage of \titleSmallCap{hmc}: a bit of theoretical analysis}
 \begin{frame}
 \frametitle{\frametitleText}
-``Ok, I see it got nice properties, but does it \textit{actually} work?''\! --- fair Q.
+``Ok, I see it got nice properties, but does it \textit{actually} work?'' 
+--- this is a fair, worthy question for you to ask.
 
+\pause%
 \medskip
 We can quantify relative performance btwn \hmc{} and \smallCap{rwm} on $\density(\bparam) = \prod_{j}^{\nParam} \density(\param_j)$ as $\nParam \to \infty$ (though this admittedly isn't realistic).\\
 {\hfill \citep{creutz1988global_monte_carlo, beskos2013optimal_hmc}}
 
+\pause%
 \medskip
 We'll find that, while each \hmc{} iteration costs more than \smallCap{rwm} one, the gain in mixing is well worth the extra per-iteration cost.
 \end{frame}
@@ -2027,10 +2057,11 @@ Each iteration costs
 \begin{tightItemize}
 \item one log-density evaluation ($\propto \nParam$ for $\density(\bparam) = \prod_{j}^{\nParam} \density(\param_j)$) for \smallCap{rwm};
 \item \tightSpacing{%
-	$\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ log-density + grad evaluations for \smallCap{hmc} (w/ $\integTime$ fixed).
+	$\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ log-density + grad evaluations for \smallCap{hmc} (for $\integTime$ fixed).
 	}%
 \end{tightItemize}
 
+\pause%
 \vspace*{1.5pt}
 Maintaining a constant acceptance rate (e.g.\ 0.23 or 0.65) requires
 \vspace*{-.1\baselineskip}%
@@ -2039,6 +2070,7 @@ Maintaining a constant acceptance rate (e.g.\ 0.23 or 0.65) requires
 \item $\stepsize \propto \nParam^{-1/4}$ for \smallCap{hmc}.
 \end{tightItemize}
 
+\pause%
 \vspace*{1.5pt}
 Traveling a unit distance requires
 \vspace*{-.1\baselineskip}%
@@ -2047,6 +2079,7 @@ Traveling a unit distance requires
 \item $\propto \nParam^{1/4}$ numerical integration steps for \smallCap{hmc}.
 \end{tightItemize}
 
+\pause%
 \vspace*{2pt}
 Grand total cost for one \smallCap{ess}: $O(\nParam^2)$ for \smallCap{rwm}; $O(\nParam^{5/4})$ for \hmc{}.
 \end{frame}
