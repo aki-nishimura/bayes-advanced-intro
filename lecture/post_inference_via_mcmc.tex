@@ -1594,7 +1594,9 @@ Stan uses an improved version by \cite{vehtari2021improved_rhat} based on ``rank
 \renewcommand{\frametitleText}{Why Hamiltonian Monte Carlo?}
 \begin{frame}
 \frametitle{\frametitleText}
+\tightSpacing{%
 Gibbs sampling in general works well for conjugate models and has served as the engine for early software packages like \smallCap{bugs} and \smallCap{jags}.
+}%
 
 (\smallCap{bugs} = Bayesian inference Using Gibbs Sampling)\\
 (\smallCap{jags} = Just Another Gibbs Sampler)
@@ -1618,7 +1620,9 @@ In designing a proposal, the two (often competing) desiderata are:%
 \end{tightItemize}
 
 \medskip
+\tightSpacing{%
 Turns out, Hamiltonian dynamics can be used generate proposals that are far away from the current state yet acceptable w/ high prob.
+}%
 \end{frame}
 
 
@@ -1752,8 +1756,10 @@ Given a current state $(\brandVar, \bMomentum)$, \hmc{} generates next state via
 \end{tightEnumerate}
 
 \smallskip
+\tightSpacing{%
 You can also think of \hmc{} as defining a transition kernel in $\bparam$ only
 as the refreshment step makes the previous momentum value irrelevant.
+}%
 
 \medskip
 {\centering
@@ -1960,7 +1966,9 @@ the default is 0.8 in \texttt{rstan} and 0.95 (occasionally 0.99) in \texttt{rst
 
 \begin{frame}
 \frametitle{\frametitleText}
+\tightSpacing{%
 $\bmass$ can be tuned to help \hmc{} handle variations in parameters' scales.
+}%
 
 \medskip
 \Hmc{} in general samples more efficient from a target with less variations in the ``widths'' along different directions.
@@ -1970,7 +1978,9 @@ For example, between $(\randVar_1, \randVar_2) \sim \normalDist(0, 10^2) \times 
 \vspace*{9pt}
 While Stan automatically tunes $\bmass$, you can help it by manually pre-processing (re-scaling/-parametrizing) the model parameters.
 
+\tightSpacing{%
 For example in a linear regression model, standardizing the outcome and predictors helps place the coefficients on comparable scales.
+}%
 \end{frame}
 
 
@@ -1983,8 +1993,10 @@ For example in a linear regression model, standardizing the outcome and predicto
 Figure above illustrates Stan's strategy for tuning $\stepsize$ and $\bmass$: % Note: checked last time on Dec 2025
 \begin{tightItemize}
 \item Stage \textrm{I} and \textrm{III} only tune $\stepsize$, which is relatively quick;
-\item Stage \textrm{II} tunes $\bmass$, along with $\stepsize$, over multiple memoryless windows;
+\item \tightSpacing{%
+	Stage \textrm{II} tunes $\bmass$, along with $\stepsize$, over multiple memoryless windows;
 	$\bmass$ from the last window is used in the sampling phase.
+	}%
 \end{tightItemize}
 
 \end{frame}
@@ -2010,7 +2022,9 @@ Each iteration costs
 \vspace*{-.1\baselineskip}%
 \begin{tightItemize}
 \item one log-density evaluation ($\propto \nParam$ for $\density(\bparam) = \prod_{j}^{\nParam} \density(\param_j)$) for \smallCap{rwm};
-\item $\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ log-density + grad evaluations for \smallCap{hmc} (w/ $\integTime$ fixed).
+\item \tightSpacing{%
+	$\numIntegStep = \lfloor \integTime / \stepsize \rfloor$ log-density + grad evaluations for \smallCap{hmc} (w/ $\integTime$ fixed).
+	}%
 \end{tightItemize}
 
 \vspace*{1.5pt}
