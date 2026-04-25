@@ -2094,5 +2094,39 @@ Above result pertains to performance in high dimensions, but \\
 \end{frame}
 
 
+\section{\centerline{Summary}}
+
+\begin{frame}
+\frametitle{Summary of ``Posterior inference via \titleSmallCap{mcmc}''}
+
+\Mcmc{} remains among the most reliable and versatile tools, with variational inference a popular alternative for point estimation. 
+
+Others available for specialized purposes or under active research.
+
+\pause%
+\vspace{10pt}
+Metropolis and Gibbs: the most widely used paradigms by existing packages, w/ \hmc{} being the general-purpose sampler of choice.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Summary of ``Posterior inference via \titleSmallCap{mcmc}''}
+
+Mixing and cost-per-iteration determine efficiency of \mcmc{}.
+
+E\smallCap{ss} can be used to characterize mixing (and Monte Carlo errors).
+
+\pause%
+\vspace{12pt}
+\Mcmc{} requires initial burn-in and, often, tuning iterations. 
+
+\vspace{1.5pt}
+\Hmc{} is powerful yet also delicate;
+Stan has automated tuning and hid details to the extent possible, but some user discretion and occasional manual interventions (e.g.\ reparametrization) warranted.
+\end{frame}
+
+
+
 \nobibliography{references} % To cite inline without creating a bibliography
 \end{document}
