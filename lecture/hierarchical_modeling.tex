@@ -1039,11 +1039,15 @@ And existing software packages like \texttt{brms} (Bayesian regression models us
 \medskip
 Inference on $\bbeta$ generally isn't sensitive to a choice of prior, so weak/uninformative priors are fine, including the flat prior $\density(\bbeta) \propto 1$.
 
+\tightSpacing[.48ex]{%
 Residual cov $\bm{R}$ is often modeled as diagonal or $\sigma_\mathrm{res}^2 \Id$, the idea being that correlation in $\by$ has been captured by the random effect term $\bZ \bm{\randEff}$.
+}%
 
 \medskip
+\tightSpacing[.48ex]{%
 The remaining question is how to choose a prior for $\bm{\RandEffVar}$;
 let's start by studying how it affects the posterior behavior in a simple case of \smallCap{lmm}.
+}%
 \end{frame}
 
 \renewcommand{\frametitleText}{Prior on hierarchical variances: case study}
@@ -1148,8 +1152,10 @@ As $\sigma_\mathrm{grp} \to \infty$, we have
 The posterior is improper ($\int_0^\infty \density( \sigma_\mathrm{grp} \given \by ) \diff \sigma_\mathrm{grp} = \infty$) unless $J \geq 3$.
 
 \medskip
+\tightSpacing[.5ex]{%
 This makes an intuitive sense as we need $J \geq 2$ to estimate variance among $\mu_j$'s. 
 And, as $\mu_j$'s are only indirectly observed, we need $J > 2$.
+}%
 \end{frame}
 
 \begin{frame}
@@ -1176,7 +1182,9 @@ the posterior is always improper!
 \frametitle{\frametitleText}
 Shortcoming of the priors $\thinnerspace \density( \sigma_{\textrm{grp}} ) \propto 1 \thinnerspace$ and $\thinnerspace \density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}}$ reflects that $\sigma_{\textrm{grp}}$ is only weakly identifiable from data, esp.\ when $J$ is small.
 
+\tightSpacing[.525ex]{%
 Also reflects how ``uninformative'' priors are unexpectedly informative --- they tend to place a lot of prior prob on unrealistic param values.
+}%
 
 \medskip
 To see the issue, note how $\density( \sigma_\mathrm{grp} ) \propto 1$ places ``infinitely more prior belief'' on $\sigma_\mathrm{grp} > r$ than  $\sigma_\mathrm{grp} \leq r$ regardless of how large $r$ is b/c
@@ -1250,7 +1258,7 @@ H & 12  & 18 \\
 
 \begin{frame}
 \frametitle{\frametitleText}
-Heavy-tailed distributions might look fine visually, but don't be fooled by appearance --- it can have real negative impacts on inference:
+Heavy-tailed distribution might look fine visually, but don't be fooled by appearance --- it can have real negative impacts on inference:
 \vspace*{-1.7\baselineskip}
 \begin{figure}
 \centering
