@@ -1070,6 +1070,7 @@ As pointed out previously, the only additional piece needed for Bayesian inferen
 
 And existing software packages like \texttt{brms} (Bayesian regression models using Stan) make the posterior computation straightforward. 
 
+\pause
 \medskip
 Inference on $\bbeta$ generally isn't sensitive to a choice of prior, so weak/uninformative priors are fine, including the flat prior $\density(\bbeta) \propto 1$.
 
@@ -1077,6 +1078,7 @@ Inference on $\bbeta$ generally isn't sensitive to a choice of prior, so weak/un
 Residual cov $\bm{R}$ is often modeled as diagonal or $\sigma_\mathrm{res}^2 \Id$, the idea being that correlation in $\by$ has been captured by the random effect term $\bZ \bm{\randEff}$.
 }%
 
+\pause
 \medskip
 \tightSpacing[.48ex]{%
 The remaining question is how to choose a prior for $\bm{\RandEffVar}$;
@@ -1099,6 +1101,7 @@ y_{ij} \given \mu_j
 \end{tightEquation*}
 for $\thinnerspace i = 1, \ldots, \sampleSize_j \thinnestspace$ and $\thinnerspace j = 1, \ldots, J$. 
 
+\pause
 \medskip
 Consider two seemingly reasonable ``uninformative'' priors on $\sigma_{\textrm{grp}}$:
 \begin{tightEnumerate}
@@ -1106,6 +1109,7 @@ Consider two seemingly reasonable ``uninformative'' priors on $\sigma_{\textrm{g
 \item $ \density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}}$, which is the Jeffrey's/reference prior for scale families and is equivalent to $\thinnerspace \density( \log \sigma_{\textrm{grp}} ) \propto 1 \thinnerspace$ on $\thinnerspace (-\infty, \infty)$.
 \end{tightEnumerate}
 
+\pause
 As it turns out, both choices are problematic.
 \end{frame}
 
@@ -1138,6 +1142,7 @@ $\thinnerspace
 	+ \sum_{j} n_j ( \bar{y}_{j} - \mu_j )^2
 $.
 
+\pause
 \bigskip
 For the purpose of estimating $\sigma_\mathrm{grp}$, the model is thus equivalent to
 \begin{tightEquation*}
@@ -1149,6 +1154,7 @@ For the purpose of estimating $\sigma_\mathrm{grp}$, the model is thus equivalen
 		\sigma_{\textrm{grp}}^2
 	).
 \end{tightEquation*}
+\pause%
 Marginalizing over $\mu_j$'s, therefore, we obtain 
 \begin{tightEquation*}
 \bar{y}_{j} \given \sigma_{\textrm{grp}} 
@@ -1175,6 +1181,7 @@ Under the flat prior $\thinnerspace \density(\sigma_\mathrm{grp}) \propto 1$, th
 		\right).
 \end{tightEquation*}
 
+\pause%
 As $\sigma_\mathrm{grp} \to \infty$, we have
 %For $\thinnerspace \sigma_\mathrm{grp} \gg \sigma^2 / n_j$, we have
 \begin{tightEquation*}
@@ -1183,12 +1190,14 @@ As $\sigma_\mathrm{grp} \to \infty$, we have
 	\sim \frac{1}{\sigma_\mathrm{grp}^{J}}.
 \end{tightEquation*}
 
+\pause%
 The posterior is improper ($\int_0^\infty \density( \sigma_\mathrm{grp} \given \by ) \diff \sigma_\mathrm{grp} = \infty$) unless $J \geq 3$.
 
+\pause%
 \medskip
 \tightSpacing[.5ex]{%
-This makes an intuitive sense as we need $J \geq 2$ to estimate variance among $\mu_j$'s. 
-And, as $\mu_j$'s are only indirectly observed, we need $J > 2$.
+This makes intuitive sense: we need $J \geq 2$ to estimate variance among $\mu_j$'s
+and, as they are only indirectly observed, we need $J > 2$.
 }%
 \end{frame}
 
@@ -1206,6 +1215,7 @@ is
 $\thinnerspace \likelihood( \by \given \sigma_\mathrm{grp} = 0) > 0$;
 i.e.\ can't eliminate the possibility of $\sigma_\mathrm{grp} = 0$.
 
+\pause%
 \medskip
 Under the prior 
 $\density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}} $,
@@ -1216,10 +1226,12 @@ the posterior is always improper!
 \frametitle{\frametitleText}
 Shortcoming of the priors $\thinnerspace \density( \sigma_{\textrm{grp}} ) \propto 1 \thinnerspace$ and $\thinnerspace \density( \sigma_{\textrm{grp}} ) \propto 1 / \sigma_{\textrm{grp}}$ reflects that $\sigma_{\textrm{grp}}$ is only weakly identifiable from data, esp.\ when $J$ is small.
 
+\pause%
 \tightSpacing[.525ex]{%
 Also reflects how ``uninformative'' priors are unexpectedly informative --- they tend to place a lot of prior prob on unrealistic param values.
 }%
 
+\pause%
 \medskip
 To see the issue, note how $\density( \sigma_\mathrm{grp} ) \propto 1$ places ``infinitely more prior belief'' on $\sigma_\mathrm{grp} > r$ than  $\sigma_\mathrm{grp} \leq r$ regardless of how large $r$ is b/c
 \begin{tightEquation*}
@@ -1228,6 +1240,7 @@ To see the issue, note how $\density( \sigma_\mathrm{grp} ) \propto 1$ places ``
 	\int_r^\infty \density( \sigma_\mathrm{grp} ) \diff \sigma_\mathrm{grp} = \infty.
 \end{tightEquation*}
 
+\pause%
 Similarly, $\density( \sigma_\mathrm{grp} ) \propto 1 / \sigma_\mathrm{grp}$ places infinitely more prior belief on 
 %$\sigma_\mathrm{grp} < r^{-1}$ and $\sigma_\mathrm{grp} > r$ than on $r^{-1} \leq \sigma_\mathrm{grp} \leq r$.
 $\sigma_\mathrm{grp} \in [0, r^{-1}) \cup (r, \infty) \thinnerspace$ than on $\thinnerspace \sigma_\mathrm{grp} \in [r^{-1}, r]$.
@@ -1326,6 +1339,7 @@ Across-group variances for random effects warrant proper, (weakly) informative p
 \end{figure}
 \vspace{-.6\baselineskip}
 %(, and hyperparameters in hierarchical models)
+\pause%
 This is also true for more complex random effect models and, \\more generally, hyperparameters in hierarchical models:
 \vspace{-.5\baselineskip}
 \begin{figure}
@@ -1338,7 +1352,7 @@ This is also true for more complex random effect models and, \\more generally, h
 
 
 \newcommand{\corrMat}{\bm{\Gamma}}
-\renewcommand{\frametitleText}{Prior on variance of random effects}
+\renewcommand{\frametitleText}{Default prior on variance of \titleSmallCap{(G)LLM} random effects}
 \begin{frame}
 \frametitle{\frametitleText}
 More generally, for the \smallCap{lmm}
@@ -1354,10 +1368,12 @@ More generally, for the \smallCap{lmm}
 \end{tightEquation*}
 how to choose a prior on $\bm{\RandEffVar}$ (beyond the case $\bZ = \bindicator$, $\bm{\RandEffVar} = \sigma_\mathrm{grp}^2 \Id$)?
 
+\pause%
 \smallskip
 In the absence of structural info, a reasonable prior on $\bm{\RandEffVar}$ can be built from the \textit{\smallCap{LKJ} distribution} for correlation matrices.\\
 \hfill (\smallCap{LKJ} = Lewandowski-Kurowicka-Joe)
 
+\pause%
 \smallskip
 More precisely, we parametrize as 
 $ \randEffVar_{ij} = \sigma_i \sigma_j \rho_{ij} $
@@ -1371,7 +1387,7 @@ Priors on $\sigma_i$ can be chosen e.g.\ as $\operatorname{Student}^+(\mathrm{df
 \begin{frame}
 \frametitle{\frametitleText}
 L\smallCap{KJ} prior is reasonable in a sense that it 
-\begin{tightItemize}
+\begin{tightItemize}[<+->]
 \item has the identity matrix as its mean;
 \item is uniform on the space of correlation matrices when $\eta = 1$;
 \item has marginal $\randEffVar_{ij} \sim 2 \thinspace \betaDist \!\left( \eta - 1 + \frac{\nRandEff}{2},  \eta - 1 + \frac{\nRandEff}{2} \right) - 1$, mildly shrinking towards zero correlations as the matrix size $\nRandEff$ grows.
