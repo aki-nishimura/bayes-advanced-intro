@@ -76,7 +76,9 @@
 
 % Lecture-specific macros
 \newcommand{\randEff}{u}
+\newcommand{\randEffVar}{D}
 \newcommand{\RandEffVar}{\bm{D}}
+\newcommand{\nRandEff}{q}
 \newcommand{\bZ}{\bm{Z}}
 \newcommand{\bindicator}{\scalebox{1.3}[1.1]{$\mathds{1}\mskip-.2\thinmuskip$}}
 \newcommand{\smallcapSubscr}[1]{{\scriptsize \text{\tiny \rmfamily #1}}}
@@ -156,6 +158,7 @@ We saw that this hierarchical structure yields shrinkage estimator:
 		\frac{1}{\phi + \phi_\mathrm{grp}}
 	\right),
 \end{tightEquation*}
+\pause%
 where plugging in the maximizer $\hat{\phi}_\mathrm{grp}$ of the marginal likelihood
 \begin{tightEquation*}
 \likelihood(\by \given \phi_{\mathrm{grp}})
@@ -164,6 +167,7 @@ where plugging in the maximizer $\hat{\phi}_\mathrm{grp}$ of the marginal likeli
 \end{tightEquation*}
 for $\phi_{\mathrm{mg}}^{-1} = \phi^{-1} + \phi_{\mathrm{grp}}^{-1}$ yielded a near-frequentist-optimal answer.
 
+\pause%
 \vspace*{9pt}
 Fully Bayesian inference is obtained by placing a prior on $\phi_\mathrm{grp}$ and integrating over $\density( \phi_\mathrm{grp} \given \by )$ (for which you can now utilize \mcmc{}).
 \end{frame}
@@ -173,6 +177,7 @@ Fully Bayesian inference is obtained by placing a prior on $\phi_\mathrm{grp}$ a
 \frametitle{\frametitleText}
 Let's consider a slightly more general random intercept model.
 
+\pause%
 We start by reinterpreting the previous one as a group-mean model where each of the groups $\thinnerspace j = 1, \ldots, J \thinnestspace$ has one member:
 \begin{tightEquation*}
 y_j \given \mu_j
@@ -199,6 +204,7 @@ y_{\highlight{i}j} \given \mu_j
 		\sigma_{\textrm{grp}}^2
 	),
 \end{tightEquation*}
+\pause%
 or equivalently in a regression model language,
 \begin{tightEquation*}
 y_{ij} 
@@ -213,6 +219,7 @@ y_{ij}
 	).
 \end{tightEquation*}
 
+\pause%
 \smallskip
 The group-mean model can also be written in a ``tall'' format as
 \begin{tightEquation*}
@@ -222,6 +229,7 @@ y_{i} \given \bm{\mu} % \mu_1, \ldots, \mu_J
 	\textstyle i = 1, \ldots, \sum_{j = 1}^J n_j,
 \end{tightEquation*}
 where $j(i)$ indicates the membership of the $i$th observation $y_i$.\\
+\pause%
 Or as a regression model, with a $\bigl( \sum_{j = 1}^J n_j \bigr)$-by-$J$ binary matrix $\indicator$,
 \begin{tightEquation*}
 \by 
@@ -272,16 +280,14 @@ Or as a regression model, with a $\bigl( \sum_{j = 1}^J n_j \bigr)$-by-$J$ binar
 }%
 \begin{frame}
 \frametitle{\frametitleText}
+\vspace{-2pt}
 Model hierarchy can consist of more levels.
+\vspace{2pt}
 
-As explored later, in the regression context, hierarchical modeling also coincides with \textit{(generalized) linear mixed-effects modeling}.
-\end{frame}
-
-
-\begin{frame}
-\frametitle{\frametitleText}
+\pause%
 Say we wanna estimate median household incomes $\mu_z^\mathrm{zp}$ at the zip code level (e.g.\ $z = \text{21205}$) across \smallCap{us} from census data $(y_z^\mathrm{zp}, \hat{\sigma}_z^\mathrm{zp})$.
 
+\pause%
 \smallskip
 \tightSpacing{Raw est $\thinnerspace\hat{\mu}_z^\mathrm{zp} = y_z^\mathrm{zp}$ could be noisy for zip codes w/\! small sample sizes,}
 so we might \textit{borrow information} across counties and states via
@@ -370,6 +376,7 @@ $\bm{\mu}^\mathrm{co} \!\in \mathbb{R}^{3,244}$, % including county equivalents
 $\bm{\mu}^\mathrm{st} \!\in \mathbb{R}^{50}$ 
 have underlying distributions centered at the county, state, and national averages. 
 
+\pause%
 \vspace*{4pt}
 User-specified prior on $\mu^\mathrm{us}, \sigma^\mathrm{co}, \sigma^\mathrm{st}, \sigma^\mathrm{us}$ completes the model with
 \begin{tightEquation*}
@@ -424,8 +431,9 @@ User-specified prior on $\mu^\mathrm{us}, \sigma^\mathrm{co}, \sigma^\mathrm{st}
 \end{minipage}
 \begin{minipage}[t][.4\paperheight]{\linewidth}
 \vspace*{-.125\baselineskip}
-\fontdimen2\font=2.75pt
+\tightSpacing[2.75pt]{%
 Can be viewed as a way to induce structured correlation among $\thinnerspace y_z^\mathrm{zp}$.
+}%
 
 \smallskip
 Marginalizing over $\bigl( \bm{\mu}^\mathrm{zp}, \bm{\mu}^\mathrm{co}, \bm{\mu}^\mathrm{st} \bigr)$, the model can be expressed as
@@ -531,19 +539,25 @@ $\, \epsilon_z \sim \normalDist(0, 1)$.
 \frametitle{\frametitleText}
 Note that the mixed-effect model can also be written as
 \begin{tightEquation*}
+\setlength{\abovedisplayskip}{.6\baselineskip}
 \begin{aligned}
 y_z^\mathrm{zp} 
 	&= \mu^\mathrm{us}
 	+ \sum_{s'} \indicator_{ \{ s(c(z)) = s' \} } \randEff^\mathrm{st}_{s'} 
 	+ \sum_{c'} \indicator_{ \{ c(z) = c' \} } \randEff^\mathrm{co}_{c'} 
 	+ \hat{\sigma}^\mathrm{zp}_z \epsilon_z \\
+	\stepcounter{beamerpauses}%
+	\uncover<\value{beamerpauses}->{%
 	&= \mu^\mathrm{us} 
 	+ \bindicator^\mathrm{st}_z \bm{\randEff}^\mathrm{st}
 	+ \bindicator^\mathrm{co}_z \bm{\randEff}^\mathrm{co}
 	+ \hat{\sigma}^\mathrm{zp}_z \epsilon_z.
+	}%
 \end{aligned}
 \end{tightEquation*}
+%\addtocounter{beamerpauses}{-1}%
 
+\pause
 So the model in matrix form is given as:
 \begin{tightEquation*}
 \by^\mathrm{zp} 
@@ -562,12 +576,13 @@ $\thinnerspace \bm{\epsilon}^\mathrm{zp} \negthinnerspace
 	\sim \normalDist(\bm{0}, \hat{\bSigma}^\mathrm{zp})$;
 $\thinnerspace \bindicator^\mathrm{st} \!\in \mathbb{R}^{41,552 \times 50}$ and $\bindicator^\mathrm{co} \!\in \mathbb{R}^{41,552  \times 3,244} \thinnerspace$ are binary design matrices.
 
+\pause
 \smallskip
 The hierarchical mean model is thus a special case of:
 \begin{tightEquation*}
 ``\by
 	= \bX \bbeta
-	+ \bm{Z} \bm{\randEff} 
+	+ \bZ \bm{\randEff} 
 	+ \bm{\epsilon}."
 \end{tightEquation*}
 \end{frame}
@@ -590,6 +605,7 @@ Linear mixed effect model (\smallCap{lmm}) assumes a model
 \end{tightEquation*}
 where $\bbeta$ is a \textit{fixed} effect, $\thinnestspace \bm{\randEff} \sim \normalDist(\bm{0}, \RandEffVar)$ is a \textit{random} effect, and $\bm{\epsilon} \sim \normalDist(\bm{0}, \bm{R})$ is an error term.
 
+\pause%
 \medskip
 Random effects are called as such b/c their values are assumed to be drawn from some distribution, rather than unknown-but-fixed values.
 \end{frame}
@@ -638,6 +654,7 @@ In hierarchical modeling language, \smallCap{lmm} can be expressed as
 \end{tightEquation*}
 where we've abbreviated explicit conditioning on observed $\bX$ and $\bZ$.
 
+\pause
 \medskip
 Note that 
 $\thinnerspace \bZ \bm{\randEff} 
@@ -657,6 +674,7 @@ and hence
 	\bigr).
 \end{tightEquation*}
 
+\pause
 So, after integrating out $\bm{\randEff}$, \smallCap{lmm} is given in its marginal form as
 \begin{tightEquation*}
 \by 
@@ -695,6 +713,7 @@ The (marginal) \smallCap{lmm} likelihood is thus given by, up to additive const,
 	- \frac12 (\by - \bX \bbeta)^\transpose \bm{V}^{-1} (\by - \bX \bbeta).
 \end{tightEquation*}
 
+\pause
 \smallskip
 If $\bm{V}$ were known, 
 %we can obtain the \smallCap{MLE} of $\bbeta$ as 
@@ -709,6 +728,7 @@ and quantify uncertainty as, noting that $\variance\bigl( \by \, | \, \widehat{\
 	= (\bX^\transpose \bm{V}^{-1} \bX)^{-1}.	
 \end{tightEquation*}
 
+\pause
 Given this, we could estimate $\bm{V}$ by maximizing 
 $\thinnerspace \log \likelihood (
 	\by 
@@ -723,9 +743,11 @@ and then estimate $\bbeta$ by plugging in $\mle{\bm{V}}$ to the formula for $\ls
 \frametitle{\frametitleText}
 The above maximum likelihood approach turns out sub-optimal as it doesn't account for the degrees of freedom spent on estimating $\bbeta$. 
 
+\pause
 \smallskip
 In particular, $\mle{\bm{V}}$ (and hence $\variance( \lse{\bbeta} \given \mle{\bm{V}} )$) underestimates the true variance as a consequence of ignoring uncertainty in $\lse{\bbeta}$.
 
+\pause
 \smallskip
 This variance underestimation could also have downstream impacts, e.g. on the best linear unbiased prediction of the random effect $\bm{\randEff}$ via%
 \begin{tightEquation*}
@@ -757,6 +779,7 @@ Alternative that avoids the variance underestimation is the \textit{restricted m
 \end{aligned}
 \end{tightEquation*}
 
+\pause
 \medskip
 As we show now, it turns out \smallCap{reml} admits a Bayesian interpretation, which provides an insight as to why it might be preferable to \smallCap{ml}.
 \end{frame}
@@ -779,6 +802,7 @@ the residual $\thinnerspace \by - \bX \widehat{\bbeta}_\mathrm{ols}$ for $\thinn
 So, the \smallCap{mle} underetimates $\bm{V}$ due to ignoring uncertainty in $\lse{\bbeta}$.\\
 How would a Bayesian deal with such issues? Integrate out $\bbeta$!
 
+\pause
 \smallskip
 In other words, rather than considering 
 $\likelihood(
@@ -794,6 +818,7 @@ conditional on $\widehat{\bbeta}$, we should marginalize (i.e.\ average the like
 	\diff \bbeta.
 \end{tightEquation*}
 
+\pause
 The marginal likelihood requires a specification of the prior $\density(\bbeta)$; \\
 to avoid a subjective choice, let's consider using a flat prior $\density(\bbeta) \propto 1$.
 
@@ -814,9 +839,9 @@ More precisely, we will show that
 \newcommand{\densityWidth}{w}
 \begin{frame}
 \frametitle{\frametitleText}
-
 \textbf{Note:} For the purpose of estimating $\bm{V}$, the use of the flat prior can be justified as a limit under $\thinnerspace \beta_j \iidSim \unifDist(-\densityWidth/2, \densityWidth/2)$ as $\densityWidth \to \infty$.
 
+\pause
 \smallskip
 While the marginal likelihood itself doesn't make sense b/c
 \begin{tightEquation*}
@@ -884,6 +909,7 @@ amounts to showing
 \end{aligned}
 \end{tightEquation*}
 
+\pause
 \medskip
 To establish the above equality, let $\thinnerspace \| \bm{v} \|_{\bm{V}^{-1}}^2 \defeq \bm{v}^\transpose \bm{V}^{-1} \bm{v} \thinnerspace$ and\\ note that ``completing the square''/``Pythagorian theorem'' tells us 
 \begin{equation*}
@@ -915,6 +941,7 @@ This means that
 \end{aligned}
 \end{tightEquation*}
 
+\pause
 \vspace*{-.2\baselineskip}
 Noting
 $\thinnerspace \big\| \bX \lse{\bbeta} - \bX \bbeta \big\|_{\bm{V}^{-1}}^2  \negthinnerspace = (\lse{\bbeta} - \bbeta)^\transpose \bX^\transpose \bm{V}^{-1} \bX (\lse{\bbeta} - \bbeta) \thinnerspace$
@@ -930,6 +957,7 @@ and%
 	&\hspace*{2em}= (2 \pi)^{\frac{\nPred}{2}} | \bX^\transpose \bm{V}^{-1} \bX |^{-\frac12},
 \end{aligned}
 \end{tightEquation*}
+\pause%
 we can conclude
 \begin{tightEquation*}
 \begin{aligned}
@@ -962,13 +990,16 @@ under the flat prior $\thinnerspace \density(\bbeta) \propto 1$.
 
 %From this perspective, it is unsurprising that the resulting estimator of $\bm{V}$ avoids the underestimation caused when maximizing $\likelihood(\by \given \lse{\bbeta}, \bm{V})$.
 
+\pause
 \medskip
 Yet another example of Bayesian thinking yielding a procedure with provable frequentist properties;
 implications for (non-)Bayesians are:%
+\pause%
 \vspace{-.3\baselineskip}%
 \begin{itemize}
 \addtolength\itemsep{.08\baselineskip}
 \item When faced with complex and/or limited data, consider full Bayes, w/ confidence, for practical (not philosophical) reasons.
+\pause%
 \item When Bayes makes less sense, whether for computational or political reasons, it might still help you devise a useful procedure.\\[3pt]
 	\mbox{(e.g.\ Classical \smallCap{reml} derivations are rather involved and opaque.)}
 \end{itemize}
@@ -978,8 +1009,9 @@ implications for (non-)Bayesians are:%
 \renewcommand{\frametitleText}{Bayesian estimation framework}
 \begin{frame}
 \frametitle{\frametitleText}
-Bayesian inference of \smallCap{lmm} is straightforward.
+Bayesian inference of \smallCap{lmm} is conceptually straightforward.
 
+\pause%
 \smallskip
 The hierarchical model
 \begin{tightEquation*}
@@ -1003,11 +1035,12 @@ dictates the likelihood
 $\thinnerspace 
 \likelihood(\by, \bm{\randEff} \given \bbeta, \bm{\RandEffVar}, \bm{R}) 
 	= \likelihood(\by \given \bbeta, \bm{\randEff}, \bm{R}) 
-		\likelihood(\bm{\randEff} \given \bm{\RandEffVar}) $; 
+		\likelihood(\bm{\randEff} \given \bm{\RandEffVar}) $;
 you only need to specify a prior on 
 $\thinnerspace \bbeta, \bm{\RandEffVar}, \bm{R} \thinnerspace$ 
 and apply Bayes' rule.
 
+\pause%
 \smallskip
 And the posterior 
 $\thinnerspace
@@ -1020,6 +1053,7 @@ $\thinnerspace
 	\density(\bbeta, \bm{\RandEffVar}, \bm{R})$
 \tightSpacing[.48ex]{gives all you need for point estimation, uncertainty quantification, etc.}
 
+\pause%
 \smallskip
 Prior specification, especially for $\bm{\RandEffVar}$, warrants some thoughts;\\
 we'll discuss key considerations and provide practical guidance.
@@ -1270,7 +1304,10 @@ Heavy-tailed distribution might look fine visually, but don't be fooled by appea
 \renewcommand{\frametitleText}{Prior on hierarchical variances: takeaway}
 \begin{frame}
 \frametitle{\frametitleText}
+Across-group variances for random effects warrant proper, (weakly) informative priors, esp.\ when the numbers of groups are small.
+\vspace{-.3\baselineskip}
 \begin{figure} 
+\scalebox{0.9}{%
 \begin{tikzpicture}
   % Define nodes
   \node[obs] (y) {$y_{ij}\!$};
@@ -1285,11 +1322,60 @@ Heavy-tailed distribution might look fine visually, but don't be fooled by appea
   % Plates
   \plate [inner sep=.3cm, yshift=.15cm] {caption} {(y)(mu) (muRight)} {$i = 1, \ldots, n_j\!$} ;
 \end{tikzpicture}
+}%
+\end{figure}
+\vspace{-.6\baselineskip}
+%(, and hyperparameters in hierarchical models)
+This is also true for more complex random effect models and, \\more generally, hyperparameters in hierarchical models:
+\vspace{-.5\baselineskip}
 \begin{figure}
 \centering
+\scalebox{0.9}{%
 \zipcodeLevelModelDAG
+}%
 \end{figure}
-\end{figure}
+\end{frame}
+
+
+\newcommand{\corrMat}{\bm{\Gamma}}
+\renewcommand{\frametitleText}{Prior on variance of random effects}
+\begin{frame}
+\frametitle{\frametitleText}
+More generally, for the \smallCap{lmm}
+\begin{tightEquation*}
+\begin{aligned}
+\by = \bX \bbeta + \bZ \bm{\randEff} + \bm{\epsilon}
+\ \text{ with } \,
+\bm{\randEff}
+	\sim \normalDist\bigl(
+		\bm{0}, \RandEffVar
+	\bigr),
+\end{aligned}
+\end{tightEquation*}
+how to choose a prior on $\bm{\RandEffVar}$ (beyond the case $\bZ = \bindicator$, $\bm{\RandEffVar} = \sigma_\mathrm{grp}^2 \Id$)?
+
+\smallskip
+In the absence of structural info, a reasonable prior on $\bm{\RandEffVar}$ can be built from the \textit{\smallCap{LKJ} distribution} for correlation matrices.\\
+\hfill (\smallCap{LKJ} = Lewandowski-Kurowicka-Joe)
+
+\smallskip
+More precisely, we parametrize as 
+$ \randEffVar_{ij} = \sigma_i \sigma_j \rho_{ij} $
+and place on $[\rho_{ij}]_{i, j}$ the \smallCap{LKJ} prior w/ shape param $\eta$ ($= 1$ providing \texttt{brms} default).
+
+Priors on $\sigma_i$ can be chosen e.g.\ as $\operatorname{Student}^+(\mathrm{df} = 3)$ (\texttt{brms} default).\\
+\hfill \citep{burkner2017brms}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\frametitleText}
+L\smallCap{KJ} prior is reasonable in a sense that it 
+\begin{tightItemize}
+\item has the identity matrix as its mean;
+\item is uniform on the space of correlation matrices when $\eta = 1$;
+\item has marginal $\randEffVar_{ij} \sim 2 \thinspace \betaDist \!\left( \eta - 1 + \frac{\nRandEff}{2},  \eta - 1 + \frac{\nRandEff}{2} \right) - 1$, mildly shrinking towards zero correlations as the matrix size $\nRandEff$ grows.
+\end{tightItemize}
 \end{frame}
 
 \nobibliography{references} % To cite inline without creating a bibliography
